@@ -1,4 +1,4 @@
-package password_domain
+package authentication_domain
 
 import (
 	user_domain "github.com/ucho456job/pocgo/internal/domain/user"

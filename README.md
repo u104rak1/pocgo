@@ -15,11 +15,11 @@ DELETE User
 口座リソース
 GET
 POST
-PATCH /api/v1/users/{user_id}/accounts/{account_id}
+PATCH /api/v1/me/accounts/{account_id}
 DELETE
 
 取引リソース
-POST /api/v1/users/{user_id}/accounts/{account_id}/transactions
+POST /api/v1/me/accounts/{account_id}/transactions
 {
   "operation": "deposit",
   "amount": 1000

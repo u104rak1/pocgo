@@ -1,19 +1,17 @@
 package account_domain
 
-import "errors"
-
-var (
-	ErrInvalidID             = errors.New("invalid account id")
-	ErrPasswordInvalidLength = errors.New("account password must be 4 characters")
-	ErrNegativeAmount        = errors.New("amount cannot be negative")
-	ErrUnsupportedCurrency   = errors.New("unsupported currency")
-	ErrDifferentCurrency     = errors.New("different currency")
-	ErrInsufficientFunds     = errors.New("insufficient funds")
-)
-
-func IsValidID(id string) error {
+func validID(id string) error {
 	if id == "" {
 		return ErrInvalidID
+	}
+	return nil
+}
+
+func validName(name string) error {
+	const nameMinLength = 1
+	const nameMaxLength = 10
+	if len(name) < nameMinLength || len(name) > nameMaxLength {
+		return ErrInvalidAccountName
 	}
 	return nil
 }
@@ -26,20 +24,15 @@ func validPassword(password string) error {
 	return nil
 }
 
-func validAmount(amount int) error {
+func validAmount(amount float64) error {
 	if amount < 0 {
 		return ErrNegativeAmount
 	}
 	return nil
 }
 
-type Currency string
-
-const (
-	JPY Currency = "JPY"
-)
-
-func validCurrency(currency Currency) error {
+func validCurrency(currency string) error {
+	JPY := "JPY"
 	if currency != JPY {
 		return ErrUnsupportedCurrency
 	}

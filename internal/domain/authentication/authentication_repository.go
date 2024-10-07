@@ -1,4 +1,4 @@
-package password_domain
+package authentication_domain
 
 import "context"
 
