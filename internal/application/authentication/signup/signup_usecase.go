@@ -2,97 +2,75 @@ package signup_usecase
 
 import (
 	"context"
-	"time"
 
+	accountUC "github.com/ucho456job/pocgo/internal/application/account"
 	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
-	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
+	userUC "github.com/ucho456job/pocgo/internal/application/user"
 	authenticationDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
 type ISignupUsecase interface {
-	Run(ctx context.Context, cmd SignupCmd) (*SignupDTO, error)
+	Run(ctx context.Context, cmd SignupCommand) (*SignupDTO, error)
 }
 
 type signupUsecase struct {
-	accountRepo               accountDomain.IAccountRepository
-	authenticationRepo        authenticationDomain.IAuthenticationRepository
-	userRepo                  userDomain.IUserRepository
-	accessTokenService        authenticationDomain.AccessTokenService
-	verifyEmailUniquenessServ userDomain.VerifyEmailUniquenessService
-	unitOfWork                unitofwork.IUnitOfWork
+	createUserUC    userUC.ICreateUserUsecase
+	createAccountUC accountUC.ICreateAccountUsecase
+	accessTokenServ authenticationDomain.AccessTokenService
+	unitOfWork      unitofwork.IUnitOfWorkWithResult[*SignupDTO]
 }
 
 func NewSignupUsecase(
-	accountRepo accountDomain.IAccountRepository,
-	authenticationRepo authenticationDomain.IAuthenticationRepository,
-	userRepo userDomain.IUserRepository,
-	accessTokenService authenticationDomain.AccessTokenService,
-	isEmailDuplicateServ userDomain.VerifyEmailUniquenessService,
-	unitOfWork unitofwork.IUnitOfWork,
+	createUserUC userUC.ICreateUserUsecase,
+	createAccountUC accountUC.ICreateAccountUsecase,
+	accessTokenServ authenticationDomain.AccessTokenService,
+	unitOfWork unitofwork.IUnitOfWorkWithResult[*SignupDTO],
 ) ISignupUsecase {
 	return &signupUsecase{
-		accountRepo:               accountRepo,
-		authenticationRepo:        authenticationRepo,
-		userRepo:                  userRepo,
-		accessTokenService:        accessTokenService,
-		verifyEmailUniquenessServ: isEmailDuplicateServ,
-		unitOfWork:                unitOfWork,
+		createUserUC:    createUserUC,
+		createAccountUC: createAccountUC,
+		accessTokenServ: accessTokenServ,
+		unitOfWork:      unitOfWork,
 	}
 }
 
-func (u *signupUsecase) Run(ctx context.Context, cmd SignupCmd) (*SignupDTO, error) {
-	var err error
+type SignupCommand struct {
+	User    userUC.CreateUserCommand
+	Account accountUC.CreateAccountCommand
+}
 
-	email := cmd.User.Email
-	if err = u.verifyEmailUniquenessServ.Run(ctx, email); err != nil {
-		return nil, err
-	}
+type SignupDTO struct {
+	User        userUC.CreateUserDTO
+	Account     accountUC.CreateAccountDTO
+	AccessToken string
+}
 
-	userID := ulid.New()
-	user, err := userDomain.New(userID, cmd.User.Name, email)
-	if err != nil {
-		return nil, err
-	}
-
-	accountID := ulid.New()
-	account, err := accountDomain.New(
-		accountID, userID, cmd.Account.Name, cmd.Account.Password,
-		cmd.Account.Balance, cmd.Account.Currency, time.Now(),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	authenticationID := ulid.New()
-	authentication, err := authenticationDomain.New(authenticationID, userID, cmd.User.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	err = u.unitOfWork.RunInTx(ctx, func(ctx context.Context) error {
-		if err = u.userRepo.Save(ctx, user); err != nil {
-			return err
+func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO, error) {
+	dto, err := u.unitOfWork.RunInTx(ctx, func(ctx context.Context) (*SignupDTO, error) {
+		user, err := u.createUserUC.Run(ctx, cmd.User)
+		if err != nil {
+			return nil, err
 		}
 
-		if err = u.accountRepo.Save(ctx, account); err != nil {
-			return err
+		account, err := u.createAccountUC.Run(ctx, cmd.Account)
+		if err != nil {
+			return nil, err
 		}
 
-		if err = u.authenticationRepo.Save(ctx, authentication); err != nil {
-			return err
-		}
-		return nil
+		return &SignupDTO{
+			User:    *user,
+			Account: *account,
+		}, nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	accessToken, err := u.accessTokenService.Generate(ctx, userID)
+	accessToken, err := u.accessTokenServ.Generate(ctx, dto.User.ID)
 	if err != nil {
 		return nil, err
 	}
+	dto.AccessToken = accessToken
 
-	return newSignupDTO(user, account, accessToken), nil
+	return dto, nil
 }
