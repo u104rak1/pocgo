@@ -1,6 +1,6 @@
 package account_domain
 
-func validID(id string) error {
+func ValidID(id string) error {
 	if id == "" {
 		return ErrInvalidID
 	}

@@ -13,15 +13,15 @@ type Authentication struct {
 
 func New(id, userID, password string) (*Authentication, error) {
 	var err error
-	if err = IsValidID(id); err != nil {
+	if err = ValidID(id); err != nil {
 		return nil, err
 	}
 
-	if err = user_domain.IsValidID(userID); err != nil {
+	if err = user_domain.ValidID(userID); err != nil {
 		return nil, err
 	}
 
-	if err = isValidPassword(password); err != nil {
+	if err = ValidPassword(password); err != nil {
 		return nil, err
 	}
 	passwordHash := passwordUtil.Encode(password)

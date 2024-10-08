@@ -7,16 +7,15 @@ type User struct {
 }
 
 func New(id, name, email string) (*User, error) {
-	var err error
-	if err = IsValidID(id); err != nil {
+	if err := ValidID(id); err != nil {
 		return nil, err
 	}
 
-	if err = isValidName(name); err != nil {
+	if err := ValidName(name); err != nil {
 		return nil, err
 	}
 
-	if err = isValidEmail(email); err != nil {
+	if err := ValidEmail(email); err != nil {
 		return nil, err
 	}
 
@@ -40,7 +39,7 @@ func (u *User) Email() string {
 }
 
 func (u *User) ChangeName(newName string) error {
-	if err := isValidName(newName); err != nil {
+	if err := ValidName(newName); err != nil {
 		return err
 	}
 	u.name = newName
@@ -48,7 +47,7 @@ func (u *User) ChangeName(newName string) error {
 }
 
 func (u *User) ChangeEmail(newEmail string) error {
-	if err := isValidEmail(newEmail); err != nil {
+	if err := ValidEmail(newEmail); err != nil {
 		return err
 	}
 	u.email = newEmail

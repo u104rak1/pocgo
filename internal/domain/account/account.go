@@ -18,7 +18,7 @@ type Account struct {
 
 func New(id, userID, name, password string, amount float64, currency string, lastUpdatedAt time.Time) (*Account, error) {
 	var err error
-	if err = validID(id); err != nil {
+	if err = ValidID(id); err != nil {
 		return nil, err
 	}
 
@@ -26,7 +26,7 @@ func New(id, userID, name, password string, amount float64, currency string, las
 		return nil, err
 	}
 
-	if err = user_domain.IsValidID(userID); err != nil {
+	if err = user_domain.ValidID(userID); err != nil {
 		return nil, err
 	}
 
@@ -75,7 +75,6 @@ func (a *Account) ChangeName(new string) error {
 		return err
 	}
 	a.name = new
-	a.UpdateLastUpdatedAt(time.Now())
 	return nil
 }
 
@@ -85,7 +84,6 @@ func (a *Account) ChangePassword(new string) error {
 	}
 	passwordHash := passwordUtil.Encode(new)
 	a.passwordHash = passwordHash
-	a.UpdateLastUpdatedAt(time.Now())
 	return nil
 }
 
@@ -105,7 +103,6 @@ func (a *Account) Withdraw(amount float64, currency string) error {
 	}
 
 	a.balance = *newBalance
-	a.UpdateLastUpdatedAt(time.Now())
 	return nil
 }
 
@@ -121,7 +118,6 @@ func (a *Account) Deposit(amount float64, currency string) error {
 	}
 
 	a.balance = *newBalance
-	a.UpdateLastUpdatedAt(time.Now())
 	return nil
 }
 

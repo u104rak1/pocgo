@@ -1,3 +1,9 @@
+dependencies_start: ## MySQLコンテナを起動する。
+	@docker compose -f ./docker/docker-compose.yml up -d
+
+dependencies_stop: ## Dockerコンテナを停止する。
+	@docker compose -f ./docker/docker-compose.yml down
+
 godoc: ## godocサーバーを起動する。
 	@godoc -http=:6060 & sleep 2 && open http://localhost:6060/pkg/github.com/ucho456job/pocgo/
 
