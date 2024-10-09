@@ -8,7 +8,7 @@ import (
 
 type AccountModel struct {
 	bun.BaseModel `bun:"table:accounts"`
-	ID            string    `bun:"id,pk,notnull"`
+	ID            string    `bun:"id,pk,type:varchar(26),notnull"`
 	UserID        string    `bun:"user_id,notnull"`
 	Name          string    `bun:"name,type:varchar(10)"`
 	PasswordHash  string    `bun:"password_hash,notnull"`

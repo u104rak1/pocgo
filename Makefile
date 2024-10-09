@@ -10,6 +10,12 @@ migrate_generate: ## schema.sql更新 & migration file生成（migration file生
 migrate_up: ## migration実行
 	@go run ./cmd/postgres/main.go migrate up
 
+migrate_down_one: ## migrationを1つ戻す
+	@go run ./db/execute.go migrate downone
+
+migrate_down_all: ## migrationを全て戻す
+	@go run ./db/execute.go migrate downall
+
 godoc: ## godocサーバー起動
 	@godoc -http=:6060 & sleep 2 && open http://localhost:6060/pkg/github.com/ucho456job/pocgo/
 

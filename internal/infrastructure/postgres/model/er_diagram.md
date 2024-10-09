@@ -6,8 +6,7 @@ erDiagram
         string Email "メールアドレス"
     }
     AuthenticationModel {
-        string ID PK "認証情報ID"
-        string UserID "ユーザーID（外部キー）"
+        string UserID PK "ユーザーID（外部キー）"
         string PasswordHash "パスワードのハッシュ"
     }
     AccountModel {
