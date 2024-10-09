@@ -4,7 +4,7 @@ import "github.com/uptrace/bun"
 
 type UserModel struct {
 	bun.BaseModel `bun:"table:users"`
-	ID            string `bun:"id,pk,notnull"`
+	ID            string `bun:"id,pk,type:char(26),notnull"`
 	Name          string `bun:"name,type:varchar(20),notnull"`
 	Email         string `bun:"email,notnull"`
 

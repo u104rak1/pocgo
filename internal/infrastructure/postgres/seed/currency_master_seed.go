@@ -11,7 +11,7 @@ const (
 	jpyID = "01J9R7YPV1FH1V0PPKVSB5C9TQ"
 )
 
-func SaveCurrencyMaster(db *bun.DB) error {
+func saveCurrencyMaster(db *bun.DB) error {
 	data := []model.CurrencyMasterModel{
 		{ID: jpyID, Code: "JPY"},
 	}

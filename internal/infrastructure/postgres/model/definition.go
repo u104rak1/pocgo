@@ -15,10 +15,7 @@ type IndexQueryCreators func(db *bun.DB) *bun.CreateIndexQuery
 
 func AllIdxCreators() []IndexQueryCreators {
 	return append(
-		append(
-			append(AccountUserIDIdxCreator, UserEmailIdxCreator...),
-			AuthenticationUserIDIdxCreator...,
-		),
+		append(AccountUserIDIdxCreator, UserEmailIdxCreator...),
 		append(TransactionSenderAccountIDIdxCreator, TransactionReceiverAccountIDIdxCreator...)...,
 	)
 }

@@ -11,10 +11,15 @@ migrate_up: ## migration実行
 	@go run ./cmd/postgres/main.go migrate up
 
 migrate_down_one: ## migrationを1つ戻す
-	@go run ./db/execute.go migrate downone
+	@go run ./cmd/postgres/main.go migrate downone
 
 migrate_down_all: ## migrationを全て戻す
-	@go run ./db/execute.go migrate downall
+	@go run ./cmd/postgres/main.go migrate downall
+
+seed: ## seedデータ投入
+	make migrate_down_all
+	make migrate_up
+	@go run ./cmd/postgres/main.go seed
 
 godoc: ## godocサーバー起動
 	@godoc -http=:6060 & sleep 2 && open http://localhost:6060/pkg/github.com/ucho456job/pocgo/

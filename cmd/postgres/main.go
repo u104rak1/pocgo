@@ -12,6 +12,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/ucho456job/pocgo/internal/config"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
+	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/seed"
 	"github.com/uptrace/bun"
 )
 
@@ -22,7 +23,7 @@ const (
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Expected 'generate', 'migrate up', 'migrate downall', 'migrate downone', 'migrate generate' or 'migrate reset' subcommands")
+		log.Fatal("Expected 'generate', 'migrate up', 'migrate downall', 'migrate downone', 'migrate generate' 'migrate reset' or 'seed' subcommands")
 	}
 
 	switch strings.ToLower(os.Args[1]) {
@@ -33,6 +34,8 @@ func main() {
 			log.Fatal("Expected 'up', 'downall', 'downone', or 'reset' subcommands for 'migrate'")
 		}
 		switchMigrateCommand(os.Args[2])
+	case "seed":
+		InsertSeedData()
 	default:
 		log.Fatalf("Unknown command: %s", os.Args[1])
 	}
@@ -177,4 +180,13 @@ func runCommand(name string, args ...string) error {
 	cmd.Stdout = log.Writer()
 	cmd.Stderr = log.Writer()
 	return cmd.Run()
+}
+
+func InsertSeedData() {
+	db, err := config.LoadDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	seed.InsertMasterData(db)
+	seed.InsertSeedData(db)
 }

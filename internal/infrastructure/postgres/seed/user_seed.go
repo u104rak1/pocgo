@@ -12,7 +12,7 @@ const (
 	janeSmithID = "01J9R844GCZZK02ZW76J5Q32M8"
 )
 
-func SaveUser(db *bun.DB) error {
+func saveUser(db *bun.DB) error {
 	data := []model.UserModel{
 		{ID: johnDoeID, Name: "John Doe", Email: "john@example.com"},
 		{ID: janeSmithID, Name: "Jane Smith", Email: "jane@example.com"},

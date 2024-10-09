@@ -8,7 +8,7 @@ import (
 
 type AccountModel struct {
 	bun.BaseModel `bun:"table:accounts"`
-	ID            string    `bun:"id,pk,type:varchar(26),notnull"`
+	ID            string    `bun:"id,pk,type:char(26),notnull"`
 	UserID        string    `bun:"user_id,notnull"`
 	Name          string    `bun:"name,type:varchar(10)"`
 	PasswordHash  string    `bun:"password_hash,notnull"`
@@ -43,7 +43,6 @@ var AccountUserIDIdxCreator = []IndexQueryCreators{
 		return db.NewCreateIndex().
 			Model((*AccountModel)(nil)).
 			Index("account_user_id_idx").
-			Unique().
 			Column("user_id")
 	},
 }

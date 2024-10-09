@@ -8,7 +8,7 @@ import (
 
 type TransactionModel struct {
 	bun.BaseModel     `bun:"table:transactions"`
-	ID                string    `bun:"id,pk,notnull"`
+	ID                string    `bun:"id,pk,type:char(26),notnull"`
 	AccountID         string    `bun:"account_id,notnull"`
 	ReceiverAccountID *string   `bun:"receiver_account_id"`
 	Type              string    `bun:"type,type:varchar(20),notnull"`

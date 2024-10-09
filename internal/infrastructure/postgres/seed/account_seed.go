@@ -16,7 +16,7 @@ const (
 	janeSmithPrivateAccountID = "01J9R8B83C89Q0JTAAB1YR1NHA"
 )
 
-func SaveAccount(db *bun.DB) error {
+func saveAccount(db *bun.DB) error {
 	data := []model.AccountModel{
 		{
 			ID:            johnDoeWorkAccountID,
