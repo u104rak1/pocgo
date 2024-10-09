@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/golang-migrate/migrate/v4"
@@ -14,9 +15,14 @@ import (
 	"github.com/uptrace/bun"
 )
 
+const (
+	schemaPath     = "internal/infrastructure/postgres/schema.sql"
+	migrationsPath = "internal/infrastructure/postgres/migrations"
+)
+
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Expected 'generate, 'migrate up', 'migrate downall', 'migrate downone', or 'migrate reset' subcommands")
+		log.Fatal("Expected 'generate', 'migrate up', 'migrate downall', 'migrate downone', 'migrate generate' or 'migrate reset' subcommands")
 	}
 
 	switch strings.ToLower(os.Args[1]) {
@@ -26,7 +32,7 @@ func main() {
 		if len(os.Args) < 3 {
 			log.Fatal("Expected 'up', 'downall', 'downone', or 'reset' subcommands for 'migrate'")
 		}
-		migrateCommand(os.Args[2])
+		switchMigrateCommand(os.Args[2])
 	default:
 		log.Fatalf("Unknown command: %s", os.Args[1])
 	}
@@ -42,14 +48,46 @@ func updateSchema() {
 	data = append(data, modelsToByte(db, model.Models)...)
 	data = append(data, indexesToByte(db, model.AllIdxCreators())...)
 
-	os.WriteFile("internal/infrastructure/postgres/schema.sql", data, 0777)
+	os.WriteFile(schemaPath, data, 0777)
 	fmt.Println("Successfully updated schema.sql")
+}
+
+func switchMigrateCommand(action string) {
+	dsn := config.CreateDSN()
+	m, err := migrate.New(fmt.Sprintf("file://%s", migrationsPath), dsn)
+	if err != nil {
+		log.Fatalf("Failed to create migrate instance: %v", err)
+	}
+
+	switch strings.ToLower(action) {
+	case "up":
+		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+			log.Fatalf("Failed to migrate up: %v", err)
+		}
+		fmt.Println("Migrations applied successfully")
+	case "downall":
+		if err := m.Down(); err != nil && err != migrate.ErrNoChange {
+			log.Fatalf("Failed to migrate down all: %v", err)
+		}
+		fmt.Println("All migrations rolled back successfully")
+	case "downone":
+		if err := m.Steps(-1); err != nil && err != migrate.ErrNoChange {
+			log.Fatalf("Failed to migrate down one step: %v", err)
+		}
+		fmt.Println("One step migration rolled back successfully")
+	case "generate":
+		generateMigrations(dsn, m)
+	case "reset":
+		resetDatabase(m)
+	default:
+		log.Fatalf("Unknown migrate action: %s", action)
+	}
 }
 
 func modelsToByte(db *bun.DB, models []interface{}) []byte {
 	var data []byte
 	for _, model := range models {
-		query := db.NewCreateTable().Model(model).WithForeignKeys()
+		query := db.NewCreateTable().Model(model) //.WithForeignKeys() has oneのリレーションがうまくいかない。
 		rawQuery, err := query.AppendQuery(db.Formatter(), nil)
 		if err != nil {
 			log.Fatal(err)
@@ -74,36 +112,6 @@ func indexesToByte(db *bun.DB, idxCreators []model.IndexQueryCreators) []byte {
 	return data
 }
 
-func migrateCommand(action string) {
-	dsn := config.CreateDSN()
-	m, err := migrate.New("file://internal/infrastructure/postgres/migrations", dsn)
-	if err != nil {
-		log.Fatalf("Failed to create migrate instance: %v", err)
-	}
-
-	switch strings.ToLower(action) {
-	case "up":
-		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-			log.Fatalf("Failed to migrate up: %v", err)
-		}
-		fmt.Println("Migrations applied successfully")
-	case "downall":
-		if err := m.Down(); err != nil && err != migrate.ErrNoChange {
-			log.Fatalf("Failed to migrate down all: %v", err)
-		}
-		fmt.Println("All migrations rolled back successfully")
-	case "downone":
-		if err := m.Steps(-1); err != nil && err != migrate.ErrNoChange {
-			log.Fatalf("Failed to migrate down one step: %v", err)
-		}
-		fmt.Println("One step migration rolled back successfully")
-	case "reset":
-		resetDatabase(m)
-	default:
-		log.Fatalf("Unknown migrate action: %s", action)
-	}
-}
-
 func resetDatabase(m *migrate.Migrate) {
 	if err := m.Down(); err != nil && err != migrate.ErrNoChange {
 		log.Fatalf("Failed to migrate down all: %v", err)
@@ -119,4 +127,40 @@ func resetDatabase(m *migrate.Migrate) {
 	}
 
 	fmt.Println("Database reset successfully")
+}
+
+func generateMigrations(dsn string, m *migrate.Migrate) {
+	if err := checkAtlasInstalled(); err != nil {
+		log.Fatal(err)
+	}
+
+	updateSchema()
+
+	resetDatabase(m)
+
+	atlasCmd := []string{
+		"migrate", "diff", "migration",
+		"--dir", fmt.Sprintf("file://%s?format=golang-migrate", migrationsPath),
+		"--to", fmt.Sprintf("file://%s", schemaPath),
+		"--dev-url", dsn,
+	}
+	if err := runCommand("atlas", atlasCmd...); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Migration file generated successfully")
+}
+
+func checkAtlasInstalled() error {
+	_, err := exec.LookPath("atlas")
+	if err != nil {
+		return fmt.Errorf("atlas is not installed. Please install it by running:\ncurl -sSf https://atlasgo.sh | sh")
+	}
+	return nil
+}
+
+func runCommand(name string, args ...string) error {
+	cmd := exec.Command(name, args...)
+	cmd.Stdout = log.Writer()
+	cmd.Stderr = log.Writer()
+	return cmd.Run()
 }

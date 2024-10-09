@@ -1,16 +1,19 @@
-dependencies_start: ## MySQLコンテナを起動する。
+dependencies_start: ## Dockerコンテナ起動（PostgreSQL）
 	@docker compose -f ./docker/docker-compose.yml up -d
 
-dependencies_stop: ## Dockerコンテナを停止する。
+dependencies_stop: ## Dockerコンテナ停止
 	@docker compose -f ./docker/docker-compose.yml down
 
-update_schema_and_generate_migration: ## DBのスキーマを更新し、マイグレーションファイルを生成する。
-	@bash script/update_schema_and_generate_migration.sh
+migrate_generate: ## schema.sql更新 & migration file生成（migration file生成の為にDBを一度リセットするので本番環境では使わないで下さい）
+	@go run ./cmd/postgres/main.go migrate generate
 
-godoc: ## godocサーバーを起動する。
+migrate_up: ## migration実行
+	@go run ./cmd/postgres/main.go migrate up
+
+godoc: ## godocサーバー起動
 	@godoc -http=:6060 & sleep 2 && open http://localhost:6060/pkg/github.com/ucho456job/pocgo/
 
-unit_test: ## ユニットテストを実行する。
+unit_test: ## ユニットテスト実行
 	@-export UNIT_TEST_CMD="test ./pkg/... -v -coverprofile=tmp/unit_test_cover.out";\
 	mkdir -p tmp; \
 	if [ -z "$(TEST_TARGET)" ]; \

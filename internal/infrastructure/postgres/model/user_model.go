@@ -7,6 +7,9 @@ type UserModel struct {
 	ID            string `bun:"id,pk,notnull"`
 	Name          string `bun:"name,type:varchar(20),notnull"`
 	Email         string `bun:"email,notnull"`
+
+	Authentication *AuthenticationModel `bun:"rel:has-one,join:id=user_id"`
+	Accounts       []*AccountModel      `bun:"rel:has-many,join:id=user_id"`
 }
 
 var UserEmailIdxCreator = []IndexQueryCreators{
