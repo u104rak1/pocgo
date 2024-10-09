@@ -4,6 +4,9 @@ dependencies_start: ## MySQLコンテナを起動する。
 dependencies_stop: ## Dockerコンテナを停止する。
 	@docker compose -f ./docker/docker-compose.yml down
 
+update_schema_and_generate_migration: ## DBのスキーマを更新し、マイグレーションファイルを生成する。
+	@bash script/update_schema_and_generate_migration.sh
+
 godoc: ## godocサーバーを起動する。
 	@godoc -http=:6060 & sleep 2 && open http://localhost:6060/pkg/github.com/ucho456job/pocgo/
 

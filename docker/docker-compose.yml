@@ -1,15 +1,15 @@
 version: '3.8'
-
 services:
-  mysql:
-    image: mysql:5.7
-    container_name: pocgo_mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: POCGO_LOCAL_DB
-      MYSQL_USER: local_user
-      MYSQL_PASSWORD: password
+  postgres:
+    container_name: POCGO_DB
+    image: postgres:15-alpine
     ports:
-      - "3306:3306"
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: local_user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: POCGO_LOCAL_DB
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: 'Asia/Tokyo'
     networks:
       - default

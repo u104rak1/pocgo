@@ -7,12 +7,13 @@ import (
 )
 
 type Env struct {
-	MYSQL_HOST     string `env:"MYSQL_HOST" envDefault:"localhost"`
-	MYSQL_DBNAME   string `env:"MYSQL_DBNAME" envDefault:"POCGO_LOCAL_DB"`
-	MYSQL_USER     string `env:"MYSQL_USER" envDefault:"local_user"`
-	MYSQL_PASSWORD string `env:"MYSQL_PASSWORD" envDefault:"password"`
-	MYSQL_PORT     string `env:"MYSQL_PORT" envDefault:"3306"`
-	JWT_SECRET_KEY string `env:"JWT_SECRET_KEY" envDefault:"jwt_secret_key"`
+	POSTGRES_HOST     string `env:"POSTGRES_HOST" envDefault:"localhost"`
+	POSTGRES_DBNAME   string `env:"POSTGRES_DBNAME" envDefault:"POCGO_LOCAL_DB"`
+	POSTGRES_USER     string `env:"POSTGRES_USER" envDefault:"local_user"`
+	POSTGRES_PASSWORD string `env:"POSTGRES_PASSWORD" envDefault:"password"`
+	POSTGRES_PORT     string `env:"POSTGRES_PORT" envDefault:"5432"`
+	POSTGRES_SSLMODE  string `env:"POSTGRES_SSLMODE" envDefault:"disable"`
+	JWT_SECRET_KEY    string `env:"JWT_SECRET_KEY" envDefault:"jwt_secret_key"`
 }
 
 func NewEnv() *Env {
