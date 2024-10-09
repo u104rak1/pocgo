@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -22,94 +21,59 @@ const (
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatal("Expected 'migrate update_schema_and_generate_migrations', 'migrate up', 'migrate down_one', 'migrate down_all', 'migrate drop_tables' or 'seed' subcommands")
-	}
-
-	switch strings.ToLower(os.Args[1]) {
-	case "migrate":
-		if len(os.Args) < 3 {
-			log.Fatal("Expected 'up', 'downall', 'downone', or 'reset' subcommands for 'migrate'")
-		}
-		switchMigrateCommand(os.Args[2])
-	case "seed":
-		InsertSeedData()
-	default:
-		log.Fatalf("Unknown command: %s", os.Args[1])
-	}
-}
-
-func modelsToByte(db *bun.DB, models []interface{}) []byte {
-	var data []byte
-	for _, model := range models {
-		query := db.NewCreateTable().Model(model)
-		rawQuery, err := query.AppendQuery(db.Formatter(), nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		data = append(data, rawQuery...)
-		data = append(data, ";\n"...)
-	}
-	return data
-}
-
-func indexesToByte(db *bun.DB, idxCreators []model.IndexQueryCreators) []byte {
-	var data []byte
-	for _, idxCreator := range idxCreators {
-		idx := idxCreator(db)
-		rawQuery, err := idx.AppendQuery(db.Formatter(), nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		data = append(data, rawQuery...)
-		data = append(data, ";\n"...)
-	}
-	return data
-}
-
-// .WithForeignKeys() has oneのリレーションがうまくいかないので、外部キー制約は手動で追加
-func foreignKeysToSQL() []byte {
-	var data []byte
-	for _, fk := range model.ForeignKeys {
-		query := fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s) ON DELETE CASCADE`,
-			fk.Table, fk.ConstraintName, fk.Column, fk.ReferencedTable, fk.ReferencedColumn)
-
-		data = append(data, query...)
-		data = append(data, ";\n"...)
-	}
-	return data
-}
-
-func switchMigrateCommand(action string) {
 	dsn := config.CreateDSN()
 	m, err := migrate.New(fmt.Sprintf("file://%s", migrationsPath), dsn)
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
 	}
 
-	switch strings.ToLower(action) {
-	case "up":
-		if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-			log.Fatalf("Failed to migrate up: %v", err)
-		}
-		fmt.Println("Migrations applied successfully")
-	case "downall":
-		if err := m.Down(); err != nil && err != migrate.ErrNoChange {
-			log.Fatalf("Failed to migrate down all: %v", err)
-		}
-		fmt.Println("All migrations rolled back successfully")
-	case "downone":
-		if err := m.Steps(-1); err != nil && err != migrate.ErrNoChange {
-			log.Fatalf("Failed to migrate down one step: %v", err)
-		}
-		fmt.Println("One step migration rolled back successfully")
-	case "update_schema_and_generate_migrations":
-		updateSchemaGenerateMigrations(dsn, m)
-	case "drop_tables":
+	cmd := os.Args[1] + " " + os.Args[2]
+	switch cmd {
+	case "insert seed":
+		insertSeedData()
+	case "migrate up":
+		migrateUp(m)
+	case "migrate down":
+		migrateDown(m)
+	case "migrate reset":
+		migrateReset(m)
+	case "drop tables":
 		dropTables(m)
+	case "migrate refresh":
+		updateSchemaAndGenerateMigrations(dsn, m)
 	default:
-		log.Fatalf("Unknown migrate action: %s", action)
+		log.Fatalf("Unknown command: %s", os.Args[1])
 	}
+}
+
+func insertSeedData() {
+	db, err := config.LoadDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	seed.InsertMasterData(db)
+	seed.InsertSeedData(db)
+}
+
+func migrateUp(m *migrate.Migrate) {
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to migrate up: %v", err)
+	}
+	fmt.Println("Migrations applied successfully")
+}
+
+func migrateDown(m *migrate.Migrate) {
+	if err := m.Steps(-1); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to migrate down one step: %v", err)
+	}
+	fmt.Println("One step migration rolled back successfully")
+}
+
+func migrateReset(m *migrate.Migrate) {
+	if err := m.Down(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("Failed to migrate down all: %v", err)
+	}
+	fmt.Println("All migrations rolled back successfully")
 }
 
 func dropTables(m *migrate.Migrate) {
@@ -129,7 +93,7 @@ func dropTables(m *migrate.Migrate) {
 	fmt.Println("Drop tables successfully")
 }
 
-func updateSchemaGenerateMigrations(dsn string, m *migrate.Migrate) {
+func updateSchemaAndGenerateMigrations(dsn string, m *migrate.Migrate) {
 	if err := checkAtlasInstalled(); err != nil {
 		log.Fatal(err)
 	}
@@ -173,18 +137,49 @@ func updateSchema() {
 	fmt.Println("Successfully updated schema.sql")
 }
 
+func modelsToByte(db *bun.DB, models []interface{}) []byte {
+	var data []byte
+	for _, model := range models {
+		query := db.NewCreateTable().Model(model)
+		rawQuery, err := query.AppendQuery(db.Formatter(), nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		data = append(data, rawQuery...)
+		data = append(data, ";\n"...)
+	}
+	return data
+}
+
+func indexesToByte(db *bun.DB, idxCreators []model.IndexQueryCreators) []byte {
+	var data []byte
+	for _, idxCreator := range idxCreators {
+		idx := idxCreator(db)
+		rawQuery, err := idx.AppendQuery(db.Formatter(), nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		data = append(data, rawQuery...)
+		data = append(data, ";\n"...)
+	}
+	return data
+}
+
+func foreignKeysToSQL() []byte {
+	var data []byte
+	for _, fk := range model.ForeignKeys {
+		query := fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s) ON DELETE CASCADE`,
+			fk.Table, fk.ConstraintName, fk.Column, fk.ReferencedTable, fk.ReferencedColumn)
+
+		data = append(data, query...)
+		data = append(data, ";\n"...)
+	}
+	return data
+}
+
 func runCommand(name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = log.Writer()
 	cmd.Stderr = log.Writer()
 	return cmd.Run()
-}
-
-func InsertSeedData() {
-	db, err := config.LoadDB()
-	if err != nil {
-		log.Fatal(err)
-	}
-	seed.InsertMasterData(db)
-	seed.InsertSeedData(db)
 }
