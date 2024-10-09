@@ -22,6 +22,38 @@ type TransactionModel struct {
 	TransactionType *TransactionTypeMasterModel `bun:"rel:belongs-to,join:type=type"`
 }
 
+var TransactionAccountFK = ForeignKey{
+	Table:            "transactions",
+	ConstraintName:   "fk_transaction_account_id",
+	Column:           "account_id",
+	ReferencedTable:  "accounts",
+	ReferencedColumn: "id",
+}
+
+var TransactionReceiverAccountFK = ForeignKey{
+	Table:            "transactions",
+	ConstraintName:   "fk_transaction_receiver_account_id",
+	Column:           "receiver_account_id",
+	ReferencedTable:  "accounts",
+	ReferencedColumn: "id",
+}
+
+var TransactionCurrencyFK = ForeignKey{
+	Table:            "transactions",
+	ConstraintName:   "fk_transaction_currency_id",
+	Column:           "currency_id",
+	ReferencedTable:  "currency_master",
+	ReferencedColumn: "id",
+}
+
+var TransactionTypeFK = ForeignKey{
+	Table:            "transactions",
+	ConstraintName:   "fk_transaction_type",
+	Column:           "type",
+	ReferencedTable:  "transaction_type_master",
+	ReferencedColumn: "type",
+}
+
 var TransactionSenderAccountIDIdxCreator = []IndexQueryCreators{
 	func(db *bun.DB) *bun.CreateIndexQuery {
 		return db.NewCreateIndex().

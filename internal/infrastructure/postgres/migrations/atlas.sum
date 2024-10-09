@@ -1,3 +1,5 @@
-h1:IBz+nY47F/E8DRO9fENJ5WIDowoS/MhFe+ON8ggo+qk=
+h1:Ihv/pdcltn6pf6ApDBxfGeNsi7VfJqMArJ8vumgjq3c=
 20241009074932_migration.down.sql h1:axX2G0MKAGNw7CRrNqtCkJOt1YfUqaxtJpDD7CcLpJA=
 20241009074932_migration.up.sql h1:qxlk4d4SgcqI30Zdft1wGH45hVTgokKdKEnvBWtE970=
+20241009082918_migration.down.sql h1:8UVD6PXMnktXdYWKcKfRNy19HDcxgsdVkswU8+Q9Rbg=
+20241009082918_migration.up.sql h1:1boMIu7fQV+FsrhjWuW9iUfFgpgitjDVpjVja2wVEoQ=

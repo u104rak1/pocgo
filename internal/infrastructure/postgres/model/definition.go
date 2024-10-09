@@ -2,8 +2,6 @@ package model
 
 import "github.com/uptrace/bun"
 
-type IndexQueryCreators func(db *bun.DB) *bun.CreateIndexQuery
-
 var Models = []interface{}{
 	(*CurrencyMasterModel)(nil),
 	(*TransactionTypeMasterModel)(nil),
@@ -13,6 +11,8 @@ var Models = []interface{}{
 	(*AuthenticationModel)(nil),
 }
 
+type IndexQueryCreators func(db *bun.DB) *bun.CreateIndexQuery
+
 func AllIdxCreators() []IndexQueryCreators {
 	return append(
 		append(
@@ -21,4 +21,22 @@ func AllIdxCreators() []IndexQueryCreators {
 		),
 		append(TransactionSenderAccountIDIdxCreator, TransactionReceiverAccountIDIdxCreator...)...,
 	)
+}
+
+type ForeignKey struct {
+	Table            string
+	ConstraintName   string
+	Column           string
+	ReferencedTable  string
+	ReferencedColumn string
+}
+
+var ForeignKeys = []ForeignKey{
+	AccountUserFK,
+	AccountCurrencyFK,
+	AuthenticationUserFK,
+	TransactionAccountFK,
+	TransactionReceiverAccountFK,
+	TransactionCurrencyFK,
+	TransactionTypeFK,
 }

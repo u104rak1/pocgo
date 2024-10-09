@@ -1,0 +1,6 @@
+-- modify "accounts" table
+ALTER TABLE "public"."accounts" ADD CONSTRAINT "fk_account_currency_id" FOREIGN KEY ("currency_id") REFERENCES "public"."currency_master" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, ADD CONSTRAINT "fk_account_user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE;
+-- modify "authentications" table
+ALTER TABLE "public"."authentications" ADD CONSTRAINT "fk_auth_user_id" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE;
+-- modify "transactions" table
+ALTER TABLE "public"."transactions" ADD CONSTRAINT "fk_transaction_account_id" FOREIGN KEY ("account_id") REFERENCES "public"."accounts" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, ADD CONSTRAINT "fk_transaction_currency_id" FOREIGN KEY ("currency_id") REFERENCES "public"."currency_master" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, ADD CONSTRAINT "fk_transaction_receiver_account_id" FOREIGN KEY ("receiver_account_id") REFERENCES "public"."accounts" ("id") ON UPDATE NO ACTION ON DELETE CASCADE, ADD CONSTRAINT "fk_transaction_type" FOREIGN KEY ("type") REFERENCES "public"."transaction_type_master" ("type") ON UPDATE NO ACTION ON DELETE CASCADE;

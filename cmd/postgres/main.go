@@ -47,9 +47,51 @@ func updateSchema() {
 	var data []byte
 	data = append(data, modelsToByte(db, model.Models)...)
 	data = append(data, indexesToByte(db, model.AllIdxCreators())...)
+	data = append(data, foreignKeysToSQL()...)
 
 	os.WriteFile(schemaPath, data, 0777)
 	fmt.Println("Successfully updated schema.sql")
+}
+
+func modelsToByte(db *bun.DB, models []interface{}) []byte {
+	var data []byte
+	for _, model := range models {
+		query := db.NewCreateTable().Model(model)
+		rawQuery, err := query.AppendQuery(db.Formatter(), nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		data = append(data, rawQuery...)
+		data = append(data, ";\n"...)
+	}
+	return data
+}
+
+func indexesToByte(db *bun.DB, idxCreators []model.IndexQueryCreators) []byte {
+	var data []byte
+	for _, idxCreator := range idxCreators {
+		idx := idxCreator(db)
+		rawQuery, err := idx.AppendQuery(db.Formatter(), nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		data = append(data, rawQuery...)
+		data = append(data, ";\n"...)
+	}
+	return data
+}
+
+// .WithForeignKeys() has oneのリレーションがうまくいかないので、外部キー制約は手動で追加
+func foreignKeysToSQL() []byte {
+	var data []byte
+	for _, fk := range model.ForeignKeys {
+		query := fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s) ON DELETE CASCADE`,
+			fk.Table, fk.ConstraintName, fk.Column, fk.ReferencedTable, fk.ReferencedColumn)
+
+		data = append(data, query...)
+		data = append(data, ";\n"...)
+	}
+	return data
 }
 
 func switchMigrateCommand(action string) {
@@ -82,34 +124,6 @@ func switchMigrateCommand(action string) {
 	default:
 		log.Fatalf("Unknown migrate action: %s", action)
 	}
-}
-
-func modelsToByte(db *bun.DB, models []interface{}) []byte {
-	var data []byte
-	for _, model := range models {
-		query := db.NewCreateTable().Model(model) //.WithForeignKeys() has oneのリレーションがうまくいかない。
-		rawQuery, err := query.AppendQuery(db.Formatter(), nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		data = append(data, rawQuery...)
-		data = append(data, ";\n"...)
-	}
-	return data
-}
-
-func indexesToByte(db *bun.DB, idxCreators []model.IndexQueryCreators) []byte {
-	var data []byte
-	for _, idxCreator := range idxCreators {
-		idx := idxCreator(db)
-		rawQuery, err := idx.AppendQuery(db.Formatter(), nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		data = append(data, rawQuery...)
-		data = append(data, ";\n"...)
-	}
-	return data
 }
 
 func resetDatabase(m *migrate.Migrate) {

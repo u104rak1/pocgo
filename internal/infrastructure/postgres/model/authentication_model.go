@@ -9,6 +9,14 @@ type AuthenticationModel struct {
 	PasswordHash  string `bun:"password_hash,notnull"`
 }
 
+var AuthenticationUserFK = ForeignKey{
+	Table:            "authentications",
+	ConstraintName:   "fk_auth_user_id",
+	Column:           "user_id",
+	ReferencedTable:  "users",
+	ReferencedColumn: "id",
+}
+
 var AuthenticationUserIDIdxCreator = []IndexQueryCreators{
 	func(db *bun.DB) *bun.CreateIndexQuery {
 		return db.NewCreateIndex().
