@@ -4,20 +4,23 @@ dependencies_start: ## Dockerコンテナ起動（PostgreSQL）
 dependencies_stop: ## Dockerコンテナ停止
 	@docker compose -f ./docker/docker-compose.yml down
 
-migrate_generate: ## schema.sql更新 & migration file生成（migration file生成の為にDBを一度リセットするので本番環境では使わないで下さい）
-	@go run ./cmd/postgres/main.go migrate generate
+update_schema_and_generate_migrations: ## schema.sql更新 & migration file生成（migration file生成の為にDBを一度リセットするので本番環境では使わないで下さい）
+	@go run ./cmd/postgres/main.go migrate update_schema_and_generate_migrations
 
 migrate_up: ## migration実行
 	@go run ./cmd/postgres/main.go migrate up
 
 migrate_down_one: ## migrationを1つ戻す
-	@go run ./cmd/postgres/main.go migrate downone
+	@go run ./cmd/postgres/main.go migrate down_one
 
 migrate_down_all: ## migrationを全て戻す
-	@go run ./cmd/postgres/main.go migrate downall
+	@go run ./cmd/postgres/main.go migrate down_all
+
+drop_tables: ## 全テーブル削除
+	@go run ./cmd/postgres/main.go migrate drop_tables
 
 seed: ## seedデータ投入
-	make migrate_down_all
+	make drop_tables
 	make migrate_up
 	@go run ./cmd/postgres/main.go seed
 

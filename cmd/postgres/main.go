@@ -23,12 +23,10 @@ const (
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Expected 'generate', 'migrate up', 'migrate downall', 'migrate downone', 'migrate generate' 'migrate reset' or 'seed' subcommands")
+		log.Fatal("Expected 'migrate update_schema_and_generate_migrations', 'migrate up', 'migrate down_one', 'migrate down_all', 'migrate drop_tables' or 'seed' subcommands")
 	}
 
 	switch strings.ToLower(os.Args[1]) {
-	case "generate":
-		updateSchema()
 	case "migrate":
 		if len(os.Args) < 3 {
 			log.Fatal("Expected 'up', 'downall', 'downone', or 'reset' subcommands for 'migrate'")
@@ -39,21 +37,6 @@ func main() {
 	default:
 		log.Fatalf("Unknown command: %s", os.Args[1])
 	}
-}
-
-func updateSchema() {
-	db, err := config.LoadDB()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var data []byte
-	data = append(data, modelsToByte(db, model.Models)...)
-	data = append(data, indexesToByte(db, model.AllIdxCreators())...)
-	data = append(data, foreignKeysToSQL()...)
-
-	os.WriteFile(schemaPath, data, 0777)
-	fmt.Println("Successfully updated schema.sql")
 }
 
 func modelsToByte(db *bun.DB, models []interface{}) []byte {
@@ -120,16 +103,16 @@ func switchMigrateCommand(action string) {
 			log.Fatalf("Failed to migrate down one step: %v", err)
 		}
 		fmt.Println("One step migration rolled back successfully")
-	case "generate":
-		generateMigrations(dsn, m)
-	case "reset":
-		resetDatabase(m)
+	case "update_schema_and_generate_migrations":
+		updateSchemaGenerateMigrations(dsn, m)
+	case "drop_tables":
+		dropTables(m)
 	default:
 		log.Fatalf("Unknown migrate action: %s", action)
 	}
 }
 
-func resetDatabase(m *migrate.Migrate) {
+func dropTables(m *migrate.Migrate) {
 	if err := m.Down(); err != nil && err != migrate.ErrNoChange {
 		log.Fatalf("Failed to migrate down all: %v", err)
 	}
@@ -143,17 +126,17 @@ func resetDatabase(m *migrate.Migrate) {
 		log.Fatalf("Failed to drop schema_migrations table: %v", err)
 	}
 
-	fmt.Println("Database reset successfully")
+	fmt.Println("Drop tables successfully")
 }
 
-func generateMigrations(dsn string, m *migrate.Migrate) {
+func updateSchemaGenerateMigrations(dsn string, m *migrate.Migrate) {
 	if err := checkAtlasInstalled(); err != nil {
 		log.Fatal(err)
 	}
 
 	updateSchema()
 
-	resetDatabase(m)
+	dropTables(m)
 
 	atlasCmd := []string{
 		"migrate", "diff", "migration",
@@ -173,6 +156,21 @@ func checkAtlasInstalled() error {
 		return fmt.Errorf("atlas is not installed. Please install it by running:\ncurl -sSf https://atlasgo.sh | sh")
 	}
 	return nil
+}
+
+func updateSchema() {
+	db, err := config.LoadDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var data []byte
+	data = append(data, modelsToByte(db, model.Models)...)
+	data = append(data, indexesToByte(db, model.AllIdxCreators())...)
+	data = append(data, foreignKeysToSQL()...)
+
+	os.WriteFile(schemaPath, data, 0777)
+	fmt.Println("Successfully updated schema.sql")
 }
 
 func runCommand(name string, args ...string) error {
