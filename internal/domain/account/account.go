@@ -17,20 +17,19 @@ type Account struct {
 }
 
 func New(id, userID, name, password string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
-	var err error
-	if err = ValidID(id); err != nil {
+	if err := ValidID(id); err != nil {
 		return nil, err
 	}
 
-	if err = validName(name); err != nil {
+	if err := validName(name); err != nil {
 		return nil, err
 	}
 
-	if err = user_domain.ValidID(userID); err != nil {
+	if err := user_domain.ValidID(userID); err != nil {
 		return nil, err
 	}
 
-	if err = validPassword(password); err != nil {
+	if err := validPassword(password); err != nil {
 		return nil, err
 	}
 	passwordHash := passwordUtil.Encode(password)

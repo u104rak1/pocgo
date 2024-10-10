@@ -46,14 +46,12 @@ type CreateUserDTO struct {
 }
 
 func (u *createUserUsecase) Run(ctx context.Context, cmd CreateUserCommand) (*CreateUserDTO, error) {
-	var err error
-
 	userID := ulid.New()
-	if err = u.createUser(ctx, userID, cmd); err != nil {
+	if err := u.createUser(ctx, userID, cmd); err != nil {
 		return nil, err
 	}
 
-	if err = u.createAuthentication(ctx, userID, cmd); err != nil {
+	if err := u.createAuthentication(ctx, userID, cmd); err != nil {
 		return nil, err
 	}
 

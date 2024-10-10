@@ -6,12 +6,11 @@ type Money struct {
 }
 
 func NewMoney(amount float64, currency string) (*Money, error) {
-	var err error
-	if err = validAmount(amount); err != nil {
+	if err := validAmount(amount); err != nil {
 		return nil, err
 	}
 
-	if err = validCurrency(currency); err != nil {
+	if err := validCurrency(currency); err != nil {
 		return nil, err
 	}
 
