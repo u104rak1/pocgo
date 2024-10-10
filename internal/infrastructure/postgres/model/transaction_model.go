@@ -15,7 +15,6 @@ type TransactionModel struct {
 	Amount            float64   `bun:"amount,type:float8,notnull"`
 	CurrencyID        string    `bun:"currency_id,notnull"`
 	TransactionAt     time.Time `bun:"transaction_at,notnull"`
-	DeletedAt         time.Time `bun:",soft_delete,nullzero"`
 
 	SenderAccount   *AccountModel               `bun:"rel:belongs-to,join:account_id=id"`
 	ReceiverAccount *AccountModel               `bun:"rel:belongs-to,join:receiver_account_id=id"`

@@ -17,12 +17,13 @@ const (
 )
 
 func saveAccount(db *bun.DB) error {
+	passwordHash, _ := password.Encode("1234")
 	data := []model.AccountModel{
 		{
 			ID:           johnDoeWorkAccountID,
 			UserID:       johnDoeID,
 			Name:         "work",
-			PasswordHash: password.Encode("1234"),
+			PasswordHash: passwordHash,
 			Balance:      100000,
 			CurrencyID:   jpyID,
 			UpdatedAt:    time.Now(),
@@ -31,7 +32,7 @@ func saveAccount(db *bun.DB) error {
 			ID:           johnDoePrivateAccountID,
 			UserID:       johnDoeID,
 			Name:         "private",
-			PasswordHash: password.Encode("1234"),
+			PasswordHash: passwordHash,
 			Balance:      200000,
 			CurrencyID:   jpyID,
 			UpdatedAt:    time.Now(),
@@ -40,7 +41,7 @@ func saveAccount(db *bun.DB) error {
 			ID:           janeSmithWorkAccountID,
 			UserID:       janeSmithID,
 			Name:         "work",
-			PasswordHash: password.Encode("1234"),
+			PasswordHash: passwordHash,
 			Balance:      300000,
 			CurrencyID:   jpyID,
 			UpdatedAt:    time.Now(),
@@ -49,7 +50,7 @@ func saveAccount(db *bun.DB) error {
 			ID:           janeSmithPrivateAccountID,
 			UserID:       janeSmithID,
 			Name:         "private",
-			PasswordHash: password.Encode("1234"),
+			PasswordHash: passwordHash,
 			Balance:      400000,
 			CurrencyID:   jpyID,
 			UpdatedAt:    time.Now(),

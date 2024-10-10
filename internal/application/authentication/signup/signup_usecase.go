@@ -6,7 +6,7 @@ import (
 	accountUC "github.com/ucho456job/pocgo/internal/application/account"
 	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
 	userUC "github.com/ucho456job/pocgo/internal/application/user"
-	authenticationDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
+	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 )
 
 type ISignupUsecase interface {
@@ -16,14 +16,14 @@ type ISignupUsecase interface {
 type signupUsecase struct {
 	createUserUC    userUC.ICreateUserUsecase
 	createAccountUC accountUC.ICreateAccountUsecase
-	accessTokenServ authenticationDomain.AccessTokenService
+	accessTokenServ authDomain.AccessTokenService
 	unitOfWork      unitofwork.IUnitOfWorkWithResult[*SignupDTO]
 }
 
 func NewSignupUsecase(
 	createUserUC userUC.ICreateUserUsecase,
 	createAccountUC accountUC.ICreateAccountUsecase,
-	accessTokenServ authenticationDomain.AccessTokenService,
+	accessTokenServ authDomain.AccessTokenService,
 	unitOfWork unitofwork.IUnitOfWorkWithResult[*SignupDTO],
 ) ISignupUsecase {
 	return &signupUsecase{

@@ -1,7 +1,8 @@
-package user_repository
+package repository
 
 import (
 	"context"
+	"time"
 
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
@@ -12,7 +13,7 @@ type IUserRepository interface {
 	Save(ctx context.Context, user *userDomain.User) error
 	FindByID(ctx context.Context, id string) (*userDomain.User, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
-	// Delete(ctx context.Context, id string) error
+	Delete(ctx context.Context, id string) error
 }
 
 type userRepository struct {
@@ -34,8 +35,7 @@ func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error 
 
 func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.User, error) {
 	userModel := new(model.UserModel)
-	err := r.db.NewSelect().Model(userModel).Where("id = ?", id).Scan(ctx)
-	if err != nil {
+	if err := r.db.NewSelect().Model(&model.UserModel{ID: id}).WherePK().Scan(ctx); err != nil {
 		return nil, err
 	}
 	return userDomain.New(userModel.ID, userModel.Email, userModel.Name)
@@ -47,6 +47,15 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 		return false, err
 	}
 	return exists, nil
+}
+
+func (r *userRepository) Delete(ctx context.Context, id string) error {
+	_, err := r.db.NewUpdate().
+		Model(&model.UserModel{ID: id, DeletedAt: time.Now()}).
+		Column("deleted_at").
+		WherePK().
+		Exec(ctx)
+	return err
 }
 
 func (r *userRepository) factoryUserModel(user *userDomain.User) *model.UserModel {

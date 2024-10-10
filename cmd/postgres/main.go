@@ -170,7 +170,7 @@ func indexesToByte(db *bun.DB, idxCreators []model.IndexQueryCreators) []byte {
 func foreignKeysToSQL() []byte {
 	var data []byte
 	for _, fk := range model.ForeignKeys {
-		query := fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s) ON DELETE CASCADE`,
+		query := fmt.Sprintf(`ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s(%s)`,
 			fk.Table, fk.ConstraintName, fk.Column, fk.ReferencedTable, fk.ReferencedColumn)
 
 		data = append(data, query...)

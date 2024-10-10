@@ -32,7 +32,10 @@ func New(id, userID, name, password string, amount float64, currency string, upd
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}
-	passwordHash := passwordUtil.Encode(password)
+	passwordHash, err := passwordUtil.Encode(password)
+	if err != nil {
+		return nil, err
+	}
 
 	balance, err := NewMoney(amount, currency)
 	if err != nil {
@@ -81,7 +84,10 @@ func (a *Account) ChangePassword(new string) error {
 	if err := validPassword(new); err != nil {
 		return err
 	}
-	passwordHash := passwordUtil.Encode(new)
+	passwordHash, err := passwordUtil.Encode(new)
+	if err != nil {
+		return err
+	}
 	a.passwordHash = passwordHash
 	return nil
 }

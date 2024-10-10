@@ -3,7 +3,7 @@ package user_usecase
 import (
 	"context"
 
-	authenticationDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
+	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
@@ -14,20 +14,20 @@ type ICreateUserUsecase interface {
 
 type createUserUsecase struct {
 	userRepo                           userDomain.IUserRepository
-	authenticationRepo                 authenticationDomain.IAuthenticationRepository
+	authRepo                           authDomain.IAuthenticationRepository
 	verifyEmailUniquenessServ          userDomain.VerifyEmailUniquenessService
-	verifyAuthenticationUniquenessServ authenticationDomain.VerifyAuthenticationUniquenessService
+	verifyAuthenticationUniquenessServ authDomain.VerifyAuthenticationUniquenessService
 }
 
 func NewCreateUserUsecase(
 	userRepo userDomain.IUserRepository,
-	authenticationRepo authenticationDomain.IAuthenticationRepository,
+	authRepo authDomain.IAuthenticationRepository,
 	verifyEmailUniquenessServ userDomain.VerifyEmailUniquenessService,
-	verifyAuthenticationUniquenessServ authenticationDomain.VerifyAuthenticationUniquenessService,
+	verifyAuthenticationUniquenessServ authDomain.VerifyAuthenticationUniquenessService,
 ) ICreateUserUsecase {
 	return &createUserUsecase{
 		userRepo:                           userRepo,
-		authenticationRepo:                 authenticationRepo,
+		authRepo:                           authRepo,
 		verifyEmailUniquenessServ:          verifyEmailUniquenessServ,
 		verifyAuthenticationUniquenessServ: verifyAuthenticationUniquenessServ,
 	}
@@ -84,12 +84,12 @@ func (u *createUserUsecase) createAuthentication(ctx context.Context, userID str
 		return err
 	}
 
-	authentication, err := authenticationDomain.New(userID, cmd.Password)
+	authentication, err := authDomain.New(userID, cmd.Password)
 	if err != nil {
 		return err
 	}
 
-	if err = u.authenticationRepo.Save(ctx, authentication); err != nil {
+	if err = u.authRepo.Save(ctx, authentication); err != nil {
 		return err
 	}
 

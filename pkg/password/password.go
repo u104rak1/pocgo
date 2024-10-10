@@ -1,23 +1,17 @@
 package password
 
 import (
-	"encoding/base64"
-	"errors"
+	"golang.org/x/crypto/bcrypt"
 )
 
-var ErrPasswordUnmatch = errors.New("password unmatch")
-
-func Encode(password string) string {
-	return base64.StdEncoding.EncodeToString([]byte(password))
+func Encode(password string) (string, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(hashedPassword), nil
 }
 
 func Compare(hash, password string) error {
-	decodedPassword, err := base64.StdEncoding.DecodeString(hash)
-	if err != nil {
-		return err
-	}
-	if string(decodedPassword) != password {
-		return ErrPasswordUnmatch
-	}
-	return nil
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }

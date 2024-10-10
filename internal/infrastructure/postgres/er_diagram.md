@@ -1,50 +1,49 @@
 ```mermaid
 erDiagram
-    UserModel {
-        string ID PK "ユーザーID"
-        string Name "ユーザー名"
-        string Email "メールアドレス"
-        time DeletedAt "削除日時"
+    users {
+        string id PK "ユーザーID"
+        string name "ユーザー名"
+        string email "メールアドレス"
+        time deleted_at "削除日時"
     }
-    AuthenticationModel {
-        string UserID PK "ユーザーID（外部キー）"
-        string PasswordHash "パスワードのハッシュ"
-        time DeletedAt "削除日時"
+    authentications {
+        string user_id PK "ユーザーID（外部キー）"
+        string password_hash "パスワードのハッシュ"
+        time deleted_at "削除日時"
     }
-    AccountModel {
-        string ID PK "口座ID"
-        string UserID "ユーザーID（外部キー）"
-        string Name "口座名"
-        string PasswordHash "パスワードのハッシュ"
-        float Balance "口座残高"
-        string CurrencyID "通貨ID（外部キー）"
-        time UpdatedAt "更新日時"
-        time DeletedAt "削除日時"
+    accounts {
+        string id PK "口座ID"
+        string user_id "ユーザーID（外部キー）"
+        string name "口座名"
+        string password_hash "パスワードのハッシュ"
+        float balance "口座残高"
+        string currency_id "通貨ID（外部キー）"
+        time updated_at "更新日時"
+        time deleted_at "削除日時"
     }
-    TransactionModel {
-        string ID PK "取引ID"
-        string AccountID "取引対象の口座ID"
-        string ReceiverAccountID "受取対象の口座ID"
-        string Type "取引種別（外部キー）"
-        float Amount "取引金額"
-        string CurrencyID "通貨ID（外部キー）"
-        time TransactionAt "取引日時"
-        time DeletedAt "削除日時"
+    transactions {
+        string id PK "取引ID"
+        string account_id "取引対象の口座ID"
+        string receiver_account_id "受取対象の口座ID"
+        string type "取引種別（外部キー）"
+        float amount "取引金額"
+        string currency_id "通貨ID（外部キー）"
+        time transaction_at "取引日時"
     }
-    CurrencyMasterModel {
-        string ID PK "通貨ID（ULID）"
-        string Code "ISO 4217 通貨コード"
+    currency_master {
+        string id PK "通貨ID（ULID）"
+        string code "ISO 4217 通貨コード"
     }
-    TransactionTypeMasterModel {
-        string Type PK "取引種別名"
+    transaction_type_master {
+        string type PK "取引種別名"
     }
 
-    UserModel ||--o{ AccountModel : "has many"
-    UserModel ||--|{ AuthenticationModel : "has one"
-    AccountModel ||--o{ TransactionModel : "has many"
-    AccountModel ||--|{ CurrencyMasterModel : "belongs to"
-    TransactionModel ||--|{ TransactionTypeMasterModel : "belongs to"
-    TransactionModel ||--|{ AccountModel : "belongs to (Sender)"
-    TransactionModel ||--|{ AccountModel : "belongs to (Receiver)"
-    TransactionModel ||--|{ CurrencyMasterModel : "belongs to"
+    users ||--o{ accounts : "has many"
+    users ||--|{ authentications : "has one"
+    accounts ||--o{ transactions : "has many"
+    accounts ||--|{ currency_master : "belongs to"
+    transactions ||--|{ transaction_type_master : "belongs to"
+    transactions ||--|{ accounts : "belongs to (Sender)"
+    transactions ||--|{ accounts : "belongs to (Receiver)"
+    transactions ||--|{ currency_master : "belongs to"
 ```
