@@ -1,12 +1,17 @@
 package model
 
-import "github.com/uptrace/bun"
+import (
+	"time"
+
+	"github.com/uptrace/bun"
+)
 
 type UserModel struct {
 	bun.BaseModel `bun:"table:users"`
-	ID            string `bun:"id,pk,type:char(26),notnull"`
-	Name          string `bun:"name,type:varchar(20),notnull"`
-	Email         string `bun:"email,notnull"`
+	ID            string    `bun:"id,pk,type:char(26),notnull"`
+	Name          string    `bun:"name,type:varchar(20),notnull"`
+	Email         string    `bun:"email,notnull"`
+	DeletedAt     time.Time `bun:",soft_delete,nullzero"`
 
 	Authentication *AuthenticationModel `bun:"rel:has-one,join:id=user_id"`
 	Accounts       []*AccountModel      `bun:"rel:has-many,join:id=user_id"`

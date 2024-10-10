@@ -8,3 +8,17 @@ func ValidID(id string) error {
 	}
 	return nil
 }
+
+func validTransactionType(transactionType string) error {
+	var validTransactionTypes = []string{
+		TransactionDeposit,
+		TransactionWithdraw,
+		TransactionTransfer,
+	}
+	for _, validType := range validTransactionTypes {
+		if transactionType == validType {
+			return nil
+		}
+	}
+	return ErrUnsupportTransactionType
+}

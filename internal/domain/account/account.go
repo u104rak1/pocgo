@@ -8,15 +8,15 @@ import (
 )
 
 type Account struct {
-	id            string
-	userID        string
-	name          string
-	passwordHash  string
-	balance       Money
-	lastUpdatedAt time.Time
+	id           string
+	userID       string
+	name         string
+	passwordHash string
+	balance      Money
+	updatedAt    time.Time
 }
 
-func New(id, userID, name, password string, amount float64, currency string, lastUpdatedAt time.Time) (*Account, error) {
+func New(id, userID, name, password string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
 	var err error
 	if err = ValidID(id); err != nil {
 		return nil, err
@@ -41,12 +41,12 @@ func New(id, userID, name, password string, amount float64, currency string, las
 	}
 
 	return &Account{
-		id:            id,
-		userID:        userID,
-		name:          name,
-		passwordHash:  passwordHash,
-		balance:       *balance,
-		lastUpdatedAt: lastUpdatedAt,
+		id:           id,
+		userID:       userID,
+		name:         name,
+		passwordHash: passwordHash,
+		balance:      *balance,
+		updatedAt:    updatedAt,
 	}, nil
 }
 
@@ -66,8 +66,8 @@ func (a *Account) Balance() Money {
 	return a.balance
 }
 
-func (a *Account) LastUpdatedAt() time.Time {
-	return a.lastUpdatedAt
+func (a *Account) UpdatedAt() time.Time {
+	return a.updatedAt
 }
 
 func (a *Account) ChangeName(new string) error {
@@ -121,6 +121,6 @@ func (a *Account) Deposit(amount float64, currency string) error {
 	return nil
 }
 
-func (a *Account) UpdateLastUpdatedAt(now time.Time) {
-	a.lastUpdatedAt = now
+func (a *Account) ChangeUpdatedAt(now time.Time) {
+	a.updatedAt = now
 }

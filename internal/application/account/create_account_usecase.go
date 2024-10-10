@@ -59,6 +59,6 @@ func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand
 		Name:          account.Name(),
 		Balance:       account.Balance().Amount(),
 		Currency:      account.Balance().Currency(),
-		LastUpdatedAt: account.LastUpdatedAt().String(),
+		LastUpdatedAt: account.UpdatedAt().String(),
 	}, nil
 }

@@ -1,11 +1,16 @@
 package model
 
-import "github.com/uptrace/bun"
+import (
+	"time"
+
+	"github.com/uptrace/bun"
+)
 
 type AuthenticationModel struct {
 	bun.BaseModel `bun:"table:authentications"`
-	UserID        string `bun:"user_id,pk,notnull"`
-	PasswordHash  string `bun:"password_hash,notnull"`
+	UserID        string    `bun:"user_id,pk,notnull"`
+	PasswordHash  string    `bun:"password_hash,notnull"`
+	DeletedAt     time.Time `bun:",soft_delete,nullzero"`
 }
 
 var AuthenticationUserFK = ForeignKey{

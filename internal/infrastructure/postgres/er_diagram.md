@@ -4,10 +4,12 @@ erDiagram
         string ID PK "ユーザーID"
         string Name "ユーザー名"
         string Email "メールアドレス"
+        time DeletedAt "削除日時"
     }
     AuthenticationModel {
         string UserID PK "ユーザーID（外部キー）"
         string PasswordHash "パスワードのハッシュ"
+        time DeletedAt "削除日時"
     }
     AccountModel {
         string ID PK "口座ID"
@@ -16,7 +18,8 @@ erDiagram
         string PasswordHash "パスワードのハッシュ"
         float Balance "口座残高"
         string CurrencyID "通貨ID（外部キー）"
-        time LastUpdatedAt "最終更新日時"
+        time UpdatedAt "更新日時"
+        time DeletedAt "削除日時"
     }
     TransactionModel {
         string ID PK "取引ID"
@@ -26,6 +29,7 @@ erDiagram
         float Amount "取引金額"
         string CurrencyID "通貨ID（外部キー）"
         time TransactionAt "取引日時"
+        time DeletedAt "削除日時"
     }
     CurrencyMasterModel {
         string ID PK "通貨ID（ULID）"

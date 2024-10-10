@@ -1,0 +1,1 @@
+IDやMoneyのCurrencyやTransaction typeは後で固有の型をつける

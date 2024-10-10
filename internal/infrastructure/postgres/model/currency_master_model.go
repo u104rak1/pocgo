@@ -1,6 +1,8 @@
 package model
 
-import "github.com/uptrace/bun"
+import (
+	"github.com/uptrace/bun"
+)
 
 type CurrencyMasterModel struct {
 	bun.BaseModel `bun:"table:currency_master"`

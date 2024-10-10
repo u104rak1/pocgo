@@ -86,8 +86,7 @@ func (u *createUserUsecase) createAuthentication(ctx context.Context, userID str
 		return err
 	}
 
-	authenticationID := ulid.New()
-	authentication, err := authenticationDomain.New(authenticationID, userID, cmd.Password)
+	authentication, err := authenticationDomain.New(userID, cmd.Password)
 	if err != nil {
 		return err
 	}

@@ -6,28 +6,21 @@ import (
 )
 
 type Authentication struct {
-	id           string
 	userID       string
 	passwordHash string
 }
 
-func New(id, userID, password string) (*Authentication, error) {
-	var err error
-	if err = ValidID(id); err != nil {
+func New(userID, password string) (*Authentication, error) {
+	if err := user_domain.ValidID(userID); err != nil {
 		return nil, err
 	}
 
-	if err = user_domain.ValidID(userID); err != nil {
-		return nil, err
-	}
-
-	if err = ValidPassword(password); err != nil {
+	if err := ValidPassword(password); err != nil {
 		return nil, err
 	}
 	passwordHash := passwordUtil.Encode(password)
 
 	return &Authentication{
-		id:           id,
 		userID:       userID,
 		passwordHash: passwordHash,
 	}, nil

@@ -14,7 +14,8 @@ type AccountModel struct {
 	PasswordHash  string    `bun:"password_hash,notnull"`
 	Balance       float64   `bun:"balance,type:float8,notnull"`
 	CurrencyID    string    `bun:"currency_id,notnull"`
-	LastUpdatedAt time.Time `bun:"last_updated_at,notnull"`
+	UpdatedAt     time.Time `bun:"updated_at,notnull"`
+	DeletedAt     time.Time `bun:",soft_delete,nullzero"`
 
 	User                 *UserModel           `bun:"rel:belongs-to,join:user_id=id"`
 	SentTransactions     []*TransactionModel  `bun:"rel:has-many,join:id=account_id"`
