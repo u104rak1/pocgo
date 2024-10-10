@@ -1,4 +1,4 @@
-package authentication_domain
+package authentication
 
 import (
 	"context"

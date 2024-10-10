@@ -1,4 +1,4 @@
-package transaction_domain
+package transaction
 
 import "errors"
 

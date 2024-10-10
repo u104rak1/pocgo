@@ -10,7 +10,7 @@ import (
 
 func saveAuthentication(db *bun.DB) error {
 	passwordHash, _ := password.Encode("password")
-	data := []model.AuthenticationModel{
+	data := []model.Authentication{
 		{UserID: johnDoeID, PasswordHash: passwordHash},
 		{UserID: janeSmithID, PasswordHash: passwordHash},
 	}

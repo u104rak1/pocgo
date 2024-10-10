@@ -13,7 +13,7 @@ const (
 )
 
 func saveUser(db *bun.DB) error {
-	data := []model.UserModel{
+	data := []model.User{
 		{ID: johnDoeID, Name: "John Doe", Email: "john@example.com"},
 		{ID: janeSmithID, Name: "Jane Smith", Email: "jane@example.com"},
 	}

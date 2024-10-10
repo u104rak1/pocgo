@@ -12,7 +12,7 @@ const (
 )
 
 func saveCurrencyMaster(db *bun.DB) error {
-	data := []model.CurrencyMasterModel{
+	data := []model.CurrencyMaster{
 		{ID: jpyID, Code: "JPY"},
 	}
 	if _, err := db.NewInsert().Model(&data).Exec(context.Background()); err != nil {

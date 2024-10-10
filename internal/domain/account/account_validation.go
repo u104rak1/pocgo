@@ -1,4 +1,4 @@
-package account_domain
+package account
 
 func ValidID(id string) error {
 	if id == "" {

@@ -1,4 +1,4 @@
-package account_domain
+package account
 
 import "errors"
 

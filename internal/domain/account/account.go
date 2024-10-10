@@ -1,9 +1,9 @@
-package account_domain
+package account
 
 import (
 	"time"
 
-	user_domain "github.com/ucho456job/pocgo/internal/domain/user"
+	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
 )
 
@@ -25,7 +25,7 @@ func New(id, userID, name, password string, amount float64, currency string, upd
 		return nil, err
 	}
 
-	if err := user_domain.ValidID(userID); err != nil {
+	if err := userDomain.ValidID(userID); err != nil {
 		return nil, err
 	}
 

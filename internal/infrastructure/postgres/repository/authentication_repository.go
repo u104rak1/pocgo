@@ -22,7 +22,10 @@ func NewAuthenticationRepository(db *bun.DB) IAuthenticationRepository {
 }
 
 func (r *authenticationRepository) Save(ctx context.Context, authentication *authDomain.Authentication) error {
-	authModel := r.factoryAuthenticationModel(authentication)
+	authModel := &model.Authentication{
+		UserID:       authentication.UserID(),
+		PasswordHash: authentication.PasswordHash(),
+	}
 	_, err := r.db.NewInsert().Model(authModel).On("CONFLICT (user_id) DO UPDATE").
 		Set("password_hash = EXCLUDED.password_hash").
 		Exec(ctx)
@@ -30,16 +33,9 @@ func (r *authenticationRepository) Save(ctx context.Context, authentication *aut
 }
 
 func (r *authenticationRepository) FindByUserID(ctx context.Context, userID string) (*authDomain.Authentication, error) {
-	authModel := new(model.AuthenticationModel)
-	if err := r.db.NewSelect().Model(&model.AuthenticationModel{UserID: userID}).WherePK().Scan(ctx); err != nil {
+	authModel := &model.Authentication{}
+	if err := r.db.NewSelect().Model(authModel).Where("user_id = ?", userID).Scan(ctx); err != nil {
 		return nil, err
 	}
 	return authDomain.Reconstruct(userID, authModel.PasswordHash)
-}
-
-func (r *authenticationRepository) factoryAuthenticationModel(authentication *authDomain.Authentication) *model.AuthenticationModel {
-	return &model.AuthenticationModel{
-		UserID:       authentication.UserID(),
-		PasswordHash: authentication.PasswordHash(),
-	}
 }

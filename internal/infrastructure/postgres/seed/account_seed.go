@@ -18,7 +18,7 @@ const (
 
 func saveAccount(db *bun.DB) error {
 	passwordHash, _ := password.Encode("1234")
-	data := []model.AccountModel{
+	data := []model.Account{
 		{
 			ID:           johnDoeWorkAccountID,
 			UserID:       johnDoeID,

@@ -1,4 +1,4 @@
-package transaction_domain
+package transaction
 
 type ITransactionRepository interface {
 	Save(transaction *Transaction) error

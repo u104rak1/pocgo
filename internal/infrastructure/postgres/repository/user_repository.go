@@ -25,7 +25,11 @@ func NewUserRepository(db *bun.DB) IUserRepository {
 }
 
 func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error {
-	userModel := r.factoryUserModel(user)
+	userModel := &model.User{
+		ID:    user.ID(),
+		Email: user.Email(),
+		Name:  user.Name(),
+	}
 	_, err := r.db.NewInsert().Model(userModel).On("CONFLICT (id) DO UPDATE").
 		Set("name = EXCLUDED.name").
 		Set("email = EXCLUDED.email").
@@ -34,15 +38,15 @@ func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error 
 }
 
 func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.User, error) {
-	userModel := new(model.UserModel)
-	if err := r.db.NewSelect().Model(&model.UserModel{ID: id}).WherePK().Scan(ctx); err != nil {
+	userModel := &model.User{}
+	if err := r.db.NewSelect().Model(userModel).Where("id = ?", id).Scan(ctx); err != nil {
 		return nil, err
 	}
 	return userDomain.New(userModel.ID, userModel.Email, userModel.Name)
 }
 
 func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
-	exists, err := r.db.NewSelect().Model((*model.UserModel)(nil)).Where("email = ?", email).Exists(ctx)
+	exists, err := r.db.NewSelect().Model((*model.User)(nil)).Where("email = ?", email).Exists(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -51,17 +55,9 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 
 func (r *userRepository) Delete(ctx context.Context, id string) error {
 	_, err := r.db.NewUpdate().
-		Model(&model.UserModel{ID: id, DeletedAt: time.Now()}).
+		Model(&model.User{ID: id, DeletedAt: time.Now()}).
 		Column("deleted_at").
 		WherePK().
 		Exec(ctx)
 	return err
-}
-
-func (r *userRepository) factoryUserModel(user *userDomain.User) *model.UserModel {
-	return &model.UserModel{
-		ID:    user.ID(),
-		Email: user.Email(),
-		Name:  user.Name(),
-	}
 }

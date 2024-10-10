@@ -1,4 +1,4 @@
-package signup_usecase
+package signup
 
 import (
 	"context"

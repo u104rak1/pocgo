@@ -9,7 +9,7 @@ import (
 )
 
 func saveTransaction(db *bun.DB) error {
-	transactions := []model.TransactionModel{
+	transactions := []model.Transaction{
 		{
 			ID:                "01J9RFMD0GQ3Q36RP34HBSBYHM",
 			AccountID:         johnDoeWorkAccountID,

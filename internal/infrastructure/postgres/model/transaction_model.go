@@ -6,7 +6,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type TransactionModel struct {
+type Transaction struct {
 	bun.BaseModel     `bun:"table:transactions"`
 	ID                string    `bun:"id,pk,type:char(26),notnull"`
 	AccountID         string    `bun:"account_id,notnull"`
@@ -16,10 +16,10 @@ type TransactionModel struct {
 	CurrencyID        string    `bun:"currency_id,notnull"`
 	TransactionAt     time.Time `bun:"transaction_at,notnull"`
 
-	SenderAccount   *AccountModel               `bun:"rel:belongs-to,join:account_id=id"`
-	ReceiverAccount *AccountModel               `bun:"rel:belongs-to,join:receiver_account_id=id"`
-	Currency        *CurrencyMasterModel        `bun:"rel:belongs-to,join:currency_id=id"`
-	TransactionType *TransactionTypeMasterModel `bun:"rel:belongs-to,join:type=type"`
+	SenderAccount   *Account               `bun:"rel:belongs-to,join:account_id=id"`
+	ReceiverAccount *Account               `bun:"rel:belongs-to,join:receiver_account_id=id"`
+	Currency        *CurrencyMaster        `bun:"rel:belongs-to,join:currency_id=id"`
+	TransactionType *TransactionTypeMaster `bun:"rel:belongs-to,join:type=type"`
 }
 
 var TransactionAccountFK = ForeignKey{
@@ -57,7 +57,7 @@ var TransactionTypeFK = ForeignKey{
 var TransactionSenderAccountIDIdxCreator = []IndexQueryCreators{
 	func(db *bun.DB) *bun.CreateIndexQuery {
 		return db.NewCreateIndex().
-			Model((*TransactionModel)(nil)).
+			Model((*Transaction)(nil)).
 			Index("transaction_account_id_idx").
 			Column("account_id")
 	},
@@ -66,7 +66,7 @@ var TransactionSenderAccountIDIdxCreator = []IndexQueryCreators{
 var TransactionReceiverAccountIDIdxCreator = []IndexQueryCreators{
 	func(db *bun.DB) *bun.CreateIndexQuery {
 		return db.NewCreateIndex().
-			Model((*TransactionModel)(nil)).
+			Model((*Transaction)(nil)).
 			Index("transaction_receiver_account_id_idx").
 			Column("receiver_account_id")
 	},

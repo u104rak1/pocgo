@@ -1,6 +1,6 @@
 # pocgo
 
-[Effective Goのガイドライン](https://go.dev/blog/package-names)ではパッケージ名は短く、すべて小文字で、1単語にすることが理想とされていますが、pocgoではこれを無視します。
+アトラス・mockgen
 
 POST /signup
 POST /signin

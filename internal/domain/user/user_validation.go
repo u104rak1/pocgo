@@ -1,4 +1,4 @@
-package user_domain
+package user
 
 import (
 	emailUtil "github.com/ucho456job/pocgo/pkg/email"

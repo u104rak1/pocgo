@@ -6,7 +6,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type AccountModel struct {
+type Account struct {
 	bun.BaseModel `bun:"table:accounts"`
 	ID            string    `bun:"id,pk,type:char(26),notnull"`
 	UserID        string    `bun:"user_id,notnull"`
@@ -17,10 +17,10 @@ type AccountModel struct {
 	UpdatedAt     time.Time `bun:"updated_at,notnull"`
 	DeletedAt     time.Time `bun:",soft_delete,nullzero"`
 
-	User                 *UserModel           `bun:"rel:belongs-to,join:user_id=id"`
-	SentTransactions     []*TransactionModel  `bun:"rel:has-many,join:id=account_id"`
-	ReceivedTransactions []*TransactionModel  `bun:"rel:has-many,join:id=receiver_account_id"`
-	Currency             *CurrencyMasterModel `bun:"rel:belongs-to,join:currency_id=id"`
+	User                 *User           `bun:"rel:belongs-to,join:user_id=id"`
+	SentTransactions     []*Transaction  `bun:"rel:has-many,join:id=account_id"`
+	ReceivedTransactions []*Transaction  `bun:"rel:has-many,join:id=receiver_account_id"`
+	Currency             *CurrencyMaster `bun:"rel:belongs-to,join:currency_id=id"`
 }
 
 var AccountUserFK = ForeignKey{
@@ -42,7 +42,7 @@ var AccountCurrencyFK = ForeignKey{
 var AccountUserIDIdxCreator = []IndexQueryCreators{
 	func(db *bun.DB) *bun.CreateIndexQuery {
 		return db.NewCreateIndex().
-			Model((*AccountModel)(nil)).
+			Model((*Account)(nil)).
 			Index("account_user_id_idx").
 			Column("user_id")
 	},

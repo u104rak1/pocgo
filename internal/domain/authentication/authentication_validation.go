@@ -1,4 +1,4 @@
-package authentication_domain
+package authentication
 
 import (
 	"github.com/ucho456job/pocgo/pkg/ulid"

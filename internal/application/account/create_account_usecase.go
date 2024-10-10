@@ -1,4 +1,4 @@
-package account_usecase
+package account
 
 import (
 	"context"

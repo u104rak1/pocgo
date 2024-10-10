@@ -14,7 +14,7 @@ const (
 )
 
 func saveTransactionTypeMaster(db *bun.DB) error {
-	data := []model.TransactionTypeMasterModel{
+	data := []model.TransactionTypeMaster{
 		{Type: deposit},
 		{Type: withdraw},
 		{Type: transfer},
