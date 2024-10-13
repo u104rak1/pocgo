@@ -35,6 +35,12 @@ seed: ## seedデータ投入
 	make migrate_up
 	@go run ./cmd/postgres/main.go insert seed
 
+run: ## サーバー起動
+	@go run ./cmd/pocgo/main.go
+
+clean: ## キャッシュ削除
+	@go clean -cache -modcache
+
 unit_test: ## ユニットテスト実行
 	@-export UNIT_TEST_CMD="test ./pkg/... -v -coverprofile=tmp/unit_test_cover.out";\
 	mkdir -p tmp; \

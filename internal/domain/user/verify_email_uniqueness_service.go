@@ -2,17 +2,21 @@ package user
 
 import "context"
 
-type VerifyEmailUniquenessService struct {
+type IVerifyEmailUniquenessService interface {
+	Run(ctx context.Context, email string) error
+}
+
+type verifyEmailUniquenessService struct {
 	userRepo IUserRepository
 }
 
-func NewVerifyEmailUniquenessService(userRepository IUserRepository) *VerifyEmailUniquenessService {
-	return &VerifyEmailUniquenessService{
+func NewVerifyEmailUniquenessService(userRepository IUserRepository) IVerifyEmailUniquenessService {
+	return &verifyEmailUniquenessService{
 		userRepo: userRepository,
 	}
 }
 
-func (s *VerifyEmailUniquenessService) Run(ctx context.Context, email string) error {
+func (s *verifyEmailUniquenessService) Run(ctx context.Context, email string) error {
 	exists, err := s.userRepo.ExistsByEmail(ctx, email)
 	if err != nil {
 		return err

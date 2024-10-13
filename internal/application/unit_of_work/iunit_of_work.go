@@ -7,5 +7,5 @@ type IUnitOfWork interface {
 }
 
 type IUnitOfWorkWithResult[T any] interface {
-	RunInTx(ctx context.Context, f func(ctx context.Context) (T, error)) (T, error)
+	RunInTx(ctx context.Context, f func(ctx context.Context) (*T, error)) (*T, error)
 }

@@ -2,17 +2,21 @@ package authentication
 
 import "context"
 
-type VerifyAuthenticationUniquenessService struct {
+type IVerifyAuthenticationUniquenessService interface {
+	Run(ctx context.Context, userID string) error
+}
+
+type verifyAuthenticationUniquenessService struct {
 	authenticationRepo IAuthenticationRepository
 }
 
-func NewVerifyEmailUniquenessService(authenticationRepository IAuthenticationRepository) *VerifyAuthenticationUniquenessService {
-	return &VerifyAuthenticationUniquenessService{
+func NewVerifyAuthenticationUniquenessService(authenticationRepository IAuthenticationRepository) IVerifyAuthenticationUniquenessService {
+	return &verifyAuthenticationUniquenessService{
 		authenticationRepo: authenticationRepository,
 	}
 }
 
-func (s *VerifyAuthenticationUniquenessService) Run(ctx context.Context, userID string) error {
+func (s *verifyAuthenticationUniquenessService) Run(ctx context.Context, userID string) error {
 	a, err := s.authenticationRepo.FindByUserID(ctx, userID)
 	if err != nil {
 		return err

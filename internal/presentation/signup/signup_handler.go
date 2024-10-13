@@ -4,19 +4,19 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	accountUC "github.com/ucho456job/pocgo/internal/application/account"
-	signupUC "github.com/ucho456job/pocgo/internal/application/authentication/signup"
-	userUC "github.com/ucho456job/pocgo/internal/application/user"
+	accountApp "github.com/ucho456job/pocgo/internal/application/account"
+	signupApp "github.com/ucho456job/pocgo/internal/application/authentication/signup"
+	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
 )
 
 type SignupHandler struct {
-	signupUC signupUC.ISignupUsecase
+	signupUsecase signupApp.ISignupUsecase
 }
 
-func NewSignupHandler(signupUC signupUC.ISignupUsecase) *SignupHandler {
+func NewSignupHandler(signupUsecase signupApp.ISignupUsecase) *SignupHandler {
 	return &SignupHandler{
-		signupUC: signupUC,
+		signupUsecase: signupUsecase,
 	}
 }
 
@@ -63,13 +63,13 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 		return response.BadRequest(ctx, err)
 	}
 
-	dto, err := h.signupUC.Run(ctx.Request().Context(), signupUC.SignupCommand{
-		User: userUC.CreateUserCommand{
+	dto, err := h.signupUsecase.Run(ctx.Request().Context(), signupApp.SignupCommand{
+		User: userApp.CreateUserCommand{
 			Name:     req.User.Name,
 			Email:    req.User.Email,
 			Password: req.User.Password,
 		},
-		Account: accountUC.CreateAccountCommand{
+		Account: accountApp.CreateAccountCommand{
 			Name:     req.User.Account.Name,
 			Password: req.User.Account.Password,
 			Currency: req.User.Account.Currency,

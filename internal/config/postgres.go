@@ -48,3 +48,10 @@ func newDBConnection() (*bun.DB, error) {
 	log.Println("Successfully connected to database")
 	return db, nil
 }
+
+func CloseDB(db *bun.DB) {
+	if err := db.Close(); err != nil {
+		log.Fatalf("Failed to close database: %v", err)
+	}
+	log.Println("Successfully closed database")
+}

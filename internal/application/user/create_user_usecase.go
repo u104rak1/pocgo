@@ -15,15 +15,15 @@ type ICreateUserUsecase interface {
 type createUserUsecase struct {
 	userRepo                           userDomain.IUserRepository
 	authRepo                           authDomain.IAuthenticationRepository
-	verifyEmailUniquenessServ          userDomain.VerifyEmailUniquenessService
-	verifyAuthenticationUniquenessServ authDomain.VerifyAuthenticationUniquenessService
+	verifyEmailUniquenessServ          userDomain.IVerifyEmailUniquenessService
+	verifyAuthenticationUniquenessServ authDomain.IVerifyAuthenticationUniquenessService
 }
 
 func NewCreateUserUsecase(
 	userRepo userDomain.IUserRepository,
 	authRepo authDomain.IAuthenticationRepository,
-	verifyEmailUniquenessServ userDomain.VerifyEmailUniquenessService,
-	verifyAuthenticationUniquenessServ authDomain.VerifyAuthenticationUniquenessService,
+	verifyEmailUniquenessServ userDomain.IVerifyEmailUniquenessService,
+	verifyAuthenticationUniquenessServ authDomain.IVerifyAuthenticationUniquenessService,
 ) ICreateUserUsecase {
 	return &createUserUsecase{
 		userRepo:                           userRepo,
