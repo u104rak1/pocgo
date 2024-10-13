@@ -12,7 +12,7 @@ type Authentication struct {
 
 // 新規作成時はパスワードのバリデーションを行う
 func New(userID, password string) (*Authentication, error) {
-	if err := ValidPassword(password); err != nil {
+	if err := validPassword(password); err != nil {
 		return nil, err
 	}
 	passwordHash, err := passwordUtil.Encode(password)
@@ -20,15 +20,15 @@ func New(userID, password string) (*Authentication, error) {
 		return nil, err
 	}
 
-	return new(userID, passwordHash)
+	return newAuthentication(userID, passwordHash)
 }
 
 // DBからの再構築時は既にハッシュ値なのでパスワードのバリデーションを行わない
 func Reconstruct(userID, passwordHash string) (*Authentication, error) {
-	return new(userID, passwordHash)
+	return newAuthentication(userID, passwordHash)
 }
 
-func new(userID, passwordHash string) (*Authentication, error) {
+func newAuthentication(userID, passwordHash string) (*Authentication, error) {
 	if err := user_domain.ValidID(userID); err != nil {
 		return nil, err
 	}

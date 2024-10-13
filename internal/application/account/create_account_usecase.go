@@ -26,24 +26,23 @@ type CreateAccountCommand struct {
 	UserID   string
 	Name     string
 	Password string
-	Balance  float64
 	Currency string
 }
 
 type CreateAccountDTO struct {
-	ID            string
-	UserID        string
-	Name          string
-	Balance       float64
-	Currency      string
-	LastUpdatedAt string
+	ID        string
+	UserID    string
+	Name      string
+	Balance   float64
+	Currency  string
+	UpdatedAt string
 }
 
 func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand) (*CreateAccountDTO, error) {
 	accountID := ulid.New()
 	account, err := accountDomain.New(
 		accountID, cmd.Name, cmd.Password, cmd.UserID,
-		cmd.Balance, cmd.Currency, time.Now(),
+		0, cmd.Currency, time.Now(),
 	)
 	if err != nil {
 		return nil, err
@@ -54,11 +53,11 @@ func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand
 	}
 
 	return &CreateAccountDTO{
-		ID:            account.ID(),
-		UserID:        account.UserID(),
-		Name:          account.Name(),
-		Balance:       account.Balance().Amount(),
-		Currency:      account.Balance().Currency(),
-		LastUpdatedAt: account.UpdatedAt().String(),
+		ID:        account.ID(),
+		UserID:    account.UserID(),
+		Name:      account.Name(),
+		Balance:   account.Balance().Amount(),
+		Currency:  account.Balance().Currency(),
+		UpdatedAt: account.UpdatedAt().String(),
 	}, nil
 }

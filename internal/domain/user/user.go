@@ -11,11 +11,11 @@ func New(id, name, email string) (*User, error) {
 		return nil, err
 	}
 
-	if err := ValidName(name); err != nil {
+	if err := validName(name); err != nil {
 		return nil, err
 	}
 
-	if err := ValidEmail(email); err != nil {
+	if err := validEmail(email); err != nil {
 		return nil, err
 	}
 
@@ -39,7 +39,7 @@ func (u *User) Email() string {
 }
 
 func (u *User) ChangeName(newName string) error {
-	if err := ValidName(newName); err != nil {
+	if err := validName(newName); err != nil {
 		return err
 	}
 	u.name = newName
@@ -47,7 +47,7 @@ func (u *User) ChangeName(newName string) error {
 }
 
 func (u *User) ChangeEmail(newEmail string) error {
-	if err := ValidEmail(newEmail); err != nil {
+	if err := validEmail(newEmail); err != nil {
 		return err
 	}
 	u.email = newEmail

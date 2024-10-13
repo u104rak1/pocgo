@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -34,7 +33,7 @@ func (s *AccessTokenService) GetUserID(ctx context.Context, tokenString string) 
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method")
+			return nil, ErrUnexpectedSigningMethod
 		}
 		return jwtSecret, nil
 	})
@@ -49,5 +48,5 @@ func (s *AccessTokenService) GetUserID(ctx context.Context, tokenString string) 
 		}
 	}
 
-	return "", errors.New("invalid token or missing userID")
+	return "", ErrAuthenticationFailed
 }

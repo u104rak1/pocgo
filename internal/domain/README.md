@@ -1,1 +1,3 @@
 IDやMoneyのCurrencyやTransaction typeは後で固有の型をつける
+
+valueobjectはあまり定義しない。比較は多くの場合SQLで行ってしまう為、必要になったタイミングでエンティティにメソッドを追加すれば十分と判断。

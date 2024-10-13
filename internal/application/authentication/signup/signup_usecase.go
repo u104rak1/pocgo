@@ -52,6 +52,7 @@ func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO,
 			return nil, err
 		}
 
+		cmd.Account.UserID = user.ID
 		account, err := u.createAccountUC.Run(ctx, cmd.Account)
 		if err != nil {
 			return nil, err

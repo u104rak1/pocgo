@@ -16,7 +16,25 @@ type Account struct {
 	updatedAt    time.Time
 }
 
+// 新規作成時はパスワードのバリデーションを行う
 func New(id, userID, name, password string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
+	if err := validPassword(password); err != nil {
+		return nil, err
+	}
+	passwordHash, err := passwordUtil.Encode(password)
+	if err != nil {
+		return nil, err
+	}
+
+	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
+}
+
+// DBからの再構築時は既にハッシュ値なのでパスワードのバリデーションを行わない
+func Reconstruct(id, userID, name, passwordHash string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
+	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
+}
+
+func newAccount(id, userID, name, passwordHash string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
 	if err := ValidID(id); err != nil {
 		return nil, err
 	}
@@ -26,14 +44,6 @@ func New(id, userID, name, password string, amount float64, currency string, upd
 	}
 
 	if err := userDomain.ValidID(userID); err != nil {
-		return nil, err
-	}
-
-	if err := validPassword(password); err != nil {
-		return nil, err
-	}
-	passwordHash, err := passwordUtil.Encode(password)
-	if err != nil {
 		return nil, err
 	}
 
@@ -62,6 +72,10 @@ func (a *Account) UserID() string {
 
 func (a *Account) Name() string {
 	return a.name
+}
+
+func (a *Account) PasswordHash() string {
+	return a.passwordHash
 }
 
 func (a *Account) Balance() Money {

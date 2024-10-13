@@ -12,7 +12,7 @@ func ValidID(id string) error {
 	return nil
 }
 
-func ValidName(name string) error {
+func validName(name string) error {
 	const nameMinLength = 1
 	const nameMaxLength = 20
 	if len(name) < nameMinLength || len(name) > nameMaxLength {
@@ -21,7 +21,7 @@ func ValidName(name string) error {
 	return nil
 }
 
-func ValidEmail(email string) error {
+func validEmail(email string) error {
 	if !emailUtil.IsValid(email) {
 		return ErrInvalidEmail
 	}
