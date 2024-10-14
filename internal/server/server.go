@@ -17,6 +17,7 @@ import (
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
 	signupPre "github.com/ucho456job/pocgo/internal/presentation/signup"
+	"github.com/uptrace/bun"
 )
 
 func Start() {
@@ -26,6 +27,12 @@ func Start() {
 	}
 	defer config.CloseDB(db)
 
+	e := setupEcho(db)
+
+	startServer(e)
+}
+
+func setupEcho(db *bun.DB) *echo.Echo {
 	e := echo.New()
 	validation.SetupCustomValidation(e)
 
@@ -54,11 +61,10 @@ func Start() {
 
 	/** Authentication */
 	v1.POST("/signup", signupHandler.Run)
-
-	gracefulShutdown(e)
+	return e
 }
 
-func gracefulShutdown(e *echo.Echo) {
+func startServer(e *echo.Echo) {
 	env := config.NewEnv()
 	port := ":" + env.APP_PORT
 	go func() {

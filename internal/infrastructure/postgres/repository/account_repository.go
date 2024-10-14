@@ -9,19 +9,11 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type IAccountRepository interface {
-	Save(ctx context.Context, account *accountDomain.Account) error
-	FindByID(ctx context.Context, id string) (*accountDomain.Account, error)
-	ListByUserID(ctx context.Context, userID string) ([]*accountDomain.Account, error)
-	CountByUserID(ctx context.Context, userID string) (int, error)
-	Delete(ctx context.Context, id string) error
-}
-
 type accountRepository struct {
 	db *bun.DB
 }
 
-func NewAccountRepository(db *bun.DB) IAccountRepository {
+func NewAccountRepository(db *bun.DB) accountDomain.IAccountRepository {
 	return &accountRepository{db: db}
 }
 

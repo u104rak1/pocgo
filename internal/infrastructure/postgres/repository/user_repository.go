@@ -9,18 +9,11 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type IUserRepository interface {
-	Save(ctx context.Context, user *userDomain.User) error
-	FindByID(ctx context.Context, id string) (*userDomain.User, error)
-	ExistsByEmail(ctx context.Context, email string) (bool, error)
-	Delete(ctx context.Context, id string) error
-}
-
 type userRepository struct {
 	db *bun.DB
 }
 
-func NewUserRepository(db *bun.DB) IUserRepository {
+func NewUserRepository(db *bun.DB) userDomain.IUserRepository {
 	return &userRepository{db: db}
 }
 

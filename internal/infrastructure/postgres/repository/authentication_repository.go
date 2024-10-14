@@ -8,16 +8,11 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type IAuthenticationRepository interface {
-	Save(ctx context.Context, authentication *authDomain.Authentication) error
-	FindByUserID(ctx context.Context, userID string) (*authDomain.Authentication, error)
-}
-
 type authenticationRepository struct {
 	db *bun.DB
 }
 
-func NewAuthenticationRepository(db *bun.DB) IAuthenticationRepository {
+func NewAuthenticationRepository(db *bun.DB) authDomain.IAuthenticationRepository {
 	return &authenticationRepository{db: db}
 }
 
