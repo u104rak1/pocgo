@@ -1,5 +1,5 @@
 .PHONY: develop_start dependencies_start dependencies_stop migrate_refresh \
-				migrate_up migrate_down migrate_reset drop_tables seed \
+				migrate_up migrate_down migrate_reset drop_tables seed run clean \
 				unit_test godoc help
 
 develop_start: ## Dockerを動かしDBのデータを準備する

@@ -43,7 +43,5 @@ erDiagram
     accounts ||--o{ transactions : "has many"
     accounts ||--|{ currency_master : "belongs to"
     transactions ||--|{ transaction_type_master : "belongs to"
-    transactions ||--|{ accounts : "belongs to (Sender)"
-    transactions ||--|{ accounts : "belongs to (Receiver)"
     transactions ||--|{ currency_master : "belongs to"
 ```

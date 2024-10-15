@@ -14,7 +14,7 @@ type Transaction struct {
 	Type              string    `bun:"type,type:varchar(20),notnull"`
 	Amount            float64   `bun:"amount,type:float8,notnull"`
 	CurrencyID        string    `bun:"currency_id,type:char(26),notnull"`
-	TransactionAt     time.Time `bun:"transaction_at,type:char(26),notnull"`
+	TransactionAt     time.Time `bun:"transaction_at,notnull"`
 
 	SenderAccount   *Account               `bun:"rel:belongs-to,join:account_id=id"`
 	ReceiverAccount *Account               `bun:"rel:belongs-to,join:receiver_account_id=id"`

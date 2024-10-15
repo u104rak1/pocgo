@@ -2,7 +2,7 @@ CREATE TABLE "currency_master" ("id" char(26) NOT NULL, "code" varchar(3) NOT NU
 CREATE TABLE "transaction_type_master" ("type" varchar(20) NOT NULL, PRIMARY KEY ("type"));
 CREATE TABLE "users" ("id" char(26) NOT NULL, "name" varchar(20) NOT NULL, "email" VARCHAR NOT NULL, "deleted_at" TIMESTAMPTZ, PRIMARY KEY ("id"));
 CREATE TABLE "accounts" ("id" char(26) NOT NULL, "user_id" char(26) NOT NULL, "name" varchar(10), "password_hash" VARCHAR NOT NULL, "balance" float8 NOT NULL, "currency_id" VARCHAR NOT NULL, "updated_at" TIMESTAMPTZ NOT NULL, "deleted_at" TIMESTAMPTZ, PRIMARY KEY ("id"));
-CREATE TABLE "transactions" ("id" char(26) NOT NULL, "account_id" char(26) NOT NULL, "receiver_account_id" char(26), "type" varchar(20) NOT NULL, "amount" float8 NOT NULL, "currency_id" char(26) NOT NULL, "transaction_at" char(26) NOT NULL, PRIMARY KEY ("id"));
+CREATE TABLE "transactions" ("id" char(26) NOT NULL, "account_id" char(26) NOT NULL, "receiver_account_id" char(26), "type" varchar(20) NOT NULL, "amount" float8 NOT NULL, "currency_id" char(26) NOT NULL, "transaction_at" TIMESTAMPTZ NOT NULL, PRIMARY KEY ("id"));
 CREATE TABLE "authentications" ("user_id" char(26) NOT NULL, "password_hash" VARCHAR NOT NULL, "deleted_at" TIMESTAMPTZ, PRIMARY KEY ("user_id"));
 CREATE INDEX "account_user_id_idx" ON "accounts" ("user_id");
 CREATE UNIQUE INDEX "user_email_idx" ON "users" ("email");
