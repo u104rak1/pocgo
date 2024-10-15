@@ -1,0 +1,144 @@
+definitions:
+  response.ErrorResponse:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  signup.SignupRequestBody:
+    properties:
+      user:
+        $ref: '#/definitions/signup.SignupRequestBodyUser'
+    required:
+    - user
+    type: object
+  signup.SignupRequestBodyAccount:
+    properties:
+      currency:
+        enum:
+        - JPY
+        example: JPY
+        type: string
+      name:
+        example: For work
+        maxLength: 10
+        minLength: 1
+        type: string
+      password:
+        example: "1234"
+        type: string
+    required:
+    - currency
+    - name
+    - password
+    type: object
+  signup.SignupRequestBodyUser:
+    properties:
+      account:
+        $ref: '#/definitions/signup.SignupRequestBodyAccount'
+      email:
+        example: sato@example.com
+        type: string
+      name:
+        example: Sato Taro
+        maxLength: 20
+        minLength: 1
+        type: string
+      password:
+        example: password
+        maxLength: 20
+        minLength: 8
+        type: string
+    required:
+    - account
+    - email
+    - name
+    - password
+    type: object
+  signup.SignupResponseBody:
+    properties:
+      accessToken:
+        example: eyJhb...
+        type: string
+      user:
+        $ref: '#/definitions/signup.SignupResponseBodyUser'
+    type: object
+  signup.SignupResponseBodyAccount:
+    properties:
+      balance:
+        example: 0
+        type: number
+      currency:
+        example: JPY
+        type: string
+      id:
+        example: 01J9R7YPV1FH1V0PPKVSB5C7LE
+        type: string
+      name:
+        example: For work
+        type: string
+      updatedAt:
+        example: "2021-08-01T00:00:00Z"
+        type: string
+    type: object
+  signup.SignupResponseBodyUser:
+    properties:
+      account:
+        $ref: '#/definitions/signup.SignupResponseBodyAccount'
+      email:
+        example: sato@example.com
+        type: string
+      id:
+        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        type: string
+      name:
+        example: Sato Taro
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This is a sample server.
+  title: Pocgo API
+  version: "1.0"
+paths:
+  /v1/signup:
+    post:
+      consumes:
+      - application/json
+      description: Signup
+      parameters:
+      - description: SignupRequestBody
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/signup.SignupRequestBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/signup.SignupResponseBody'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Signup
+      tags:
+      - Authentication
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

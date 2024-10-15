@@ -27,38 +27,49 @@ type SignupRequestBody struct {
 }
 
 type SignupRequestBodyUser struct {
-	Name     string                   `json:"name" validate:"required,min=1,max=20"`
-	Email    string                   `json:"email" validate:"required,validEmail"`
-	Password string                   `json:"password" validate:"required,min=8,max=20"`
+	Name     string                   `json:"name" validate:"required,min=1,max=20" example:"Sato Taro"`
+	Email    string                   `json:"email" validate:"required,validEmail" example:"sato@example.com"`
+	Password string                   `json:"password" validate:"required,min=8,max=20" example:"password"`
 	Account  SignupRequestBodyAccount `json:"account" validate:"required"`
 }
 
 type SignupRequestBodyAccount struct {
-	Name     string `json:"name" validate:"required,min=1,max=10"`
-	Password string `json:"password" validate:"required,len=4"`
-	Currency string `json:"currency" validate:"required,oneof=JPY"`
+	Name     string `json:"name" validate:"required,min=1,max=10" example:"For work"`
+	Password string `json:"password" validate:"required,len=4" example:"1234"`
+	Currency string `json:"currency" validate:"required,oneof=JPY" example:"JPY"`
 }
 
 type SignupResponseBody struct {
 	User        SignupResponseBodyUser `json:"user"`
-	AccessToken string                 `json:"accessToken"`
+	AccessToken string                 `json:"accessToken" example:"eyJhb..."`
 }
 
 type SignupResponseBodyUser struct {
-	ID      string                    `json:"id"`
-	Name    string                    `json:"name"`
-	Email   string                    `json:"email"`
+	ID      string                    `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
+	Name    string                    `json:"name" example:"Sato Taro"`
+	Email   string                    `json:"email" example:"sato@example.com"`
 	Account SignupResponseBodyAccount `json:"account"`
 }
 
 type SignupResponseBodyAccount struct {
-	ID        string  `json:"id"`
-	Name      string  `json:"name"`
-	Balance   float64 `json:"balance"`
-	Currency  string  `json:"currency"`
-	UpdatedAt string  `json:"updatedAt"`
+	ID        string  `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C7LE"`
+	Name      string  `json:"name" example:"For work"`
+	Balance   float64 `json:"balance" example:"0"`
+	Currency  string  `json:"currency" example:"JPY"`
+	UpdatedAt string  `json:"updatedAt" example:"2021-08-01T00:00:00Z"`
 }
 
+// @Summary Signup
+// @Description Signup
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param body body SignupRequestBody true "SignupRequestBody"
+// @Success 201 {object} SignupResponseBody
+// @Failure 400 {object} response.ErrorResponse "Bad Request"
+// @Failure 409 {object} response.ErrorResponse "Conflict"
+// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Router /v1/signup [post]
 func (h *SignupHandler) Run(ctx echo.Context) error {
 	req := new(SignupRequestBody)
 	if err := ctx.Bind(req); err != nil {

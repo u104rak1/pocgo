@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
@@ -61,6 +62,9 @@ func setupEcho(db *bun.DB) *echo.Echo {
 
 	/** Authentication Endpoint */
 	v1.POST("/signup", signupHandler.Run)
+
+	/** Swagger */
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	return e
 }
 

@@ -1,6 +1,6 @@
 .PHONY: develop_start dependencies_start dependencies_stop migrate_refresh \
 				migrate_up migrate_down migrate_reset drop_tables seed run clean \
-				unit_test godoc help
+				unit_test godoc swagger help
 
 develop_start: ## Dockerを動かしDBのデータを準備する
 	@docker compose -f ./docker/docker-compose.yml up -d
@@ -57,6 +57,9 @@ unit_test: ## ユニットテスト実行
 	EXECUTE_CODE=$$?;\
 	go tool cover -html=tmp/unit_test_cover.out -o tmp/unit_test_cover.html;\
 	if [ $$EXECUTE_CODE -eq 1 ]; then false; fi;
+
+swagger: ## Swaggerドキュメント生成
+	@swag init -g ./cmd/pocgo/main.go
 
 help: ## ヘルプ表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \

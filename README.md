@@ -49,3 +49,6 @@ User
 slog
 swagger
 apidog
+
+// @Security BearerAuth
+をつけるとアクセストークンを必要になるみたい。
