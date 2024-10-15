@@ -25,22 +25,37 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 		execDB = tx
 	}
 
+	currencyCode := account.Balance().Currency()
+
+	var currencyID string
+	err := execDB.NewSelect().
+		Model((*model.CurrencyMaster)(nil)).
+		Column("id").
+		Where("code = ?", currencyCode).
+		Scan(ctx, &currencyID)
+
+	if err != nil {
+		return err
+	}
+
 	accountModel := &model.Account{
 		ID:           account.ID(),
 		Name:         account.Name(),
 		UserID:       account.UserID(),
 		PasswordHash: account.PasswordHash(),
 		Balance:      account.Balance().Amount(),
+		CurrencyID:   currencyID,
 		UpdatedAt:    account.UpdatedAt(),
 	}
-	currencyCode := account.Balance().Currency()
 
-	_, err := execDB.NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
+	//TODO: サブクエリを使うと以下のエラーになるので、一旦current_idを取得してから更新する。
+	// pgdriver.Error: ERROR: insert or update on table "accounts" violates foreign key constraint "fk_account_currency_id" (SQLSTATE=23503)
+	_, err = execDB.NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
 		Set("name = EXCLUDED.name").
 		Set("user_id = EXCLUDED.user_id").
 		Set("password_hash = EXCLUDED.password_hash").
 		Set("balance = EXCLUDED.balance").
-		Set("currency_id = (SELECT id FROM currency_master WHERE code = ?)", currencyCode).
+		Set("currency_id = EXCLUDED.currency_id").
 		Set("updated_at = EXCLUDED.updated_at").
 		Exec(ctx)
 
