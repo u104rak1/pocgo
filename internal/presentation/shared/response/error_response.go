@@ -7,8 +7,8 @@ import (
 )
 
 type ErrorResponse struct {
-	Code    string `json:"code"`
-	Message string `json:"message"`
+	Code    string `json:"code" example:"ErrorCode"`
+	Message string `json:"message" example:"error message"`
 }
 
 func BadRequest(ctx echo.Context, err error) error {

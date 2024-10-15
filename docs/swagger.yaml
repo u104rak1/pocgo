@@ -2,8 +2,10 @@ definitions:
   response.ErrorResponse:
     properties:
       code:
+        example: ErrorCode
         type: string
       message:
+        example: error message
         type: string
     type: object
   signup.SignupRequestBody:

@@ -73,10 +73,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "code": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ErrorCode"
                 },
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "error message"
                 }
             }
         },
