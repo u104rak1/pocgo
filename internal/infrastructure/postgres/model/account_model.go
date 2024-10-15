@@ -9,7 +9,7 @@ import (
 type Account struct {
 	bun.BaseModel `bun:"table:accounts"`
 	ID            string    `bun:"id,pk,type:char(26),notnull"`
-	UserID        string    `bun:"user_id,notnull"`
+	UserID        string    `bun:"user_id,type:char(26),notnull"`
 	Name          string    `bun:"name,type:varchar(10)"`
 	PasswordHash  string    `bun:"password_hash,notnull"`
 	Balance       float64   `bun:"balance,type:float8,notnull"`

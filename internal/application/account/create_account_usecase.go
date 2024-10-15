@@ -41,7 +41,7 @@ type CreateAccountDTO struct {
 func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand) (*CreateAccountDTO, error) {
 	accountID := ulid.New()
 	account, err := accountDomain.New(
-		accountID, cmd.Name, cmd.Password, cmd.UserID,
+		accountID, cmd.UserID, cmd.Name, cmd.Password,
 		0, cmd.Currency, time.Now(),
 	)
 	if err != nil {

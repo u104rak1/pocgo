@@ -9,12 +9,12 @@ import (
 type Transaction struct {
 	bun.BaseModel     `bun:"table:transactions"`
 	ID                string    `bun:"id,pk,type:char(26),notnull"`
-	AccountID         string    `bun:"account_id,notnull"`
-	ReceiverAccountID *string   `bun:"receiver_account_id"`
+	AccountID         string    `bun:"account_id,type:char(26),notnull"`
+	ReceiverAccountID *string   `bun:"receiver_account_id,type:char(26)"`
 	Type              string    `bun:"type,type:varchar(20),notnull"`
 	Amount            float64   `bun:"amount,type:float8,notnull"`
-	CurrencyID        string    `bun:"currency_id,notnull"`
-	TransactionAt     time.Time `bun:"transaction_at,notnull"`
+	CurrencyID        string    `bun:"currency_id,type:char(26),notnull"`
+	TransactionAt     time.Time `bun:"transaction_at,type:char(26),notnull"`
 
 	SenderAccount   *Account               `bun:"rel:belongs-to,join:account_id=id"`
 	ReceiverAccount *Account               `bun:"rel:belongs-to,join:receiver_account_id=id"`

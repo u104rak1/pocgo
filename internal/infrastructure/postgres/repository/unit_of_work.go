@@ -7,83 +7,77 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type IUnitOfWork interface {
-	RunInTx(ctx context.Context, f func(ctx context.Context, tx unitofwork.ITransaction) error) error
-}
-
 type unitOfWork struct {
 	db *bun.DB
 }
 
-func NewUnitOfWork(db *bun.DB) IUnitOfWork {
+func NewUnitOfWork(db *bun.DB) unitofwork.IUnitOfWork {
 	return &unitOfWork{
 		db: db,
 	}
 }
 
-func (u *unitOfWork) RunInTx(ctx context.Context, f func(ctx context.Context, tx unitofwork.ITransaction) error) error {
+func (u *unitOfWork) RunInTx(ctx context.Context, f func(ctx context.Context) error) error {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	bunTx := &transaction{tx: tx}
+	ctxWithTx := setTx(ctx, tx)
 
-	err = f(ctx, bunTx)
+	err = f(ctxWithTx)
 	if err != nil {
-		rollbackErr := bunTx.Rollback()
+		rollbackErr := tx.Rollback()
 		if rollbackErr != nil {
 			return rollbackErr
 		}
 		return err
 	}
 
-	return bunTx.Commit()
-}
-
-type IUnitOfWorkWithResult[T any] interface {
-	RunInTx(ctx context.Context, f func(ctx context.Context, tx unitofwork.ITransaction) (*T, error)) (*T, error)
+	return tx.Commit()
 }
 
 type unitOfWorkWithResult[T any] struct {
 	db *bun.DB
 }
 
-func NewUnitOfWorkWithResult[T any](db *bun.DB) IUnitOfWorkWithResult[T] {
+func NewUnitOfWorkWithResult[T any](db *bun.DB) unitofwork.IUnitOfWorkWithResult[T] {
 	return &unitOfWorkWithResult[T]{
 		db: db,
 	}
 }
 
-func (u *unitOfWorkWithResult[T]) RunInTx(ctx context.Context, f func(ctx context.Context, tx unitofwork.ITransaction) (*T, error)) (*T, error) {
+func (u *unitOfWorkWithResult[T]) RunInTx(ctx context.Context, f func(ctx context.Context) (*T, error)) (*T, error) {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	bunTx := &transaction{tx: tx}
+	ctxWithTx := setTx(ctx, tx)
 
-	result, err := f(ctx, bunTx)
+	result, err := f(ctxWithTx)
 	if err != nil {
-		rollbackErr := bunTx.Rollback()
+		rollbackErr := tx.Rollback()
 		if rollbackErr != nil {
 			return nil, rollbackErr
 		}
 		return nil, err
 	}
 
-	err = bunTx.Commit()
+	err = tx.Commit()
 	return result, err
 }
 
-type transaction struct {
-	tx bun.Tx
+type ctxKeyTransaction struct{}
+
+func setTx(ctx context.Context, tx bun.Tx) context.Context {
+	return context.WithValue(ctx, ctxKeyTransaction{}, tx)
 }
 
-func (t *transaction) Commit() error {
-	return t.tx.Commit()
-}
-
-func (t *transaction) Rollback() error {
-	return t.tx.Rollback()
+func getTx(ctx context.Context) bun.IDB {
+	tx, ok := ctx.Value(ctxKeyTransaction{}).(bun.IDB)
+	if !ok {
+		return nil
+	}
+	return tx
 }

@@ -17,11 +17,11 @@ func NewVerifyAuthenticationUniquenessService(authenticationRepository IAuthenti
 }
 
 func (s *verifyAuthenticationUniquenessService) Run(ctx context.Context, userID string) error {
-	a, err := s.authenticationRepo.FindByUserID(ctx, userID)
+	exists, err := s.authenticationRepo.ExistsByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
-	if a != nil {
+	if exists {
 		return ErrAuthenticationAlreadyExists
 	}
 	return nil

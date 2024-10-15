@@ -18,6 +18,13 @@ func NewAccountRepository(db *bun.DB) accountDomain.IAccountRepository {
 }
 
 func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Account) error {
+	tx := getTx(ctx)
+
+	var execDB bun.IDB = r.db
+	if tx != nil {
+		execDB = tx
+	}
+
 	accountModel := &model.Account{
 		ID:           account.ID(),
 		Name:         account.Name(),
@@ -28,7 +35,7 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 	}
 	currencyCode := account.Balance().Currency()
 
-	_, err := r.db.NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
+	_, err := execDB.NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
 		Set("name = EXCLUDED.name").
 		Set("user_id = EXCLUDED.user_id").
 		Set("password_hash = EXCLUDED.password_hash").
@@ -103,7 +110,14 @@ func (r *accountRepository) CountByUserID(ctx context.Context, userID string) (i
 }
 
 func (r *accountRepository) Delete(ctx context.Context, id string) error {
-	_, err := r.db.NewUpdate().
+	tx := getTx(ctx)
+
+	var execDB bun.IDB = r.db
+	if tx != nil {
+		execDB = tx
+	}
+
+	_, err := execDB.NewUpdate().
 		Model(&model.Account{ID: id, DeletedAt: time.Now()}).
 		Column("deleted_at").
 		WherePK().

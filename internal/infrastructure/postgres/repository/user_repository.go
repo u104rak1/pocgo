@@ -18,12 +18,19 @@ func NewUserRepository(db *bun.DB) userDomain.IUserRepository {
 }
 
 func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error {
+	tx := getTx(ctx)
+
+	var execDB bun.IDB = r.db
+	if tx != nil {
+		execDB = tx
+	}
+
 	userModel := &model.User{
 		ID:    user.ID(),
 		Email: user.Email(),
 		Name:  user.Name(),
 	}
-	_, err := r.db.NewInsert().Model(userModel).On("CONFLICT (id) DO UPDATE").
+	_, err := execDB.NewInsert().Model(userModel).On("CONFLICT (id) DO UPDATE").
 		Set("name = EXCLUDED.name").
 		Set("email = EXCLUDED.email").
 		Exec(ctx)
@@ -47,7 +54,14 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 }
 
 func (r *userRepository) Delete(ctx context.Context, id string) error {
-	_, err := r.db.NewUpdate().
+	tx := getTx(ctx)
+
+	var execDB bun.IDB = r.db
+	if tx != nil {
+		execDB = tx
+	}
+
+	_, err := execDB.NewUpdate().
 		Model(&model.User{ID: id, DeletedAt: time.Now()}).
 		Column("deleted_at").
 		WherePK().

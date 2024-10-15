@@ -8,7 +8,7 @@ import (
 
 type Authentication struct {
 	bun.BaseModel `bun:"table:authentications"`
-	UserID        string    `bun:"user_id,pk,notnull"`
+	UserID        string    `bun:"user_id,pk,type:char(26),notnull"`
 	PasswordHash  string    `bun:"password_hash,notnull"`
 	DeletedAt     time.Time `bun:",soft_delete,nullzero"`
 }

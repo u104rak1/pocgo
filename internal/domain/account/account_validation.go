@@ -18,7 +18,7 @@ func validName(name string) error {
 
 func validPassword(password string) error {
 	const passwordLength = 4
-	if len(password) == passwordLength {
+	if len(password) != passwordLength {
 		return ErrPasswordInvalidLength
 	}
 	return nil

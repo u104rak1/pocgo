@@ -46,7 +46,7 @@ type SignupDTO struct {
 }
 
 func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO, error) {
-	dto, err := u.unitOfWork.RunInTx(ctx, func(ctx context.Context, tx unitofwork.ITransaction) (*SignupDTO, error) {
+	dto, err := u.unitOfWork.RunInTx(ctx, func(ctx context.Context) (*SignupDTO, error) {
 		user, err := u.createUserUsecase.Run(ctx, cmd.User)
 		if err != nil {
 			return nil, err

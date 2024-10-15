@@ -3,14 +3,9 @@ package unitofwork
 import "context"
 
 type IUnitOfWork interface {
-	RunInTx(ctx context.Context, f func(ctx context.Context, tx ITransaction) error) error
+	RunInTx(ctx context.Context, f func(ctx context.Context) error) error
 }
 
 type IUnitOfWorkWithResult[T any] interface {
-	RunInTx(ctx context.Context, f func(ctx context.Context, tx ITransaction) (*T, error)) (*T, error)
-}
-
-type ITransaction interface {
-	Commit() error
-	Rollback() error
+	RunInTx(ctx context.Context, f func(ctx context.Context) (*T, error)) (*T, error)
 }
