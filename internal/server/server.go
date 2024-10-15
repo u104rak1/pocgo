@@ -9,7 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
-	signupApp "github.com/ucho456job/pocgo/internal/application/authentication/signup"
+	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/config"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
@@ -47,12 +47,12 @@ func setupEcho(db *bun.DB) *echo.Echo {
 	accessTokenServ := authDomain.NewAccessTokenService()
 
 	/** Unit of Work */
-	signupUW := repository.NewUnitOfWorkWithResult[signupApp.SignupDTO](db)
+	signupUW := repository.NewUnitOfWorkWithResult[authApp.SignupDTO](db)
 
 	/** Usecase */
 	createUserUC := userApp.NewCreateUserUsecase(userRepo, authRepo, verifyEmailUniqueServ, verifyAuthUniqueServ)
 	createAccountUC := accountApp.NewCreateAccountUsecase(accountRepo)
-	signupUC := signupApp.NewSignupUsecase(createUserUC, createAccountUC, *accessTokenServ, signupUW)
+	signupUC := authApp.NewSignupUsecase(createUserUC, createAccountUC, *accessTokenServ, signupUW)
 
 	/** Handler */
 	signupHandler := signupPre.NewSignupHandler(signupUC)

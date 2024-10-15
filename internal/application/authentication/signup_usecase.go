@@ -1,4 +1,4 @@
-package signup
+package authentication
 
 import (
 	"context"

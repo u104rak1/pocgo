@@ -5,16 +5,18 @@ import (
 
 	"github.com/labstack/echo/v4"
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
-	signupApp "github.com/ucho456job/pocgo/internal/application/authentication/signup"
+	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
+	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
+	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
 )
 
 type SignupHandler struct {
-	signupUsecase signupApp.ISignupUsecase
+	signupUsecase authApp.ISignupUsecase
 }
 
-func NewSignupHandler(signupUsecase signupApp.ISignupUsecase) *SignupHandler {
+func NewSignupHandler(signupUsecase authApp.ISignupUsecase) *SignupHandler {
 	return &SignupHandler{
 		signupUsecase: signupUsecase,
 	}
@@ -63,7 +65,7 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 		return response.BadRequest(ctx, err)
 	}
 
-	dto, err := h.signupUsecase.Run(ctx.Request().Context(), signupApp.SignupCommand{
+	dto, err := h.signupUsecase.Run(ctx.Request().Context(), authApp.SignupCommand{
 		User: userApp.CreateUserCommand{
 			Name:     req.User.Name,
 			Email:    req.User.Email,
@@ -76,7 +78,13 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 		},
 	})
 	if err != nil {
-		return response.BadRequest(ctx, err)
+		switch err {
+		case userDomain.ErrUserEmailAlreadyExists,
+			authDomain.ErrAuthenticationAlreadyExists:
+			return response.Conflict(ctx, err)
+		default:
+			return response.InternalServerError(ctx, err)
+		}
 	}
 
 	return ctx.JSON(http.StatusCreated, SignupResponseBody{
