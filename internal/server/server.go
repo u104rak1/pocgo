@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
@@ -18,6 +19,7 @@ import (
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
 	signupPre "github.com/ucho456job/pocgo/internal/presentation/signup"
+	myMiddleware "github.com/ucho456job/pocgo/internal/server/middleware"
 	"github.com/uptrace/bun"
 )
 
@@ -36,6 +38,8 @@ func Start() {
 func setupEcho(db *bun.DB) *echo.Echo {
 	e := echo.New()
 	validation.SetupCustomValidation(e)
+	e.Use(echoMiddleware.RequestID())
+	myMiddleware.SetLoggerMiddleware(e)
 
 	/** Repository */
 	userRepo := repository.NewUserRepository(db)

@@ -48,7 +48,7 @@ User
 やりたいこと
 slog
 swagger
-apidog
+datadog
 
 // @Security BearerAuth
 をつけるとアクセストークンを必要になるみたい。
