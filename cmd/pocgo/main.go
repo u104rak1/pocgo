@@ -5,7 +5,7 @@ import (
 	"github.com/ucho456job/pocgo/internal/server"
 )
 
-// @title Pocgo API
+// @title pocgo API
 // @version 1.0
 // @description This is a sample server.
 // @securityDefinitions.apikey BearerAuth

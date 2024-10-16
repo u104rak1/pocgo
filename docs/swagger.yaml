@@ -101,7 +101,7 @@ definitions:
 info:
   contact: {}
   description: This is a sample server.
-  title: Pocgo API
+  title: pocgo API
   version: "1.0"
 paths:
   /v1/signup:

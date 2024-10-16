@@ -228,7 +228,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Pocgo API",
+	Title:            "pocgo API",
 	Description:      "This is a sample server.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
