@@ -2,6 +2,11 @@ package authentication
 
 import "errors"
 
+const (
+	PasswordMinLength = 8
+	PasswordMaxLength = 20
+)
+
 var (
 	ErrInvalidID                   = errors.New("invalid authentication id")
 	ErrPasswordInvalidLength       = errors.New("password must be between 8 and 20 characters")

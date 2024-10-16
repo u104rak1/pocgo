@@ -8,32 +8,41 @@ definitions:
         example: error message
         type: string
     type: object
+  response.ValidationError:
+    properties:
+      field:
+        example: field name
+        type: string
+      message:
+        example: error message
+        type: string
+    type: object
+  response.ValidationErrorResponse:
+    properties:
+      code:
+        example: ErrorCode
+        type: string
+      errors:
+        items:
+          $ref: '#/definitions/response.ValidationError'
+        type: array
+    type: object
   signup.SignupRequestBody:
     properties:
       user:
         $ref: '#/definitions/signup.SignupRequestBodyUser'
-    required:
-    - user
     type: object
   signup.SignupRequestBodyAccount:
     properties:
       currency:
-        enum:
-        - JPY
         example: JPY
         type: string
       name:
         example: For work
-        maxLength: 10
-        minLength: 1
         type: string
       password:
         example: "1234"
         type: string
-    required:
-    - currency
-    - name
-    - password
     type: object
   signup.SignupRequestBodyUser:
     properties:
@@ -44,19 +53,10 @@ definitions:
         type: string
       name:
         example: Sato Taro
-        maxLength: 20
-        minLength: 1
         type: string
       password:
         example: password
-        maxLength: 20
-        minLength: 8
         type: string
-    required:
-    - account
-    - email
-    - name
-    - password
     type: object
   signup.SignupResponseBody:
     properties:
@@ -124,9 +124,9 @@ paths:
           schema:
             $ref: '#/definitions/signup.SignupResponseBody'
         "400":
-          description: Bad Request
+          description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ValidationErrorResponse'
         "409":
           description: Conflict
           schema:

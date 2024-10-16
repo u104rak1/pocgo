@@ -8,17 +8,14 @@ func ValidID(id string) error {
 }
 
 func validName(name string) error {
-	const nameMinLength = 1
-	const nameMaxLength = 10
-	if len(name) < nameMinLength || len(name) > nameMaxLength {
+	if len(name) < NameMinLength || len(name) > NameMaxLength {
 		return ErrInvalidAccountName
 	}
 	return nil
 }
 
 func validPassword(password string) error {
-	const passwordLength = 4
-	if len(password) != passwordLength {
+	if len(password) != PasswordLength {
 		return ErrPasswordInvalidLength
 	}
 	return nil
@@ -32,7 +29,6 @@ func validAmount(amount float64) error {
 }
 
 func validCurrency(currency string) error {
-	JPY := "JPY"
 	if currency != JPY {
 		return ErrUnsupportedCurrency
 	}

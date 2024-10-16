@@ -10,6 +10,7 @@ import (
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
+	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
 )
 
 type SignupHandler struct {
@@ -23,20 +24,20 @@ func NewSignupHandler(signupUsecase authApp.ISignupUsecase) *SignupHandler {
 }
 
 type SignupRequestBody struct {
-	User SignupRequestBodyUser `json:"user" validate:"required"`
+	User SignupRequestBodyUser `json:"user"`
 }
 
 type SignupRequestBodyUser struct {
-	Name     string                   `json:"name" validate:"required,min=1,max=20" example:"Sato Taro"`
-	Email    string                   `json:"email" validate:"required,validEmail" example:"sato@example.com"`
-	Password string                   `json:"password" validate:"required,min=8,max=20" example:"password"`
-	Account  SignupRequestBodyAccount `json:"account" validate:"required"`
+	Name     string                   `json:"name" example:"Sato Taro"`
+	Email    string                   `json:"email" example:"sato@example.com"`
+	Password string                   `json:"password" example:"password"`
+	Account  SignupRequestBodyAccount `json:"account"`
 }
 
 type SignupRequestBodyAccount struct {
-	Name     string `json:"name" validate:"required,min=1,max=10" example:"For work"`
-	Password string `json:"password" validate:"required,len=4" example:"1234"`
-	Currency string `json:"currency" validate:"required,oneof=JPY" example:"JPY"`
+	Name     string `json:"name" example:"For work"`
+	Password string `json:"password" example:"1234"`
+	Currency string `json:"currency" example:"JPY"`
 }
 
 type SignupResponseBody struct {
@@ -66,7 +67,7 @@ type SignupResponseBodyAccount struct {
 // @Produce json
 // @Param body body SignupRequestBody true "SignupRequestBody"
 // @Success 201 {object} SignupResponseBody
-// @Failure 400 {object} response.ErrorResponse "Bad Request"
+// @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 409 {object} response.ErrorResponse "Conflict"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /v1/signup [post]
@@ -74,6 +75,10 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 	req := new(SignupRequestBody)
 	if err := ctx.Bind(req); err != nil {
 		return response.BadRequest(ctx, err)
+	}
+
+	if validationErrors := h.validation(req); len(validationErrors) > 0 {
+		return response.ValidationFailed(ctx, validationErrors)
 	}
 
 	dto, err := h.signupUsecase.Run(ctx.Request().Context(), authApp.SignupCommand{
@@ -113,4 +118,45 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 		},
 		AccessToken: dto.AccessToken,
 	})
+}
+
+func (h *SignupHandler) validation(req *SignupRequestBody) (validationErrors []response.ValidationError) {
+	if err := validation.ValidUserName(req.User.Name); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "user.name",
+			Message: err.Error(),
+		})
+	}
+	if err := validation.ValidUserEmail(req.User.Email); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "user.email",
+			Message: err.Error(),
+		})
+	}
+	if err := validation.ValidUserPassword(req.User.Password); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "user.password",
+			Message: err.Error(),
+		})
+	}
+
+	if err := validation.ValidAccountName(req.User.Account.Name); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "user.account.name",
+			Message: err.Error(),
+		})
+	}
+	if err := validation.ValidAccountPassword(req.User.Account.Password); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "user.account.password",
+			Message: err.Error(),
+		})
+	}
+	if err := validation.ValidAccountCurrency(req.User.Account.Currency); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "user.account.currency",
+			Message: err.Error(),
+		})
+	}
+	return validationErrors
 }

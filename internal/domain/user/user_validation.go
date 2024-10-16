@@ -13,9 +13,7 @@ func ValidID(id string) error {
 }
 
 func validName(name string) error {
-	const nameMinLength = 1
-	const nameMaxLength = 20
-	if len(name) < nameMinLength || len(name) > nameMaxLength {
+	if len(name) < NameMinLength || len(name) > NameMaxLength {
 		return ErrInvalidUserName
 	}
 	return nil

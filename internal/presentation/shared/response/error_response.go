@@ -6,6 +6,23 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type ValidationErrorResponse struct {
+	Code   string            `json:"code" example:"ErrorCode"`
+	Errors []ValidationError `json:"errors"`
+}
+
+type ValidationError struct {
+	Field   string `json:"field" example:"field name"`
+	Message string `json:"message" example:"error message"`
+}
+
+func ValidationFailed(ctx echo.Context, errors []ValidationError) error {
+	return echo.NewHTTPError(http.StatusBadRequest, ValidationErrorResponse{
+		Code:   "ValidationFailed",
+		Errors: errors,
+	})
+}
+
 type ErrorResponse struct {
 	Code    string `json:"code" example:"ErrorCode"`
 	Message string `json:"message" example:"error message"`

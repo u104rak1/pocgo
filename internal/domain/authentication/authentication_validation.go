@@ -12,9 +12,7 @@ func ValidID(id string) error {
 }
 
 func validPassword(password string) error {
-	const passwordMinLength = 8
-	const passwordMaxLength = 20
-	if len(password) < passwordMinLength || len(password) > passwordMaxLength {
+	if len(password) < PasswordMinLength || len(password) > PasswordMaxLength {
 		return ErrPasswordInvalidLength
 	}
 	return nil

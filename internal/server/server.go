@@ -17,7 +17,6 @@ import (
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
 	signupPre "github.com/ucho456job/pocgo/internal/presentation/signup"
 	myMiddleware "github.com/ucho456job/pocgo/internal/server/middleware"
 	"github.com/uptrace/bun"
@@ -37,7 +36,6 @@ func Start() {
 
 func setupEcho(db *bun.DB) *echo.Echo {
 	e := echo.New()
-	validation.SetupCustomValidation(e)
 	e.Use(echoMiddleware.RequestID())
 	myMiddleware.SetLoggerMiddleware(e)
 

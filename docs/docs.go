@@ -47,9 +47,9 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Validation Failed or Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
+                            "$ref": "#/definitions/response.ValidationErrorResponse"
                         }
                     },
                     "409": {
@@ -82,11 +82,36 @@ const docTemplate = `{
                 }
             }
         },
+        "response.ValidationError": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string",
+                    "example": "field name"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "error message"
+                }
+            }
+        },
+        "response.ValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "ErrorCode"
+                },
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.ValidationError"
+                    }
+                }
+            }
+        },
         "signup.SignupRequestBody": {
             "type": "object",
-            "required": [
-                "user"
-            ],
             "properties": {
                 "user": {
                     "$ref": "#/definitions/signup.SignupRequestBodyUser"
@@ -95,23 +120,13 @@ const docTemplate = `{
         },
         "signup.SignupRequestBodyAccount": {
             "type": "object",
-            "required": [
-                "currency",
-                "name",
-                "password"
-            ],
             "properties": {
                 "currency": {
                     "type": "string",
-                    "enum": [
-                        "JPY"
-                    ],
                     "example": "JPY"
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 10,
-                    "minLength": 1,
                     "example": "For work"
                 },
                 "password": {
@@ -122,12 +137,6 @@ const docTemplate = `{
         },
         "signup.SignupRequestBodyUser": {
             "type": "object",
-            "required": [
-                "account",
-                "email",
-                "name",
-                "password"
-            ],
             "properties": {
                 "account": {
                     "$ref": "#/definitions/signup.SignupRequestBodyAccount"
@@ -138,14 +147,10 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
-                    "maxLength": 20,
-                    "minLength": 1,
                     "example": "Sato Taro"
                 },
                 "password": {
                     "type": "string",
-                    "maxLength": 20,
-                    "minLength": 8,
                     "example": "password"
                 }
             }
