@@ -42,21 +42,14 @@ clean: ## キャッシュ削除
 	@go clean -cache -modcache
 
 unit_test: ## ユニットテスト実行
-	@-export UNIT_TEST_CMD="test ./pkg/... -v -coverprofile=tmp/unit_test_cover.out";\
-	mkdir -p tmp; \
-	if [ -z "$(TEST_TARGET)" ]; \
-		then UNIT_TEST_CMD="$$UNIT_TEST_CMD ./..." ;\
-		else UNIT_TEST_CMD="$$UNIT_TEST_CMD -run $(TEST_TARGET)" ;\
-	fi;\
-	if [ -n "$(TEST_UPDATE)" ]; \
-		then UNIT_TEST_CMD="$$UNIT_TEST_CMD -update" ;\
-	fi;\
-	echo $$UNIT_TEST_CMD;\
-	go $$UNIT_TEST_CMD | tee tmp/unit_test.log;\
-	go $$UNIT_TEST_CMD;\
-	EXECUTE_CODE=$$?;\
-	go tool cover -html=tmp/unit_test_cover.out -o tmp/unit_test_cover.html;\
-	if [ $$EXECUTE_CODE -eq 1 ]; then false; fi;
+	@mkdir -p tmp
+	@echo "Running tests and generating log and coverage reports..."
+	@go test ./internal/... ./pkg/... -v -coverprofile=tmp/coverage.out 2>&1 | tee tmp/unit_test.log
+	@go tool cover -html=tmp/coverage.out -o tmp/unit_test.cover.html
+	@go tool cover -func=tmp/coverage.out
+
+unit_coverage: ## ユニットテストのカバレッジレポートをログに表示
+	@go tool cover -func=tmp/coverage.out
 
 swagger: ## Swaggerドキュメント生成
 	@swag init -g ./cmd/pocgo/main.go
