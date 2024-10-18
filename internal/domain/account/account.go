@@ -22,8 +22,10 @@ func New(id, userID, name, password string, amount float64, currency string, upd
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}
-	// 有効なパスワードである事が保証されているのでエラーチェックは不要
-	passwordHash, _ := passwordUtil.Encode(password)
+	passwordHash, err := passwordUtil.Encode(password)
+	if err != nil {
+		return nil, err
+	}
 
 	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
 }
@@ -97,9 +99,10 @@ func (a *Account) ChangePassword(new string) error {
 	if err := validPassword(new); err != nil {
 		return err
 	}
-	// 有効なパスワードである事が保証されているのでエラーチェックは不要
-	passwordHash, _ := passwordUtil.Encode(new)
-
+	passwordHash, err := passwordUtil.Encode(new)
+	if err != nil {
+		return err
+	}
 	a.passwordHash = passwordHash
 	return nil
 }
