@@ -37,7 +37,7 @@ func TestNew(t *testing.T) {
 		wantErr   error
 	}{
 		{
-			caseName:  "happy path: 有効なAccountエンティティを作成",
+			caseName:  "Happy path: 有効なAccountエンティティを作成",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -48,7 +48,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "edge case: 無効なIDを指定するとエラー",
+			caseName:  "Edge case: 無効なIDを指定するとエラー",
 			id:        "invalid",
 			userID:    validUserID,
 			name:      validName,
@@ -59,7 +59,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidID,
 		},
 		{
-			caseName:  "edge case: 無効なユーザーIDを指定するとエラー",
+			caseName:  "Edge case: 無効なユーザーIDを指定するとエラー",
 			id:        validID,
 			userID:    "invalid",
 			name:      validName,
@@ -70,7 +70,7 @@ func TestNew(t *testing.T) {
 			wantErr:   userDomain.ErrInvalidUserID,
 		},
 		{
-			caseName:  "edge case: 名前が0文字だとエラー",
+			caseName:  "Edge case: 名前が0文字だとエラー",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMinLength-1),
@@ -81,7 +81,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
-			caseName:  "happy path: 名前が1文字なら成功",
+			caseName:  "Happy path: 名前が1文字なら成功",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMinLength),
@@ -92,7 +92,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "happy path: 名前が10文字なら成功",
+			caseName:  "Happy path: 名前が10文字なら成功",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMaxLength),
@@ -103,7 +103,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "happy path: 名前が11文字だとエラー",
+			caseName:  "Happy path: 名前が11文字だとエラー",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMaxLength+1),
@@ -114,7 +114,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
-			caseName:  "edge case: パスワードが3文字だとエラー",
+			caseName:  "Edge case: パスワードが3文字だとエラー",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -125,7 +125,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrPasswordInvalidLength,
 		},
 		{
-			caseName:  "happy path: パスワードが4文字なら成功",
+			caseName:  "Happy path: パスワードが4文字なら成功",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -136,7 +136,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "edge case: パスワードが5文字だとエラー",
+			caseName:  "Edge case: パスワードが5文字だとエラー",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -147,7 +147,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrPasswordInvalidLength,
 		},
 		{
-			caseName:  "edge case: 負の残高を指定するとエラー",
+			caseName:  "Edge case: 負の残高を指定するとエラー",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -158,7 +158,7 @@ func TestNew(t *testing.T) {
 			wantErr:   money.ErrNegativeAmount,
 		},
 		{
-			caseName:  "edge case: 未対応の通貨を指定するとエラー",
+			caseName:  "Edge case: 未対応の通貨を指定するとエラー",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -192,7 +192,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
-	t.Run("happy path: 有効なAccountエンティティを再構築", func(t *testing.T) {
+	t.Run("Happy path: 有効なAccountエンティティを再構築", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(validPassword)
 		acc, err := account.Reconstruct(validID, validUserID, validName, encodedPassword, validAmount, validCurrency, validTime)
 
@@ -214,12 +214,12 @@ func TestChangeName(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "happy path: 名前を変更",
+			caseName: "Happy path: 名前を変更",
 			newName:  "NewName",
 			wantErr:  nil,
 		},
 		{
-			caseName: "edge case: 無効な名前を指定",
+			caseName: "Edge case: 無効な名前を指定",
 			newName:  "",
 			wantErr:  account.ErrInvalidAccountName,
 		},
@@ -248,12 +248,12 @@ func TestChangePassword(t *testing.T) {
 		wantErr     error
 	}{
 		{
-			caseName:    "happy path: 有効なパスワードに変更できる",
+			caseName:    "Happy path: 有効なパスワードに変更できる",
 			newPassword: "5678",
 			wantErr:     nil,
 		},
 		{
-			caseName:    "edge case: 無効なパスワードを指定した時、パスワードを変更できない",
+			caseName:    "Edge case: 無効なパスワードを指定した時、パスワードを変更できない",
 			newPassword: "invalid",
 			wantErr:     account.ErrPasswordInvalidLength,
 		},
@@ -282,12 +282,12 @@ func TestComparePassword(t *testing.T) {
 		wantErr     error
 	}{
 		{
-			caseName:    "happy path: パスワードが一致する場合、エラーが発生しない",
+			caseName:    "Happy path: パスワードが一致する場合、エラーが発生しない",
 			newPassword: "1234",
 			wantErr:     nil,
 		},
 		{
-			caseName:    "edge case: パスワードが異なる場合、エラーが発生する",
+			caseName:    "Edge case: パスワードが異なる場合、エラーが発生する",
 			newPassword: "invalid",
 			wantErr:     bcrypt.ErrMismatchedHashAndPassword,
 		},
@@ -315,19 +315,19 @@ func TestWithdraw(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "happy path: 通貨が一致し残高が十分ある場合、残高が引かれる",
+			caseName: "Happy path: 通貨が一致し残高が十分ある場合、残高が引かれる",
 			amount:   300,
 			currency: money.JPY,
 			wantErr:  nil,
 		},
 		{
-			caseName: "edge case: 未対応の通貨の場合、エラーが発生する",
+			caseName: "Edge case: 未対応の通貨の場合、エラーが発生する",
 			amount:   300,
 			currency: "EUR",
 			wantErr:  money.ErrUnsupportedCurrency,
 		},
 		{
-			caseName: "edge case: 残高が不十分な場合、エラーが発生する",
+			caseName: "Edge case: 残高が不十分な場合、エラーが発生する",
 			amount:   1500,
 			currency: money.JPY,
 			wantErr:  money.ErrInsufficientBalance,
@@ -357,19 +357,19 @@ func TestDeposit(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "happy path: 通貨が一致する場合、残高に入金できる",
+			caseName: "Happy path: 通貨が一致する場合、残高に入金できる",
 			amount:   300,
 			currency: money.JPY,
 			wantErr:  nil,
 		},
 		{
-			caseName: "edge case: 未対応の通貨の場合、エラーが発生する",
+			caseName: "Edge case: 未対応の通貨の場合、エラーが発生する",
 			amount:   300,
 			currency: "EUR",
 			wantErr:  money.ErrUnsupportedCurrency,
 		},
 		{
-			caseName: "edge case: 通貨が異なる場合、エラーが発生する",
+			caseName: "Edge case: 通貨が異なる場合、エラーが発生する",
 			amount:   300,
 			currency: money.USD,
 			wantErr:  money.ErrDifferentCurrency,
@@ -392,7 +392,7 @@ func TestDeposit(t *testing.T) {
 }
 
 func TestChangeUpdatedAt(t *testing.T) {
-	t.Run("happy path: 有効な更新日時に変更できる", func(t *testing.T) {
+	t.Run("Happy path: 有効な更新日時に変更できる", func(t *testing.T) {
 		acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
 		newTime := time.Now()
 		acc.ChangeUpdatedAt(newTime)

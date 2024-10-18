@@ -24,49 +24,49 @@ func TestNew(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "happy path: 有効なUserエンティティを作成",
+			caseName: "Happy path: 有効なUserエンティティを作成",
 			id:       validID,
 			name:     validName,
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "edge case: 無効なIDを指定するとエラー",
+			caseName: "Edge case: 無効なIDを指定するとエラー",
 			id:       "invalid",
 			name:     validName,
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserID,
 		},
 		{
-			caseName: "edge case: 名前が0文字だとエラー",
+			caseName: "Edge case: 名前が0文字だとエラー",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMinLength-1),
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
-			caseName: "happy path: 名前が1文字なら成功",
+			caseName: "Happy path: 名前が1文字なら成功",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMinLength),
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "happy path: 名前が20文字なら成功",
+			caseName: "Happy path: 名前が20文字なら成功",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMaxLength),
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "edge case: 名前が21文字だとエラー",
+			caseName: "Edge case: 名前が21文字だとエラー",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMaxLength+1),
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
-			caseName: "edge case: 無効なEmailを指定するとエラー",
+			caseName: "Edge case: 無効なEmailを指定するとエラー",
 			id:       validID,
 			name:     validName,
 			email:    "invalid",
@@ -98,12 +98,12 @@ func TestChangeName(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "happy path: 有効な新しい名前に変更できる",
+			caseName: "Happy path: 有効な新しい名前に変更できる",
 			newName:  "yamada hanako",
 			wantErr:  nil,
 		},
 		{
-			caseName: "edge case: 無効な名前を指定した時、名前を変更できない",
+			caseName: "Edge case: 無効な名前を指定した時、名前を変更できない",
 			newName:  strings.Repeat("a", user.NameMinLength-1),
 			wantErr:  user.ErrInvalidUserName,
 		},
@@ -132,12 +132,12 @@ func TestChangeEmail(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "happy path: 有効なEmailに変更できる",
+			caseName: "Happy path: 有効なEmailに変更できる",
 			newEmail: "yamada@example.com",
 			wantErr:  nil,
 		},
 		{
-			caseName: "edge case: 無効なEmailを指定した時、Emailを変更できない",
+			caseName: "Edge case: 無効なEmailを指定した時、Emailを変更できない",
 			newEmail: "invalid-email",
 			wantErr:  user.ErrInvalidEmail,
 		},
