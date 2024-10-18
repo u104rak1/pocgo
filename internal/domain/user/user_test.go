@@ -24,7 +24,7 @@ func TestNew(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: 有効なUserエンティティを作成",
+			caseName: "Happy path: 有効なUserを作成",
 			id:       validID,
 			name:     validName,
 			email:    validEmail,
@@ -76,16 +76,17 @@ func TestNew(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
 			u, err := user.New(tt.id, tt.name, tt.email)
 
-			if tt.wantErr == nil {
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				assert.Nil(t, u)
+			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.id, u.ID())
 				assert.Equal(t, tt.name, u.Name())
 				assert.Equal(t, tt.email, u.Email())
-			} else {
-				assert.ErrorIs(t, err, tt.wantErr)
-				assert.Nil(t, u)
 			}
 		})
 	}
@@ -111,15 +112,16 @@ func TestChangeName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
 			u, _ := user.New(validID, validName, validEmail)
 			err := u.ChangeName(tt.newName)
 
-			if tt.wantErr == nil {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.newName, u.Name())
-			} else {
+			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
 				assert.Equal(t, validName, u.Name())
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.newName, u.Name())
 			}
 		})
 	}
@@ -145,15 +147,16 @@ func TestChangeEmail(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
 			u, _ := user.New(validID, validName, validEmail)
 			err := u.ChangeEmail(tt.newEmail)
 
-			if tt.wantErr == nil {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.newEmail, u.Email())
-			} else {
+			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
 				assert.Equal(t, validEmail, u.Email())
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.newEmail, u.Email())
 			}
 		})
 	}

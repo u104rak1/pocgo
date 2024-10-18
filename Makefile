@@ -46,9 +46,8 @@ unit_test: ## ユニットテスト実行
 	@echo "Running tests and generating log and coverage reports..."
 	@go test ./internal/... ./pkg/... -v -coverprofile=tmp/coverage.out 2>&1 | tee tmp/unit_test.log
 	@go tool cover -html=tmp/coverage.out -o tmp/unit_test.cover.html
-	@go tool cover -func=tmp/coverage.out
 
-unit_coverage: ## ユニットテストのカバレッジレポートをログに表示
+unit_coverage: ## ユニットテストのカバレッジレポートを表示
 	@go tool cover -func=tmp/coverage.out
 
 swagger: ## Swaggerドキュメント生成

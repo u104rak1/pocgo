@@ -63,15 +63,16 @@ func TestNew(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			m, err := money.New(tt.amount, tt.currency)
-			if tt.wantErr == nil {
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				assert.Nil(t, m)
+			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, m)
 				assert.Equal(t, tt.amount, m.Amount())
 				assert.Equal(t, tt.currency, m.Currency())
-			} else {
-				assert.ErrorIs(t, err, tt.wantErr)
-				assert.Nil(t, m)
 			}
 		})
 	}
@@ -107,13 +108,14 @@ func TestAdd(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result, err := tt.money1.Add(*tt.money2)
-			if tt.wantErr == nil {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, result.Amount())
-			} else {
+			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
 				assert.Nil(t, result)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, result.Amount())
 			}
 		})
 	}
@@ -157,13 +159,14 @@ func TestSub(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			result, err := tt.money1.Sub(*tt.money2)
-			if tt.wantErr == nil {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.want, result.Amount())
-			} else {
+			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
 				assert.Nil(t, result)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.want, result.Amount())
 			}
 		})
 	}

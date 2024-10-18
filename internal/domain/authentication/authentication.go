@@ -38,14 +38,14 @@ func newAuthentication(userID, passwordHash string) (*Authentication, error) {
 	}, nil
 }
 
-func (p *Authentication) UserID() string {
-	return p.userID
+func (a *Authentication) UserID() string {
+	return a.userID
 }
 
-func (p *Authentication) PasswordHash() string {
-	return p.passwordHash
+func (a *Authentication) PasswordHash() string {
+	return a.passwordHash
 }
 
-func (p *Authentication) Compare(hash, password string) error {
-	return passwordUtil.Compare(hash, password)
+func (a *Authentication) Compare(password string) error {
+	return passwordUtil.Compare(a.passwordHash, password)
 }

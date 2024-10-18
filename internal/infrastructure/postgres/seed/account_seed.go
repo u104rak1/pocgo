@@ -42,8 +42,8 @@ func saveAccount(db *bun.DB) error {
 			UserID:       janeSmithID,
 			Name:         "work",
 			PasswordHash: passwordHash,
-			Balance:      300000,
-			CurrencyID:   jpyID,
+			Balance:      3000.55,
+			CurrencyID:   usdID,
 			UpdatedAt:    time.Now(),
 		},
 		{
@@ -51,8 +51,8 @@ func saveAccount(db *bun.DB) error {
 			UserID:       janeSmithID,
 			Name:         "private",
 			PasswordHash: passwordHash,
-			Balance:      400000,
-			CurrencyID:   jpyID,
+			Balance:      4000.55,
+			CurrencyID:   usdID,
 			UpdatedAt:    time.Now(),
 		},
 	}

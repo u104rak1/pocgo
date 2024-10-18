@@ -8,7 +8,7 @@ var (
 )
 
 const (
-	TransactionDeposit  = "DEPOSIT"
-	TransactionWithdraw = "WITHDRAW"
-	TransactionTransfer = "TRANSFER"
+	Deposit  = "DEPOSIT"
+	Withdraw = "WITHDRAW"
+	Transfer = "TRANSFER"
 )

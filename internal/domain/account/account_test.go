@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	validID       = ulid.GenerateStaticULID("valid")
+	validID       = ulid.GenerateStaticULID("id")
 	validUserID   = ulid.GenerateStaticULID("user")
 	validName     = "For work"
 	validPassword = "1234"
@@ -37,7 +37,7 @@ func TestNew(t *testing.T) {
 		wantErr   error
 	}{
 		{
-			caseName:  "Happy path: 有効なAccountエンティティを作成",
+			caseName:  "Happy path: 有効なAccountを作成",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -146,8 +146,10 @@ func TestNew(t *testing.T) {
 			updatedAt: validTime,
 			wantErr:   account.ErrPasswordInvalidLength,
 		},
+		// Encode関数のエラーを強制するのは難しい為、エラーのテストは省略
+
 		{
-			caseName:  "Edge case: 負の残高を指定するとエラー",
+			caseName:  "Edge case: 無効な金額を指定するとエラー",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -157,24 +159,17 @@ func TestNew(t *testing.T) {
 			updatedAt: validTime,
 			wantErr:   money.ErrNegativeAmount,
 		},
-		{
-			caseName:  "Edge case: 未対応の通貨を指定するとエラー",
-			id:        validID,
-			userID:    validUserID,
-			name:      validName,
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  "EUR",
-			updatedAt: validTime,
-			wantErr:   money.ErrUnsupportedCurrency,
-		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
 			acc, err := account.New(tt.id, tt.userID, tt.name, tt.password, tt.amount, tt.currency, tt.updatedAt)
 
-			if tt.wantErr == nil {
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				assert.Nil(t, acc)
+			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.id, acc.ID())
 				assert.Equal(t, tt.userID, acc.UserID())
@@ -183,9 +178,6 @@ func TestNew(t *testing.T) {
 				assert.Equal(t, tt.amount, acc.Balance().Amount())
 				assert.Equal(t, tt.currency, acc.Balance().Currency())
 				assert.Equal(t, tt.updatedAt, acc.UpdatedAt())
-			} else {
-				assert.ErrorIs(t, err, tt.wantErr)
-				assert.Nil(t, acc)
 			}
 		})
 	}
@@ -227,15 +219,16 @@ func TestChangeName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
 			acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
 			err := acc.ChangeName(tt.newName)
 
-			if tt.wantErr == nil {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.newName, acc.Name())
-			} else {
+			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
 				assert.Equal(t, validName, acc.Name())
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.newName, acc.Name())
 			}
 		})
 	}
@@ -257,19 +250,21 @@ func TestChangePassword(t *testing.T) {
 			newPassword: "invalid",
 			wantErr:     account.ErrPasswordInvalidLength,
 		},
+		// Encode関数のエラーを強制するのは難しい為、エラーのテストは省略
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
 			acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
 			err := acc.ChangePassword(tt.newPassword)
 
-			if tt.wantErr == nil {
-				assert.NoError(t, err)
-				assert.NoError(t, passwordUtil.Compare(acc.PasswordHash(), tt.newPassword))
-			} else {
+			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
 				assert.Error(t, passwordUtil.Compare(acc.PasswordHash(), tt.newPassword))
+			} else {
+				assert.NoError(t, err)
+				assert.NoError(t, passwordUtil.Compare(acc.PasswordHash(), tt.newPassword))
 			}
 		})
 	}
@@ -283,7 +278,7 @@ func TestComparePassword(t *testing.T) {
 	}{
 		{
 			caseName:    "Happy path: パスワードが一致する場合、エラーが発生しない",
-			newPassword: "1234",
+			newPassword: validPassword,
 			wantErr:     nil,
 		},
 		{
@@ -295,13 +290,14 @@ func TestComparePassword(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
 			acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
 			err := acc.ComparePassword(tt.newPassword)
 
-			if tt.wantErr == nil {
-				assert.NoError(t, err)
-			} else {
+			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}

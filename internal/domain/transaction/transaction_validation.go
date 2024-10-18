@@ -11,9 +11,9 @@ func ValidID(id string) error {
 
 func validTransactionType(transactionType string) error {
 	var validTransactionTypes = []string{
-		TransactionDeposit,
-		TransactionWithdraw,
-		TransactionTransfer,
+		Deposit,
+		Withdraw,
+		Transfer,
 	}
 	for _, validType := range validTransactionTypes {
 		if transactionType == validType {
