@@ -1,5 +1,7 @@
 package user
 
+// mockgen -source=internal/domain/user/verify_email_uniqueness_service.go -destination=internal/domain/user/mock/mock_verify_email_uniqueness_service.go -package=mock
+
 import "context"
 
 type IVerifyEmailUniquenessService interface {
