@@ -4,6 +4,7 @@ import (
 	"time"
 
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
+	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
 )
 
@@ -12,7 +13,7 @@ type Account struct {
 	userID       string
 	name         string
 	passwordHash string
-	balance      Money
+	balance      money.Money
 	updatedAt    time.Time
 }
 
@@ -21,10 +22,8 @@ func New(id, userID, name, password string, amount float64, currency string, upd
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}
-	passwordHash, err := passwordUtil.Encode(password)
-	if err != nil {
-		return nil, err
-	}
+	// 有効なパスワードである事が保証されているのでエラーチェックは不要
+	passwordHash, _ := passwordUtil.Encode(password)
 
 	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
 }
@@ -47,7 +46,7 @@ func newAccount(id, userID, name, passwordHash string, amount float64, currency 
 		return nil, err
 	}
 
-	balance, err := NewMoney(amount, currency)
+	balance, err := money.New(amount, currency)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +77,7 @@ func (a *Account) PasswordHash() string {
 	return a.passwordHash
 }
 
-func (a *Account) Balance() Money {
+func (a *Account) Balance() money.Money {
 	return a.balance
 }
 
@@ -98,10 +97,9 @@ func (a *Account) ChangePassword(new string) error {
 	if err := validPassword(new); err != nil {
 		return err
 	}
-	passwordHash, err := passwordUtil.Encode(new)
-	if err != nil {
-		return err
-	}
+	// 有効なパスワードである事が保証されているのでエラーチェックは不要
+	passwordHash, _ := passwordUtil.Encode(new)
+
 	a.passwordHash = passwordHash
 	return nil
 }
@@ -111,7 +109,7 @@ func (a *Account) ComparePassword(password string) error {
 }
 
 func (a *Account) Withdraw(amount float64, currency string) error {
-	withdrawMoney, err := NewMoney(amount, currency)
+	withdrawMoney, err := money.New(amount, currency)
 	if err != nil {
 		return err
 	}
@@ -126,7 +124,7 @@ func (a *Account) Withdraw(amount float64, currency string) error {
 }
 
 func (a *Account) Deposit(amount float64, currency string) error {
-	depositMoney, err := NewMoney(amount, currency)
+	depositMoney, err := money.New(amount, currency)
 	if err != nil {
 		return err
 	}

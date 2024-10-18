@@ -1,7 +1,11 @@
 package account
 
+import (
+	"github.com/ucho456job/pocgo/pkg/ulid"
+)
+
 func ValidID(id string) error {
-	if id == "" {
+	if !ulid.IsValid(id) {
 		return ErrInvalidID
 	}
 	return nil
@@ -17,20 +21,6 @@ func validName(name string) error {
 func validPassword(password string) error {
 	if len(password) != PasswordLength {
 		return ErrPasswordInvalidLength
-	}
-	return nil
-}
-
-func validAmount(amount float64) error {
-	if amount < 0 {
-		return ErrNegativeAmount
-	}
-	return nil
-}
-
-func validCurrency(currency string) error {
-	if currency != JPY {
-		return ErrUnsupportedCurrency
 	}
 	return nil
 }
