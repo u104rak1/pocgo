@@ -17,8 +17,8 @@ type Account struct {
 	updatedAt    time.Time
 }
 
-// 新規作成時はパスワードのバリデーションを行う
 func New(id, userID, name, password string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
+	// Validate password when creating a new account
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}
@@ -30,8 +30,8 @@ func New(id, userID, name, password string, amount float64, currency string, upd
 	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
 }
 
-// DBからの再構築時は既にハッシュ値なのでパスワードのバリデーションを行わない
 func Reconstruct(id, userID, name, passwordHash string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
+	// When reconstructing the account from the DB, the password is already encoded so there is no validation.
 	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
 }
 

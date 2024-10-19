@@ -12,7 +12,7 @@ import (
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
-func TestVerifyUniquenessService_Run(t *testing.T) {
+func TestVerifyUniqueness(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -25,7 +25,7 @@ func TestVerifyUniquenessService_Run(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: UserIDがUniqueの時、エラーが発生しない",
+			caseName: "Happy path: return nil, if the user is unique.",
 			userID:   ulid.GenerateStaticULID("Unique"),
 			setup: func(ctx context.Context, userID string) {
 				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(false, nil)
@@ -33,7 +33,7 @@ func TestVerifyUniquenessService_Run(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			caseName: "Edge case: UserIDが重複している時、エラーが発生する",
+			caseName: "Edge case: return error, if the user is already exists.",
 			userID:   ulid.GenerateStaticULID("duplicate"),
 			setup: func(ctx context.Context, userID string) {
 				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(true, nil)
@@ -41,7 +41,7 @@ func TestVerifyUniquenessService_Run(t *testing.T) {
 			wantErr: authentication.ErrAuthenticationAlreadyExists,
 		},
 		{
-			caseName: "Edge case: ExistsByUserIDでエラーが発生する",
+			caseName: "Edge case: return error, if the repository returns an error.",
 			userID:   ulid.GenerateStaticULID("error"),
 			setup: func(ctx context.Context, userID string) {
 				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(false, errors.New("repository error"))
@@ -53,10 +53,10 @@ func TestVerifyUniquenessService_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			service := authentication.NewVerifyAuthenticationUniquenessService(mockAuthRepo)
+			service := authentication.NewService(mockAuthRepo)
 			ctx := context.Background()
 			tt.setup(ctx, tt.userID)
-			err := service.Run(ctx, tt.userID)
+			err := service.VerifyUniqueness(ctx, tt.userID)
 
 			assert.Equal(t, tt.wantErr, err)
 		})

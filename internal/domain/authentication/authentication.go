@@ -10,8 +10,8 @@ type Authentication struct {
 	passwordHash string
 }
 
-// 新規作成時はパスワードのバリデーションを行う
 func New(userID, password string) (*Authentication, error) {
+	// Validate password when creating a new authentication
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}
@@ -23,8 +23,8 @@ func New(userID, password string) (*Authentication, error) {
 	return newAuthentication(userID, passwordHash)
 }
 
-// DBからの再構築時は既にハッシュ値なのでパスワードのバリデーションを行わない
 func Reconstruct(userID, passwordHash string) (*Authentication, error) {
+	// When reconstructing the authentication from the DB, the password is already encoded so there is no validation.
 	return newAuthentication(userID, passwordHash)
 }
 
@@ -46,6 +46,6 @@ func (a *Authentication) PasswordHash() string {
 	return a.passwordHash
 }
 
-func (a *Authentication) Compare(password string) error {
+func (a *Authentication) ComparePassword(password string) error {
 	return passwordUtil.Compare(a.passwordHash, password)
 }

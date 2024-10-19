@@ -37,7 +37,7 @@ func TestNew(t *testing.T) {
 		wantErr   error
 	}{
 		{
-			caseName:  "Happy path: 有効なAccountを作成",
+			caseName:  "Happy path: return account entity, if arguments are valid.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -48,7 +48,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Edge case: 無効なIDを指定するとエラー",
+			caseName:  "Edge case: return error, if the ID is invalid.",
 			id:        "invalid",
 			userID:    validUserID,
 			name:      validName,
@@ -59,7 +59,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidID,
 		},
 		{
-			caseName:  "Edge case: 無効なユーザーIDを指定するとエラー",
+			caseName:  "Edge case: return error, if the UserID is invalid.",
 			id:        validID,
 			userID:    "invalid",
 			name:      validName,
@@ -70,7 +70,7 @@ func TestNew(t *testing.T) {
 			wantErr:   userDomain.ErrInvalidUserID,
 		},
 		{
-			caseName:  "Edge case: 名前が0文字だとエラー",
+			caseName:  "Edge case: return error, if the name is 0 characters.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMinLength-1),
@@ -81,7 +81,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
-			caseName:  "Happy path: 名前が1文字なら成功",
+			caseName:  "Happy path: return account entity, if the name is 1 characters.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMinLength),
@@ -92,7 +92,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Happy path: 名前が10文字なら成功",
+			caseName:  "Happy path: return account entity, if the name is 10 characters.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMaxLength),
@@ -103,7 +103,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Happy path: 名前が11文字だとエラー",
+			caseName:  "Edge case: return error, if the name is 11 characters.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMaxLength+1),
@@ -114,7 +114,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
-			caseName:  "Edge case: パスワードが3文字だとエラー",
+			caseName:  "Edge case: return error, if the password is 3 characters.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -125,7 +125,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrPasswordInvalidLength,
 		},
 		{
-			caseName:  "Happy path: パスワードが4文字なら成功",
+			caseName:  "Happy path: return account entity, if the password is 4 characters.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -136,7 +136,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Edge case: パスワードが5文字だとエラー",
+			caseName:  "Edge case: return error, if the password is 5 characters.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -146,10 +146,10 @@ func TestNew(t *testing.T) {
 			updatedAt: validTime,
 			wantErr:   account.ErrPasswordInvalidLength,
 		},
-		// Encode関数のエラーを強制するのは難しい為、エラーのテストは省略
+		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
 
 		{
-			caseName:  "Edge case: 無効な金額を指定するとエラー",
+			caseName:  "Edge case: return error, if invalid amount.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -184,7 +184,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
-	t.Run("Happy path: 有効なAccountエンティティを再構築", func(t *testing.T) {
+	t.Run("Happy path: rebuild a valid account entity.", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(validPassword)
 		acc, err := account.Reconstruct(validID, validUserID, validName, encodedPassword, validAmount, validCurrency, validTime)
 
@@ -206,12 +206,12 @@ func TestChangeName(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: 名前を変更",
+			caseName: "Happy path: can be renamed to a valid name.",
 			newName:  "NewName",
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: 無効な名前を指定",
+			caseName: "Edge case: return error, invalid name.",
 			newName:  "",
 			wantErr:  account.ErrInvalidAccountName,
 		},
@@ -241,16 +241,16 @@ func TestChangePassword(t *testing.T) {
 		wantErr     error
 	}{
 		{
-			caseName:    "Happy path: 有効なパスワードに変更できる",
+			caseName:    "Happy path: can be changed to a valid password.",
 			newPassword: "5678",
 			wantErr:     nil,
 		},
 		{
-			caseName:    "Edge case: 無効なパスワードを指定した時、パスワードを変更できない",
+			caseName:    "Edge case: return error, invalid password.",
 			newPassword: "invalid",
 			wantErr:     account.ErrPasswordInvalidLength,
 		},
-		// Encode関数のエラーを強制するのは難しい為、エラーのテストは省略
+		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
 	}
 
 	for _, tt := range tests {
@@ -277,12 +277,12 @@ func TestComparePassword(t *testing.T) {
 		wantErr     error
 	}{
 		{
-			caseName:    "Happy path: パスワードが一致する場合、エラーが発生しない",
+			caseName:    "Happy path: return nil, if the passwords match.",
 			newPassword: validPassword,
 			wantErr:     nil,
 		},
 		{
-			caseName:    "Edge case: パスワードが異なる場合、エラーが発生する",
+			caseName:    "Edge case: return error, if the passwords do not match.",
 			newPassword: "invalid",
 			wantErr:     bcrypt.ErrMismatchedHashAndPassword,
 		},
@@ -311,19 +311,19 @@ func TestWithdraw(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: 通貨が一致し残高が十分ある場合、残高が引かれる",
+			caseName: "Happy path: the balance will be debited, if the currency matches and the balance is sufficient.",
 			amount:   300,
 			currency: money.JPY,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: 未対応の通貨の場合、エラーが発生する",
+			caseName: "Edge case: return error, if the currency is unsupported.",
 			amount:   300,
 			currency: "EUR",
 			wantErr:  money.ErrUnsupportedCurrency,
 		},
 		{
-			caseName: "Edge case: 残高が不十分な場合、エラーが発生する",
+			caseName: "Edge case: return error, if the balance is insufficient.",
 			amount:   1500,
 			currency: money.JPY,
 			wantErr:  money.ErrInsufficientBalance,
@@ -353,19 +353,19 @@ func TestDeposit(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: 通貨が一致する場合、残高に入金できる",
+			caseName: "Happy path: the balance will be credited, if the currency matches.",
 			amount:   300,
 			currency: money.JPY,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: 未対応の通貨の場合、エラーが発生する",
+			caseName: "Edge case: return error, if the currency is unsupported.",
 			amount:   300,
 			currency: "EUR",
 			wantErr:  money.ErrUnsupportedCurrency,
 		},
 		{
-			caseName: "Edge case: 通貨が異なる場合、エラーが発生する",
+			caseName: "Edge case: return error, if the currency is different.",
 			amount:   300,
 			currency: money.USD,
 			wantErr:  money.ErrDifferentCurrency,
@@ -388,7 +388,7 @@ func TestDeposit(t *testing.T) {
 }
 
 func TestChangeUpdatedAt(t *testing.T) {
-	t.Run("Happy path: 有効な更新日時に変更できる", func(t *testing.T) {
+	t.Run("Happy path: can be changed to valid time.", func(t *testing.T) {
 		acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
 		newTime := time.Now()
 		acc.ChangeUpdatedAt(newTime)

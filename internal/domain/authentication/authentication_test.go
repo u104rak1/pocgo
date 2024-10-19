@@ -24,42 +24,42 @@ func TestNew(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			name:     "Happy path: 有効なAuthenticationを作成",
+			name:     "Happy path: return authentication entity, if arguments are valid.",
 			userID:   validUserID,
 			password: validPassword,
 			wantErr:  nil,
 		},
 		{
-			name:     "Edge case: 無効なUserIDを指定するとエラー",
+			name:     "Edge case: return error, if the userID is invalid.",
 			userID:   "invalid",
 			password: validPassword,
 			wantErr:  userDomain.ErrInvalidUserID,
 		},
 		{
-			name:     "Edge case: パスワードが7文字だとエラー",
+			name:     "Edge case: return error, if the password is 7 characters.",
 			userID:   validUserID,
 			password: "1234567",
 			wantErr:  authentication.ErrPasswordInvalidLength,
 		},
 		{
-			name:     "Happy path: パスワードが8文字なら成功",
+			name:     "Happy path: return authentication entity, if the password is 8 characters.",
 			userID:   validUserID,
 			password: "12345678",
 			wantErr:  nil,
 		},
 		{
-			name:     "Happy path: パスワードが20文字なら成功",
+			name:     "Happy path: return authentication entity, if the password is 20 characters.",
 			userID:   validUserID,
 			password: "12345678901234567890",
 			wantErr:  nil,
 		},
 		{
-			name:     "Edge case: パスワードが21文字だとエラー",
+			name:     "Edge case: return error, if the password is 21 characters.",
 			userID:   validUserID,
 			password: "123456789012345678901",
 			wantErr:  authentication.ErrPasswordInvalidLength,
 		},
-		// Encode関数のエラーを強制するのは難しい為、エラーのテストは省略
+		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
 	}
 
 	for _, tt := range tests {
@@ -80,7 +80,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
-	t.Run("Happy path: 有効なAuthenticationエンティティを再構築", func(t *testing.T) {
+	t.Run("Happy path: rebuild a valid authentication entity.", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(validPassword)
 		auth, err := authentication.Reconstruct(validUserID, encodedPassword)
 
@@ -91,19 +91,19 @@ func TestReconstruct(t *testing.T) {
 	})
 }
 
-func TestCompare(t *testing.T) {
+func TestComparePassword(t *testing.T) {
 	tests := []struct {
 		name        string
 		newPassword string
 		wantErr     error
 	}{
 		{
-			name:        "Happy path: パスワードが一致する場合、エラーが発生しない",
+			name:        "Happy path: return nil, if the passwords match.",
 			newPassword: validPassword,
 			wantErr:     nil,
 		},
 		{
-			name:        "Edge case: パスワードが異なる場合、エラーが発生する",
+			name:        "Edge case: return error, if the passwords do not match.",
 			newPassword: "deffirentPassword",
 			wantErr:     bcrypt.ErrMismatchedHashAndPassword,
 		},
@@ -113,7 +113,7 @@ func TestCompare(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			auth, _ := authentication.New(validUserID, validPassword)
-			err := auth.Compare(tt.newPassword)
+			err := auth.ComparePassword(tt.newPassword)
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)

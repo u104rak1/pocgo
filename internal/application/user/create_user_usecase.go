@@ -13,23 +13,23 @@ type ICreateUserUsecase interface {
 }
 
 type createUserUsecase struct {
-	userRepo                           userDomain.IUserRepository
-	userServ                           userDomain.IUserService
-	authRepo                           authDomain.IAuthenticationRepository
-	verifyAuthenticationUniquenessServ authDomain.IVerifyAuthenticationUniquenessService
+	userRepo userDomain.IUserRepository
+	userServ userDomain.IUserService
+	authRepo authDomain.IAuthenticationRepository
+	authServ authDomain.IAuthenticationService
 }
 
 func NewCreateUserUsecase(
 	userRepo userDomain.IUserRepository,
 	authRepo authDomain.IAuthenticationRepository,
 	userServ userDomain.IUserService,
-	verifyAuthenticationUniquenessServ authDomain.IVerifyAuthenticationUniquenessService,
+	authServ authDomain.IAuthenticationService,
 ) ICreateUserUsecase {
 	return &createUserUsecase{
-		userRepo:                           userRepo,
-		authRepo:                           authRepo,
-		userServ:                           userServ,
-		verifyAuthenticationUniquenessServ: verifyAuthenticationUniquenessServ,
+		userRepo: userRepo,
+		authRepo: authRepo,
+		userServ: userServ,
+		authServ: authServ,
 	}
 }
 
@@ -80,7 +80,7 @@ func (u *createUserUsecase) createUser(ctx context.Context, userID string, cmd C
 }
 
 func (u *createUserUsecase) createAuthentication(ctx context.Context, userID string, cmd CreateUserCommand) (err error) {
-	if err = u.verifyAuthenticationUniquenessServ.Run(ctx, userID); err != nil {
+	if err = u.authServ.VerifyUniqueness(ctx, userID); err != nil {
 		return err
 	}
 

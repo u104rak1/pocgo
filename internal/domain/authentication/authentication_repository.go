@@ -1,7 +1,5 @@
 package authentication
 
-// mockgen -source=internal/domain/authentication/authentication_repository.go -destination=internal/domain/authentication/mock/mock_authentication_repository.go -package=mock
-
 import "context"
 
 type IAuthenticationRepository interface {
