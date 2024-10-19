@@ -9,11 +9,11 @@ import (
 )
 
 func TestEncode(t *testing.T) {
-	t.Run("Valid: 正常なパスワードをハッシュ化", func(t *testing.T) {
+	t.Run("Valid: Hashing good password.", func(t *testing.T) {
 		_, err := password.Encode("ValidPassword123")
 		assert.NoError(t, err)
 	})
-	// GenerateFromPassword関数のエラーを強制するのは難しい為、エラーのテストは省略
+	// Since it is difficult to force an error in the GenerateFromPassword function, we omitted testing for errors.
 }
 
 func TestCompare(t *testing.T) {
@@ -25,13 +25,13 @@ func TestCompare(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Valid: 一致するパスワードで比較",
+			caseName: "Valid: return nil, if the password is matched.",
 			password: "ValidPassword123",
 			hash:     passwordHash,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Invalid: 異なるパスワードを指定するとエラー",
+			caseName: "Invalid: return error, if the password is not matched.",
 			password: "DifferentPassword456",
 			hash:     passwordHash,
 			wantErr:  bcrypt.ErrMismatchedHashAndPassword,

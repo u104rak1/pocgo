@@ -14,23 +14,23 @@ type ISignupUsecase interface {
 }
 
 type signupUsecase struct {
-	createUserUsecase    userApp.ICreateUserUsecase
-	createAccountUsecase accountApp.ICreateAccountUsecase
-	accessTokenService   authDomain.AccessTokenService
-	unitOfWork           unitofwork.IUnitOfWorkWithResult[SignupDTO]
+	createUserUC    userApp.ICreateUserUsecase
+	createAccountUC accountApp.ICreateAccountUsecase
+	authServ        authDomain.IAuthenticationService
+	unitOfWork      unitofwork.IUnitOfWorkWithResult[SignupDTO]
 }
 
 func NewSignupUsecase(
 	createUserUsecase userApp.ICreateUserUsecase,
 	createAccountUsecase accountApp.ICreateAccountUsecase,
-	accessTokenService authDomain.AccessTokenService,
+	authService authDomain.IAuthenticationService,
 	unitOfWork unitofwork.IUnitOfWorkWithResult[SignupDTO],
 ) ISignupUsecase {
 	return &signupUsecase{
-		createUserUsecase:    createUserUsecase,
-		createAccountUsecase: createAccountUsecase,
-		accessTokenService:   accessTokenService,
-		unitOfWork:           unitOfWork,
+		createUserUC:    createUserUsecase,
+		createAccountUC: createAccountUsecase,
+		authServ:        authService,
+		unitOfWork:      unitOfWork,
 	}
 }
 
@@ -47,13 +47,13 @@ type SignupDTO struct {
 
 func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO, error) {
 	dto, err := u.unitOfWork.RunInTx(ctx, func(ctx context.Context) (*SignupDTO, error) {
-		user, err := u.createUserUsecase.Run(ctx, cmd.User)
+		user, err := u.createUserUC.Run(ctx, cmd.User)
 		if err != nil {
 			return nil, err
 		}
 
 		cmd.Account.UserID = user.ID
-		account, err := u.createAccountUsecase.Run(ctx, cmd.Account)
+		account, err := u.createAccountUC.Run(ctx, cmd.Account)
 		if err != nil {
 			return nil, err
 		}
@@ -67,7 +67,7 @@ func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO,
 		return nil, err
 	}
 
-	accessToken, err := u.accessTokenService.Generate(ctx, dto.User.ID)
+	accessToken, err := u.authServ.GenerateAccessToken(ctx, dto.User.ID)
 	if err != nil {
 		return nil, err
 	}

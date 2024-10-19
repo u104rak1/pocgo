@@ -20,16 +20,16 @@ type createUserUsecase struct {
 }
 
 func NewCreateUserUsecase(
-	userRepo userDomain.IUserRepository,
-	authRepo authDomain.IAuthenticationRepository,
-	userServ userDomain.IUserService,
-	authServ authDomain.IAuthenticationService,
+	userRepository userDomain.IUserRepository,
+	authRepository authDomain.IAuthenticationRepository,
+	userService userDomain.IUserService,
+	authService authDomain.IAuthenticationService,
 ) ICreateUserUsecase {
 	return &createUserUsecase{
-		userRepo: userRepo,
-		authRepo: authRepo,
-		userServ: userServ,
-		authServ: authServ,
+		userRepo: userRepository,
+		authRepo: authRepository,
+		userServ: userService,
+		authServ: authService,
 	}
 }
 
