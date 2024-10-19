@@ -24,7 +24,7 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: メールがUniqueの時、エラーが発生しない",
+			caseName: "Happy path: return nil, if the email is unique.",
 			email:    "new@example.com",
 			setup: func(ctx context.Context, email string) {
 				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, nil)
@@ -32,7 +32,7 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			caseName: "Edge case: メールが重複している時、エラーが発生する",
+			caseName: "Edge case: return error, if the email is already exists.",
 			email:    "existing@example.com",
 			setup: func(ctx context.Context, email string) {
 				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(true, nil)
@@ -40,7 +40,7 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 			wantErr: user.ErrUserEmailAlreadyExists,
 		},
 		{
-			caseName: "Edge case: ExistsByEmailでエラーが発生する",
+			caseName: "Edge case: return error, if the repository returns an error.",
 			email:    "error@example.com",
 			setup: func(ctx context.Context, email string) {
 				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, errors.New("repository error"))

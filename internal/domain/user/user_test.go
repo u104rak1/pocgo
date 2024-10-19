@@ -24,49 +24,49 @@ func TestNew(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: 有効なUserを作成",
+			caseName: "Happy path: return user entity, if arguments are valid.",
 			id:       validID,
 			name:     validName,
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: 無効なIDを指定するとエラー",
+			caseName: "Edge case: return error, if the ID is invalid.",
 			id:       "invalid",
 			name:     validName,
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserID,
 		},
 		{
-			caseName: "Edge case: 名前が0文字だとエラー",
+			caseName: "Edge case: return error, if the name is 0 characters.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMinLength-1),
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
-			caseName: "Happy path: 名前が1文字なら成功",
+			caseName: "Happy path: return user entity, if the name is 1 characters.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMinLength),
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Happy path: 名前が20文字なら成功",
+			caseName: "Happy path: return user entity, if the name is 20 characters.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMaxLength),
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: 名前が21文字だとエラー",
+			caseName: "Edge case: return error, if the name is 21 characters.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMaxLength+1),
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
-			caseName: "Edge case: 無効なEmailを指定するとエラー",
+			caseName: "Edge case: return error, if the email is invalid.",
 			id:       validID,
 			name:     validName,
 			email:    "invalid",
@@ -99,13 +99,13 @@ func TestChangeName(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: 有効な新しい名前に変更できる",
+			caseName: "Happy path: can be renamed to a valid name.",
 			newName:  "yamada hanako",
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: 無効な名前を指定した時、名前を変更できない",
-			newName:  strings.Repeat("a", user.NameMinLength-1),
+			caseName: "Edge case: return error, invalid name.",
+			newName:  strings.Repeat("a", user.NameMaxLength+1),
 			wantErr:  user.ErrInvalidUserName,
 		},
 	}
@@ -134,12 +134,12 @@ func TestChangeEmail(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: 有効なEmailに変更できる",
+			caseName: "Happy path: can be changed to a valid email.",
 			newEmail: "yamada@example.com",
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: 無効なEmailを指定した時、Emailを変更できない",
+			caseName: "Edge case: return error, invalid email.",
 			newEmail: "invalid-email",
 			wantErr:  user.ErrInvalidEmail,
 		},

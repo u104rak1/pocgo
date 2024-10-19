@@ -14,47 +14,47 @@ func TestNew(t *testing.T) {
 		currency string
 		wantErr  error
 	}{
-		// 円固有のテスト
+		// JPY specific tests
 		{
-			name:     "Happy path: 有効な日本円のMoneyを作成",
+			name:     "Happy path: return money value object, if valid JPY.",
 			amount:   1000,
 			currency: money.JPY,
 			wantErr:  nil,
 		},
 		{
-			name:     "Edge case: 小数点を含む無効な日本円はエラー",
+			name:     "Edge case: return error, if invalid JPY precision.",
 			amount:   1000.1,
 			currency: money.JPY,
 			wantErr:  money.ErrInvalidJPYPrecision,
 		},
-		// 米ドル固有のテスト
+		// USD specific tests
 		{
-			name:     "Happy path: 有効な米ドルのMoneyを作成",
+			name:     "Happy path: return money value object, if valid USD.",
 			amount:   10,
 			currency: money.USD,
 			wantErr:  nil,
 		},
 		{
-			name:     "Happy path: 小数点2桁の有効な米ドルのMoneyを作成",
+			name:     "Happy path: return money value object, if valid USD with 2 decimal points.",
 			amount:   10.99,
 			currency: money.USD,
 			wantErr:  nil,
 		},
 		{
-			name:     "Edge case: 小数点3桁の無効な米ドルはエラー",
+			name:     "Edge case: return error, if invalid USD with 3 decimal points.",
 			amount:   10.001,
 			currency: money.USD,
 			wantErr:  money.ErrInvalidUSDPrecision,
 		},
-		// 共通のテスト
+		// Common tests
 		{
-			name:     "Edge case: 金額がマイナスを指定するとエラー",
+			name:     "Edge case: return error, if negative amount.",
 			amount:   -1,
 			currency: money.JPY,
 			wantErr:  money.ErrNegativeAmount,
 		},
 		{
-			name:     "Edge case: サポートされていない通貨を指定するとエラー",
+			name:     "Edge case: return error, if unsupported currency.",
 			amount:   1000,
 			currency: "EUR",
 			wantErr:  money.ErrUnsupportedCurrency,
@@ -91,14 +91,14 @@ func TestAdd(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name:    "Happy path: 通貨が同じなら加算できる",
+			name:    "Happy path: can add two money, if the currency is the same.",
 			money1:  m1,
 			money2:  m2,
 			want:    1500,
 			wantErr: nil,
 		},
 		{
-			name:    "Edge case: 異なる通貨はエラー",
+			name:    "Edge case: return error, if the currency is different.",
 			money1:  m1,
 			money2:  m3,
 			want:    0,
@@ -135,21 +135,21 @@ func TestSub(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name:    "Happy path: 通貨が同じで金額が足りる場合は減算できる",
+			name:    "Happy path: can subtract two money, if the currency is the same.",
 			money1:  m1,
 			money2:  m2,
 			want:    500,
 			wantErr: nil,
 		},
 		{
-			name:    "Edge case: 金額が足りない場合はエラー",
+			name:    "Edge case: return error, if the amount is insufficient.",
 			money1:  m1,
 			money2:  m3,
 			want:    0,
 			wantErr: money.ErrInsufficientBalance,
 		},
 		{
-			name:    "Edge case: 異なる通貨はエラー",
+			name:    "Edge case: return error, if the currency is different.",
 			money1:  m1,
 			money2:  m4,
 			want:    0,
