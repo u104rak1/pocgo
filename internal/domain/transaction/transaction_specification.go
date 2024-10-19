@@ -1,6 +1,21 @@
 package transaction
 
-import "github.com/ucho456job/pocgo/pkg/ulid"
+import (
+	"errors"
+
+	"github.com/ucho456job/pocgo/pkg/ulid"
+)
+
+var (
+	ErrInvalidTransactionID     = errors.New("invalid transaction id")
+	ErrUnsupportTransactionType = errors.New("unsupported transaction type")
+)
+
+const (
+	Deposit  = "DEPOSIT"
+	Withdraw = "WITHDRAW"
+	Transfer = "TRANSFER"
+)
 
 func ValidID(id string) error {
 	if !ulid.IsValid(id) {

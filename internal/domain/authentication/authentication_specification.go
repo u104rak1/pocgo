@@ -14,3 +14,10 @@ var (
 	ErrUnexpectedSigningMethod     = errors.New("unexpected signing method")
 	ErrAuthenticationFailed        = errors.New("invalid token or missing userID")
 )
+
+func validPassword(password string) error {
+	if len(password) < PasswordMinLength || len(password) > PasswordMaxLength {
+		return ErrPasswordInvalidLength
+	}
+	return nil
+}

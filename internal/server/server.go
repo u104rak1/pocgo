@@ -45,7 +45,7 @@ func setupEcho(db *bun.DB) *echo.Echo {
 	accountRepo := repository.NewAccountRepository(db)
 
 	/** Domain Service */
-	verifyEmailUniqueServ := userDomain.NewVerifyEmailUniquenessService(userRepo)
+	userServ := userDomain.NewService(userRepo)
 	verifyAuthUniqueServ := authDomain.NewVerifyAuthenticationUniquenessService(authRepo)
 	accessTokenServ := authDomain.NewAccessTokenService()
 
@@ -53,7 +53,7 @@ func setupEcho(db *bun.DB) *echo.Echo {
 	signupUW := repository.NewUnitOfWorkWithResult[authApp.SignupDTO](db)
 
 	/** Usecase */
-	createUserUC := userApp.NewCreateUserUsecase(userRepo, authRepo, verifyEmailUniqueServ, verifyAuthUniqueServ)
+	createUserUC := userApp.NewCreateUserUsecase(userRepo, authRepo, userServ, verifyAuthUniqueServ)
 	createAccountUC := accountApp.NewCreateAccountUsecase(accountRepo)
 	signupUC := authApp.NewSignupUsecase(createUserUC, createAccountUC, *accessTokenServ, signupUW)
 

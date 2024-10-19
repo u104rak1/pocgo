@@ -7,11 +7,11 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
+	"github.com/ucho456job/pocgo/internal/domain/mock"
 	"github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/domain/user/mock"
 )
 
-func TestVerifyEmailUniquenessService_Run(t *testing.T) {
+func TestVerifyEmailUniqueness(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -52,10 +52,10 @@ func TestVerifyEmailUniquenessService_Run(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			service := user.NewVerifyEmailUniquenessService(mockUserRepo)
+			service := user.NewService(mockUserRepo)
 			ctx := context.Background()
 			tt.setup(ctx, tt.email)
-			err := service.Run(ctx, tt.email)
+			err := service.VerifyEmailUniqueness(ctx, tt.email)
 
 			assert.Equal(t, tt.wantErr, err)
 		})

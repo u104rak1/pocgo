@@ -1,7 +1,5 @@
 package user
 
-// mockgen -source=internal/domain/user/user_repository.go -destination=internal/domain/user/mock/mock_user_repository.go -package=mock
-
 import "context"
 
 type IUserRepository interface {

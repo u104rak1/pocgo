@@ -14,21 +14,21 @@ type ICreateUserUsecase interface {
 
 type createUserUsecase struct {
 	userRepo                           userDomain.IUserRepository
+	userServ                           userDomain.IUserService
 	authRepo                           authDomain.IAuthenticationRepository
-	verifyEmailUniquenessServ          userDomain.IVerifyEmailUniquenessService
 	verifyAuthenticationUniquenessServ authDomain.IVerifyAuthenticationUniquenessService
 }
 
 func NewCreateUserUsecase(
 	userRepo userDomain.IUserRepository,
 	authRepo authDomain.IAuthenticationRepository,
-	verifyEmailUniquenessServ userDomain.IVerifyEmailUniquenessService,
+	userServ userDomain.IUserService,
 	verifyAuthenticationUniquenessServ authDomain.IVerifyAuthenticationUniquenessService,
 ) ICreateUserUsecase {
 	return &createUserUsecase{
 		userRepo:                           userRepo,
 		authRepo:                           authRepo,
-		verifyEmailUniquenessServ:          verifyEmailUniquenessServ,
+		userServ:                           userServ,
 		verifyAuthenticationUniquenessServ: verifyAuthenticationUniquenessServ,
 	}
 }
@@ -63,7 +63,7 @@ func (u *createUserUsecase) Run(ctx context.Context, cmd CreateUserCommand) (*Cr
 }
 
 func (u *createUserUsecase) createUser(ctx context.Context, userID string, cmd CreateUserCommand) (err error) {
-	if err = u.verifyEmailUniquenessServ.Run(ctx, cmd.Email); err != nil {
+	if err = u.userServ.VerifyEmailUniqueness(ctx, cmd.Email); err != nil {
 		return err
 	}
 

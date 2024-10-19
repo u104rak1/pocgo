@@ -8,7 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/ucho456job/pocgo/internal/domain/authentication"
-	"github.com/ucho456job/pocgo/internal/domain/authentication/mock"
+	"github.com/ucho456job/pocgo/internal/domain/mock"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
