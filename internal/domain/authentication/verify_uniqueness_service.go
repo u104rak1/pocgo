@@ -1,5 +1,7 @@
 package authentication
 
+// mockgen -source=internal/domain/authentication/verify_uniqueness_service.go -destination=internal/domain/authentication/mock/mock_verify_uniqueness_service.go -package=mock
+
 import "context"
 
 type IVerifyAuthenticationUniquenessService interface {

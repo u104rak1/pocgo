@@ -1,5 +1,7 @@
 package account
 
+// mockgen -source=internal/domain/account/account_repository.go -destination=internal/domain/account/mock/mock_account_repository.go -package=mock
+
 import "context"
 
 type IAccountRepository interface {
