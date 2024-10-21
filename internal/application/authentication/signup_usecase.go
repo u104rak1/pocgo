@@ -6,6 +6,7 @@ import (
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
+	"github.com/ucho456job/pocgo/internal/config"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 )
 
@@ -67,7 +68,8 @@ func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO,
 		return nil, err
 	}
 
-	accessToken, err := u.authServ.GenerateAccessToken(ctx, dto.User.ID)
+	env := config.NewEnv()
+	accessToken, err := u.authServ.GenerateAccessToken(ctx, dto.User.ID, []byte(env.JWT_SECRET_KEY))
 	if err != nil {
 		return nil, err
 	}

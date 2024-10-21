@@ -5,13 +5,12 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/ucho456job/pocgo/internal/config"
 )
 
 type IAuthenticationService interface {
 	VerifyUniqueness(ctx context.Context, userID string) error
-	GenerateAccessToken(ctx context.Context, userID string) (string, error)
-	GetUserIDFromAccessToken(ctx context.Context, accessToken string) (string, error)
+	GenerateAccessToken(ctx context.Context, userID string, jwtSecretKey []byte) (string, error)
+	GetUserIDFromAccessToken(ctx context.Context, accessToken string, jwtSecretKey []byte) (string, error)
 }
 
 type authenticationService struct {
@@ -35,28 +34,22 @@ func (s *authenticationService) VerifyUniqueness(ctx context.Context, userID str
 	return nil
 }
 
-func (s *authenticationService) GenerateAccessToken(ctx context.Context, userID string) (string, error) {
-	env := config.NewEnv()
-	jwtSecret := []byte(env.JWT_SECRET_KEY)
-
+func (s *authenticationService) GenerateAccessToken(ctx context.Context, userID string, jwtSecretKey []byte) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(jwtSecretKey)
 }
 
-func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, accessToken string) (string, error) {
-	env := config.NewEnv()
-	jwtSecret := []byte(env.JWT_SECRET_KEY)
-
+func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, accessToken string, jwtSecretKey []byte) (string, error) {
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrUnexpectedSigningMethod
 		}
-		return jwtSecret, nil
+		return jwtSecretKey, nil
 	})
 
 	if err != nil {
@@ -64,7 +57,7 @@ func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, ac
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		if userID, ok := claims["userID"].(string); ok {
+		if userID, ok := claims["sub"].(string); ok {
 			return userID, nil
 		}
 	}
