@@ -12,15 +12,6 @@ import (
 )
 
 func TestCreateUserUsecase(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockUserRepo := mock.NewMockIUserRepository(ctrl)
-	mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
-	mockUserServ := mock.NewMockIUserService(ctrl)
-	mockAuthServ := mock.NewMockIAuthenticationService(ctrl)
-	uc := userUC.NewCreateUserUsecase(mockUserRepo, mockAuthRepo, mockUserServ, mockAuthServ)
-
 	validCmd := userUC.CreateUserCommand{
 		Name:     "Sato taro",
 		Email:    "sato@example.com",
@@ -28,81 +19,88 @@ func TestCreateUserUsecase(t *testing.T) {
 	}
 	err := errors.New("error")
 
+	type Mocks struct {
+		mockUserRepo *mock.MockIUserRepository
+		mockAuthRepo *mock.MockIAuthenticationRepository
+		mockUserServ *mock.MockIUserService
+		mockAuthServ *mock.MockIAuthenticationService
+	}
+
 	tests := []struct {
 		caseName string
 		cmd      userUC.CreateUserCommand
-		prepare  func(ctx context.Context)
+		prepare  func(ctx context.Context, mocks Mocks)
 		wantErr  bool
 	}{
 		{
-			caseName: "OK: creates user successfully.",
+			caseName: "Positive: creates user successfully.",
 			cmd:      validCmd,
-			prepare: func(ctx context.Context) {
-				mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
-				mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
-				mockAuthRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.mockAuthRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "NG: an error occurs userService.VerifyEmailUniqueness.",
+			caseName: "Negative: an error occurs in userService.VerifyEmailUniqueness.",
 			cmd:      validCmd,
-			prepare: func(ctx context.Context) {
-				mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(err)
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(err)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "NG: an error occurs userDomain.New.",
+			caseName: "Negative: an error occurs in userDomain.New.",
 			cmd: userUC.CreateUserCommand{
 				Email: "sato@example.com",
 			},
-			prepare: func(ctx context.Context) {
-				mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "NG: an error occurs in userRepository.Save.",
+			caseName: "Negative: an error occurs in userRepository.Save.",
 			cmd:      validCmd,
-			prepare: func(ctx context.Context) {
-				mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
-				mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(err)
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(err)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "NG: an error occurs in authenticationService.VerifyUniqueness.",
+			caseName: "Negative: an error occurs in authenticationService.VerifyUniqueness.",
 			cmd:      validCmd,
-			prepare: func(ctx context.Context) {
-				mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
-				mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(err)
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(err)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "NG: an error occurs in authenticationDomain.New.",
+			caseName: "Negative: an error occurs in authenticationDomain.New.",
 			cmd: userUC.CreateUserCommand{
 				Name:  "Sato taro",
 				Email: "sato@example.com",
 			},
-			prepare: func(ctx context.Context) {
-				mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
-				mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "NG: an error occurs in authenticationRepository.Save.",
+			caseName: "Negative: an error occurs in authenticationRepository.Save.",
 			cmd:      validCmd,
-			prepare: func(ctx context.Context) {
-				mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
-				mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
-				mockAuthRepo.EXPECT().Save(ctx, gomock.Any()).Return(err)
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.mockAuthRepo.EXPECT().Save(ctx, gomock.Any()).Return(err)
 			},
 			wantErr: true,
 		},
@@ -110,8 +108,24 @@ func TestCreateUserUsecase(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockUserRepo := mock.NewMockIUserRepository(ctrl)
+			mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
+			mockUserServ := mock.NewMockIUserService(ctrl)
+			mockAuthServ := mock.NewMockIAuthenticationService(ctrl)
+			uc := userUC.NewCreateUserUsecase(mockUserRepo, mockAuthRepo, mockUserServ, mockAuthServ)
 			ctx := context.Background()
-			tt.prepare(ctx)
+			mocks := Mocks{
+				mockUserRepo: mockUserRepo,
+				mockAuthRepo: mockAuthRepo,
+				mockUserServ: mockUserServ,
+				mockAuthServ: mockAuthServ,
+			}
+			tt.prepare(ctx, mocks)
+
 			dto, err := uc.Run(ctx, tt.cmd)
 
 			if tt.wantErr {

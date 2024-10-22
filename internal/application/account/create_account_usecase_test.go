@@ -14,12 +14,6 @@ import (
 )
 
 func TestCreateAccountUsecase(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockRepo := mock.NewMockIAccountRepository(ctrl)
-	uc := accountUC.NewCreateAccountUsecase(mockRepo)
-
 	userID := ulid.GenerateStaticULID("user")
 	validCmd := accountUC.CreateAccountCommand{
 		UserID:   userID,
@@ -31,27 +25,27 @@ func TestCreateAccountUsecase(t *testing.T) {
 	tests := []struct {
 		caseName string
 		cmd      accountUC.CreateAccountCommand
-		prepare  func(ctx context.Context)
+		prepare  func(ctx context.Context, mockRepo *mock.MockIAccountRepository)
 		wantErr  bool
 	}{
 		{
-			caseName: "Happy path: creates account successfully.",
+			caseName: "Positive: creates account successfully.",
 			cmd:      validCmd,
-			prepare: func(ctx context.Context) {
+			prepare: func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {
 				mockRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "Return error when account domain creation fails.",
+			caseName: "Negative: Return error when account domain creation fails.",
 			cmd:      accountUC.CreateAccountCommand{},
-			prepare:  func(ctx context.Context) {},
+			prepare:  func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {},
 			wantErr:  true,
 		},
 		{
 			caseName: "Return error when save operation fails.",
 			cmd:      validCmd,
-			prepare: func(ctx context.Context) {
+			prepare: func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {
 				mockRepo.EXPECT().Save(ctx, gomock.Any()).Return(errors.New("error"))
 			},
 			wantErr: true,
@@ -61,8 +55,13 @@ func TestCreateAccountUsecase(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockRepo := mock.NewMockIAccountRepository(ctrl)
+			uc := accountUC.NewCreateAccountUsecase(mockRepo)
 			ctx := context.Background()
-			tt.prepare(ctx)
+			tt.prepare(ctx, mockRepo)
 
 			dto, err := uc.Run(ctx, tt.cmd)
 
