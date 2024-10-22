@@ -2,10 +2,10 @@ package seed
 
 import (
 	"context"
-	"time"
 
 	transactionDomain "github.com/ucho456job/pocgo/internal/domain/transaction"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
+	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/uptrace/bun"
 )
 
@@ -18,7 +18,7 @@ func saveTransaction(db *bun.DB) error {
 			Type:              transactionDomain.Deposit,
 			Amount:            100000,
 			CurrencyID:        jpyID,
-			TransactionAt:     time.Now(),
+			TransactionAt:     timer.Now(),
 		},
 		{
 			ID:                "01J9RFS63XVCFBC4ND478A9FWB",
@@ -27,7 +27,7 @@ func saveTransaction(db *bun.DB) error {
 			Type:              transactionDomain.Deposit,
 			Amount:            200000,
 			CurrencyID:        jpyID,
-			TransactionAt:     time.Now(),
+			TransactionAt:     timer.Now(),
 		},
 		{
 			ID:                "01J9RFTNH5J6W4XNBB7G8A37HC",
@@ -36,7 +36,7 @@ func saveTransaction(db *bun.DB) error {
 			Type:              transactionDomain.Deposit,
 			Amount:            3000.55,
 			CurrencyID:        usdID,
-			TransactionAt:     time.Now(),
+			TransactionAt:     timer.Now(),
 		},
 		{
 			ID:                "01J9RFVNM10Y0CMC26XG85SB7S",
@@ -45,7 +45,7 @@ func saveTransaction(db *bun.DB) error {
 			Type:              transactionDomain.Deposit,
 			Amount:            4000.55,
 			CurrencyID:        usdID,
-			TransactionAt:     time.Now(),
+			TransactionAt:     timer.Now(),
 		},
 	}
 

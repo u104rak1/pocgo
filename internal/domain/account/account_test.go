@@ -10,6 +10,7 @@ import (
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
+	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,7 +22,7 @@ var (
 	validPassword = "1234"
 	validAmount   = 1000.0
 	validCurrency = "JPY"
-	validTime     = time.Now()
+	validTime     = timer.Now()
 )
 
 func TestNew(t *testing.T) {
@@ -390,7 +391,7 @@ func TestDeposit(t *testing.T) {
 func TestChangeUpdatedAt(t *testing.T) {
 	t.Run("Happy path: can be changed to valid time.", func(t *testing.T) {
 		acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
-		newTime := time.Now()
+		newTime := timer.Now()
 		acc.ChangeUpdatedAt(newTime)
 		assert.Equal(t, newTime, acc.UpdatedAt())
 	})

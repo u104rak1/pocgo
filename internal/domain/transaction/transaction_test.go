@@ -8,6 +8,7 @@ import (
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	"github.com/ucho456job/pocgo/internal/domain/transaction"
 	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
+	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
@@ -17,7 +18,7 @@ var (
 	validRecieverAccountID = ulid.GenerateStaticULID("accountReceiver")
 	validAmount            = 1000.0
 	validCurrency          = money.JPY
-	validTransactionAt     = time.Now()
+	validTransactionAt     = timer.Now()
 )
 
 func TestNewTransaction(t *testing.T) {

@@ -2,10 +2,10 @@ package seed
 
 import (
 	"context"
-	"time"
 
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
 	"github.com/ucho456job/pocgo/pkg/password"
+	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/uptrace/bun"
 )
 
@@ -26,7 +26,7 @@ func saveAccount(db *bun.DB) error {
 			PasswordHash: passwordHash,
 			Balance:      100000,
 			CurrencyID:   jpyID,
-			UpdatedAt:    time.Now(),
+			UpdatedAt:    timer.Now(),
 		},
 		{
 			ID:           johnDoePrivateAccountID,
@@ -35,7 +35,7 @@ func saveAccount(db *bun.DB) error {
 			PasswordHash: passwordHash,
 			Balance:      200000,
 			CurrencyID:   jpyID,
-			UpdatedAt:    time.Now(),
+			UpdatedAt:    timer.Now(),
 		},
 		{
 			ID:           janeSmithWorkAccountID,
@@ -44,7 +44,7 @@ func saveAccount(db *bun.DB) error {
 			PasswordHash: passwordHash,
 			Balance:      3000.55,
 			CurrencyID:   usdID,
-			UpdatedAt:    time.Now(),
+			UpdatedAt:    timer.Now(),
 		},
 		{
 			ID:           janeSmithPrivateAccountID,
@@ -53,7 +53,7 @@ func saveAccount(db *bun.DB) error {
 			PasswordHash: passwordHash,
 			Balance:      4000.55,
 			CurrencyID:   usdID,
-			UpdatedAt:    time.Now(),
+			UpdatedAt:    timer.Now(),
 		},
 	}
 	if _, err := db.NewInsert().Model(&data).Exec(context.Background()); err != nil {

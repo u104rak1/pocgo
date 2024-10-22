@@ -2,9 +2,9 @@ package account
 
 import (
 	"context"
-	"time"
 
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
+	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
@@ -42,7 +42,7 @@ func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand
 	accountID := ulid.New()
 	account, err := accountDomain.New(
 		accountID, cmd.UserID, cmd.Name, cmd.Password,
-		0, cmd.Currency, time.Now(),
+		0, cmd.Currency, timer.Now(),
 	)
 	if err != nil {
 		return nil, err

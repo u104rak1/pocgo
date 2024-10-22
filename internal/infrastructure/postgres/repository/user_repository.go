@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"time"
 
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
+	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/uptrace/bun"
 )
 
@@ -42,7 +42,7 @@ func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.U
 	if err := r.db.NewSelect().Model(userModel).Where("id = ?", id).Scan(ctx); err != nil {
 		return nil, err
 	}
-	return userDomain.New(userModel.ID, userModel.Email, userModel.Name)
+	return userDomain.New(userModel.ID, userModel.Name, userModel.Email)
 }
 
 func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
@@ -62,7 +62,7 @@ func (r *userRepository) Delete(ctx context.Context, id string) error {
 	}
 
 	_, err := execDB.NewUpdate().
-		Model(&model.User{ID: id, DeletedAt: time.Now()}).
+		Model(&model.User{ID: id, DeletedAt: timer.Now()}).
 		Column("deleted_at").
 		WherePK().
 		Exec(ctx)

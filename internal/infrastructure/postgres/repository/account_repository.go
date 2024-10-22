@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
-	"time"
 
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
+	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/uptrace/bun"
 )
 
@@ -133,7 +133,7 @@ func (r *accountRepository) Delete(ctx context.Context, id string) error {
 	}
 
 	_, err := execDB.NewUpdate().
-		Model(&model.Account{ID: id, DeletedAt: time.Now()}).
+		Model(&model.Account{ID: id, DeletedAt: timer.Now()}).
 		Column("deleted_at").
 		WherePK().
 		Exec(ctx)

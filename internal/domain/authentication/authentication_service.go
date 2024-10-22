@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/ucho456job/pocgo/pkg/timer"
 )
 
 type IAuthenticationService interface {
@@ -37,7 +38,7 @@ func (s *authenticationService) VerifyUniqueness(ctx context.Context, userID str
 func (s *authenticationService) GenerateAccessToken(ctx context.Context, userID string, jwtSecretKey []byte) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
-		"exp": time.Now().Add(time.Hour * 24).Unix(),
+		"exp": timer.Now().Add(time.Hour * 24).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
