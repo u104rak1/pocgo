@@ -48,7 +48,7 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 		UpdatedAt:    account.UpdatedAt(),
 	}
 
-	//TODO: サブクエリを使うと以下のエラーになるので、一旦current_idを取得してから更新する。
+	// TODO: If use a subquery, the following error will occur, so first get the current_id and then update it.
 	// pgdriver.Error: ERROR: insert or update on table "accounts" violates foreign key constraint "fk_account_currency_id" (SQLSTATE=23503)
 	_, err = execDB.NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
 		Set("name = EXCLUDED.name").

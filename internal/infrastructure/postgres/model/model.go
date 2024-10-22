@@ -1,5 +1,3 @@
-//go:build !production
-
 package model
 
 import "github.com/uptrace/bun"
