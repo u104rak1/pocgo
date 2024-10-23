@@ -14,7 +14,7 @@ const (
 )
 
 var (
-	ErrInvalidID             = errors.New("invalid account id")
+	ErrInvalidID             = errors.New("account id must be a valid ULID")
 	ErrInvalidAccountName    = errors.New("account name must be between 1 and 10 characters")
 	ErrPasswordInvalidLength = errors.New("account password must be 4 characters")
 )

@@ -35,14 +35,14 @@ func TestUserRepository_Save(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: save user.",
+			caseName: "Successfully saves user.",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"deleted_at"}))
 			},
 			wantErr: nil,
 		},
 		{
-			caseName: "Edge case: return error, if database error occurs.",
+			caseName: "Error occurs in database during save operation.",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
 			},
@@ -72,7 +72,7 @@ func TestUserRepository_Save(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: save user with transaction.",
+			caseName: "Successfully saves user with transaction.",
 			prepare: func() {
 				mock.ExpectBegin()
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"deleted_at"}))
@@ -81,7 +81,7 @@ func TestUserRepository_Save(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			caseName: "Edge case: return error, if database error occurs and rollback transaction.",
+			caseName: "Error occurs in database, transaction is rolled back.",
 			prepare: func() {
 				mock.ExpectBegin()
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
@@ -128,7 +128,7 @@ func TestUserRepository_FindByID(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: find user by ID.",
+			caseName: "Successfully finds user by ID.",
 			prepare: func() {
 				rows := sqlmock.NewRows([]string{"id", "name", "email", "deleted_at"}).
 					AddRow(userID, user.Name(), user.Email(), nil)
@@ -138,7 +138,7 @@ func TestUserRepository_FindByID(t *testing.T) {
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: return error, if user not found.",
+			caseName: "Error occurs in database when user is not found.",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
 			},
@@ -183,7 +183,7 @@ func TestUserRepository_ExistsByEmail(t *testing.T) {
 		wantErr    error
 	}{
 		{
-			caseName: "Happy path: email exists.",
+			caseName: "Email exists in the database.",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(1))
 			},
@@ -191,7 +191,7 @@ func TestUserRepository_ExistsByEmail(t *testing.T) {
 			wantErr:    nil,
 		},
 		{
-			caseName: "Edge case: email does not exist.",
+			caseName: "Email does not exist in the database.",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(0))
 			},
@@ -199,7 +199,7 @@ func TestUserRepository_ExistsByEmail(t *testing.T) {
 			wantErr:    nil,
 		},
 		{
-			caseName: "Edge case: database error.",
+			caseName: "Error occurs in database when checking email existence.",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
 			},

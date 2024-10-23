@@ -24,37 +24,37 @@ func TestNew(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			name:     "Happy path: return authentication entity, if arguments are valid.",
+			name:     "Successfully creates an authentication.",
 			userID:   validUserID,
 			password: validPassword,
 			wantErr:  nil,
 		},
 		{
-			name:     "Edge case: return error, if the userID is invalid.",
+			name:     "Error occurs with invalid userID.",
 			userID:   "invalid",
 			password: validPassword,
 			wantErr:  userDomain.ErrInvalidUserID,
 		},
 		{
-			name:     "Edge case: return error, if the password is 7 characters.",
+			name:     "Error occurs with 7-character password.",
 			userID:   validUserID,
 			password: "1234567",
 			wantErr:  authentication.ErrPasswordInvalidLength,
 		},
 		{
-			name:     "Happy path: return authentication entity, if the password is 8 characters.",
+			name:     "Successfully creates an authentication with 8-character password.",
 			userID:   validUserID,
 			password: "12345678",
 			wantErr:  nil,
 		},
 		{
-			name:     "Happy path: return authentication entity, if the password is 20 characters.",
+			name:     "Successfully creates an authentication with 20-character password.",
 			userID:   validUserID,
 			password: "12345678901234567890",
 			wantErr:  nil,
 		},
 		{
-			name:     "Edge case: return error, if the password is 21 characters.",
+			name:     "Error occurs with 21-character password.",
 			userID:   validUserID,
 			password: "123456789012345678901",
 			wantErr:  authentication.ErrPasswordInvalidLength,
@@ -80,7 +80,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
-	t.Run("Happy path: rebuild a valid authentication entity.", func(t *testing.T) {
+	t.Run("Successfully reconstructs an authentication.", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(validPassword)
 		auth, err := authentication.Reconstruct(validUserID, encodedPassword)
 
@@ -98,12 +98,12 @@ func TestComparePassword(t *testing.T) {
 		wantErr     error
 	}{
 		{
-			name:        "Happy path: return nil, if the passwords match.",
+			name:        "Passwords match without errors.",
 			newPassword: validPassword,
 			wantErr:     nil,
 		},
 		{
-			name:        "Edge case: return error, if the passwords do not match.",
+			name:        "Error occurs when passwords do not match.",
 			newPassword: "deffirentPassword",
 			wantErr:     bcrypt.ErrMismatchedHashAndPassword,
 		},

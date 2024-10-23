@@ -33,7 +33,7 @@ func TestCreateUserUsecase(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			caseName: "Positive: creates user successfully.",
+			caseName: "User is successfully created.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
@@ -44,7 +44,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			caseName: "Negative: an error occurs in userService.VerifyEmailUniqueness.",
+			caseName: "Error occurs during VerifyEmailUniqueness in userService.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(err)
@@ -52,7 +52,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			caseName: "Negative: an error occurs in userDomain.New.",
+			caseName: "Error occurs during userDomain creation.",
 			cmd: userUC.CreateUserCommand{
 				Email: "sato@example.com",
 			},
@@ -62,7 +62,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			caseName: "Negative: an error occurs in userRepository.Save.",
+			caseName: "Error occurs during Save in userRepository.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
@@ -71,7 +71,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			caseName: "Negative: an error occurs in authenticationService.VerifyUniqueness.",
+			caseName: "Error occurs during VerifyUniqueness in authenticationService.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
@@ -81,7 +81,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			caseName: "Negative: an error occurs in authenticationDomain.New.",
+			caseName: "Error occurs during authenticationDomain creation.",
 			cmd: userUC.CreateUserCommand{
 				Name:  "Sato taro",
 				Email: "sato@example.com",
@@ -94,7 +94,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			caseName: "Negative: an error occurs in authenticationRepository.Save.",
+			caseName: "Error occurs during Save in authenticationRepository.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)

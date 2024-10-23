@@ -24,49 +24,49 @@ func TestNew(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: return user entity, if arguments are valid.",
+			caseName: "Successfully creates a user.",
 			id:       validID,
 			name:     validName,
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: return error, if the ID is invalid.",
+			caseName: "Error occurs with invalid ID.",
 			id:       "invalid",
 			name:     validName,
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserID,
 		},
 		{
-			caseName: "Edge case: return error, if the name is 0 characters.",
+			caseName: "Error occurs with 0-character name.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMinLength-1),
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
-			caseName: "Happy path: return user entity, if the name is 1 characters.",
+			caseName: "Successfully creates a user with 1-character name.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMinLength),
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Happy path: return user entity, if the name is 20 characters.",
+			caseName: "Successfully creates a user with 20-character name.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMaxLength),
 			email:    validEmail,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: return error, if the name is 21 characters.",
+			caseName: "Error occurs with 21-character name.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMaxLength+1),
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
-			caseName: "Edge case: return error, if the email is invalid.",
+			caseName: "Error occurs with invalid email.",
 			id:       validID,
 			name:     validName,
 			email:    "invalid",
@@ -99,12 +99,12 @@ func TestChangeName(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: can be renamed to a valid name.",
+			caseName: "Successfully changes to a valid name.",
 			newName:  "yamada hanako",
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: return error, invalid name.",
+			caseName: "Error occurs with an invalid name.",
 			newName:  strings.Repeat("a", user.NameMaxLength+1),
 			wantErr:  user.ErrInvalidUserName,
 		},
@@ -134,12 +134,12 @@ func TestChangeEmail(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: can be changed to a valid email.",
+			caseName: "Successfully changes to a valid email.",
 			newEmail: "yamada@example.com",
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: return error, invalid email.",
+			caseName: "Error occurs with an invalid email.",
 			newEmail: "invalid-email",
 			wantErr:  user.ErrInvalidEmail,
 		},

@@ -14,52 +14,52 @@ func TestIsValid(t *testing.T) {
 		want     bool
 	}{
 		{
-			caseName: "Valid: return true, if the email is valid.",
+			caseName: "Successfully returns true if the email is valid.",
 			email:    "test@example.com",
 			want:     true,
 		},
 		{
-			caseName: "Valid: return true, if a valid email address including any subdomains.",
+			caseName: "Successfully returns true if a valid email address includes any subdomains.",
 			email:    "user@mail.example.co.jp",
 			want:     true,
 		},
 		{
-			caseName: "Valid: return true, if the email address contains a plus sign.",
+			caseName: "Successfully returns true if the email address contains a plus sign.",
 			email:    "user+123@example.com",
 			want:     true,
 		},
 		{
-			caseName: "Valid: return true, if the email address contains a hyphen.",
+			caseName: "Successfully returns true if the email address contains a hyphen.",
 			email:    "user@my-example.com",
 			want:     true,
 		},
 		{
-			caseName: "Invalid: return false, if there is no @.",
+			caseName: "Fails to validate email, returns false if there is no '@'.",
 			email:    "userexample.com",
 			want:     false,
 		},
 		{
-			caseName: "Invalid: return false, if there are two @ signs.",
+			caseName: "Fails to validate email, returns false if there are two '@' signs.",
 			email:    "user@@example.com",
 			want:     false,
 		},
 		{
-			caseName: "Invalid: return false, if there is no domain.",
+			caseName: "Fails to validate email, returns false if there is no domain.",
 			email:    "user@.com",
 			want:     false,
 		},
 		{
-			caseName: "Invalid: return false, if there is a invalid character.",
+			caseName: "Fails to validate email, returns false if there is an invalid character.",
 			email:    "user@exa!mple.com",
 			want:     false,
 		},
 		{
-			caseName: "Invalid: return false, if domain is too short.",
+			caseName: "Fails to validate email, returns false if the domain is too short.",
 			email:    "user@example.c",
 			want:     false,
 		},
 		{
-			caseName: "Invalid: return false, if there is no top-level domain.",
+			caseName: "Fails to validate email, returns false if there is no top-level domain.",
 			email:    "user@example",
 			want:     false,
 		},

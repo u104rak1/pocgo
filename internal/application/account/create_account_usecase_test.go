@@ -29,7 +29,7 @@ func TestCreateAccountUsecase(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			caseName: "Positive: creates account successfully.",
+			caseName: "Account is successfully created.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {
 				mockRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
@@ -37,13 +37,13 @@ func TestCreateAccountUsecase(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			caseName: "Negative: Return error when account domain creation fails.",
+			caseName: "Error occurs during accountDomain creation.",
 			cmd:      accountUC.CreateAccountCommand{},
 			prepare:  func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {},
 			wantErr:  true,
 		},
 		{
-			caseName: "Return error when save operation fails.",
+			caseName: "Error occurs during Save in accountRepository.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {
 				mockRepo.EXPECT().Save(ctx, gomock.Any()).Return(errors.New("error"))

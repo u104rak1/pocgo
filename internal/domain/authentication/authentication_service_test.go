@@ -27,7 +27,7 @@ func TestVerifyUniqueness(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: return nil, if the user is unique.",
+			caseName: "Successfully verifies that the user is unique.",
 			userID:   ulid.GenerateStaticULID("Unique"),
 			setup: func(ctx context.Context, userID string) {
 				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(false, nil)
@@ -35,7 +35,7 @@ func TestVerifyUniqueness(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			caseName: "Edge case: return error, if the user is already exists.",
+			caseName: "Error occurs when the user already exists.",
 			userID:   ulid.GenerateStaticULID("duplicate"),
 			setup: func(ctx context.Context, userID string) {
 				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(true, nil)
@@ -43,7 +43,7 @@ func TestVerifyUniqueness(t *testing.T) {
 			wantErr: authentication.ErrAuthenticationAlreadyExists,
 		},
 		{
-			caseName: "Edge case: return error, if the repository returns an error.",
+			caseName: "Error occurs when the repository returns an error.",
 			userID:   ulid.GenerateStaticULID("error"),
 			setup: func(ctx context.Context, userID string) {
 				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(false, errRepo)
@@ -70,7 +70,7 @@ func TestVerifyUniqueness(t *testing.T) {
 }
 
 func TestGenerateAccessToken(t *testing.T) {
-	t.Run("Happy path: return access token.", func(t *testing.T) {
+	t.Run("Successfully returns access token.", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
@@ -107,14 +107,14 @@ func TestGetUserIDFromAccessToken(t *testing.T) {
 		wantErr      error
 	}{
 		{
-			caseName:     "Happy path: return userID from valid access token.",
+			caseName:     "Successfully returns userID from valid access token.",
 			accessToken:  validAccessToken,
 			jwtSecretKey: jwtSecretKey,
 			wantUserID:   userID,
 			wantErr:      nil,
 		},
 		{
-			caseName:     "Error case: return error if token is invalid.",
+			caseName:     "Error occurs when the token is invalid.",
 			accessToken:  "invalidToken",
 			jwtSecretKey: jwtSecretKey,
 			wantUserID:   "",

@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	validID       = ulid.GenerateStaticULID("id")
+	validID       = ulid.GenerateStaticULID("account")
 	validUserID   = ulid.GenerateStaticULID("user")
 	validName     = "For work"
 	validPassword = "1234"
@@ -38,7 +38,7 @@ func TestNew(t *testing.T) {
 		wantErr   error
 	}{
 		{
-			caseName:  "Happy path: return account entity, if arguments are valid.",
+			caseName:  "Successfully creates an account.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -49,7 +49,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Edge case: return error, if the ID is invalid.",
+			caseName:  "Error occurs with invalid ID.",
 			id:        "invalid",
 			userID:    validUserID,
 			name:      validName,
@@ -60,7 +60,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidID,
 		},
 		{
-			caseName:  "Edge case: return error, if the UserID is invalid.",
+			caseName:  "Error occurs with invalid UserID.",
 			id:        validID,
 			userID:    "invalid",
 			name:      validName,
@@ -71,7 +71,7 @@ func TestNew(t *testing.T) {
 			wantErr:   userDomain.ErrInvalidUserID,
 		},
 		{
-			caseName:  "Edge case: return error, if the name is 0 characters.",
+			caseName:  "Error occurs with 0-character name.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMinLength-1),
@@ -82,7 +82,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
-			caseName:  "Happy path: return account entity, if the name is 1 characters.",
+			caseName:  "Successfully creates account with 1-character name.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMinLength),
@@ -93,7 +93,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Happy path: return account entity, if the name is 10 characters.",
+			caseName:  "Successfully creates account with 10-character name.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMaxLength),
@@ -104,7 +104,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Edge case: return error, if the name is 11 characters.",
+			caseName:  "Error occurs with 3-character password.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMaxLength+1),
@@ -115,7 +115,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
-			caseName:  "Edge case: return error, if the password is 3 characters.",
+			caseName:  "an error occurs when the password is 3 characters.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -126,7 +126,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrPasswordInvalidLength,
 		},
 		{
-			caseName:  "Happy path: return account entity, if the password is 4 characters.",
+			caseName:  "Successfully creates account with 4-character password.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -137,7 +137,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Edge case: return error, if the password is 5 characters.",
+			caseName:  "Error occurs with 5-character password.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -150,7 +150,7 @@ func TestNew(t *testing.T) {
 		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
 
 		{
-			caseName:  "Edge case: return error, if invalid amount.",
+			caseName:  "Error occurs with invalid amount.",
 			id:        validID,
 			userID:    validUserID,
 			name:      validName,
@@ -185,7 +185,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
-	t.Run("Happy path: rebuild a valid account entity.", func(t *testing.T) {
+	t.Run("Successfully reconstructs an account.", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(validPassword)
 		acc, err := account.Reconstruct(validID, validUserID, validName, encodedPassword, validAmount, validCurrency, validTime)
 
@@ -207,12 +207,12 @@ func TestChangeName(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: can be renamed to a valid name.",
+			caseName: "Successfully changes to a valid name.",
 			newName:  "NewName",
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: return error, invalid name.",
+			caseName: "Error occurs with an invalid name.",
 			newName:  "",
 			wantErr:  account.ErrInvalidAccountName,
 		},
@@ -242,12 +242,12 @@ func TestChangePassword(t *testing.T) {
 		wantErr     error
 	}{
 		{
-			caseName:    "Happy path: can be changed to a valid password.",
+			caseName:    "Successfully changes to a valid password.",
 			newPassword: "5678",
 			wantErr:     nil,
 		},
 		{
-			caseName:    "Edge case: return error, invalid password.",
+			caseName:    "Error occurs with an invalid password.",
 			newPassword: "invalid",
 			wantErr:     account.ErrPasswordInvalidLength,
 		},
@@ -278,12 +278,12 @@ func TestComparePassword(t *testing.T) {
 		wantErr     error
 	}{
 		{
-			caseName:    "Happy path: return nil, if the passwords match.",
+			caseName:    "Passwords match without errors.",
 			newPassword: validPassword,
 			wantErr:     nil,
 		},
 		{
-			caseName:    "Edge case: return error, if the passwords do not match.",
+			caseName:    "Error occurs when passwords do not match.",
 			newPassword: "invalid",
 			wantErr:     bcrypt.ErrMismatchedHashAndPassword,
 		},
@@ -312,19 +312,19 @@ func TestWithdraw(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: the balance will be debited, if the currency matches and the balance is sufficient.",
+			caseName: "Successfully withdraws when the currency matches and the balance is sufficient.",
 			amount:   300,
 			currency: money.JPY,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: return error, if the currency is unsupported.",
+			caseName: "Error occurs with unsupported currency.",
 			amount:   300,
 			currency: "EUR",
 			wantErr:  money.ErrUnsupportedCurrency,
 		},
 		{
-			caseName: "Edge case: return error, if the balance is insufficient.",
+			caseName: "Error occurs when the balance is insufficient.",
 			amount:   1500,
 			currency: money.JPY,
 			wantErr:  money.ErrInsufficientBalance,
@@ -354,19 +354,19 @@ func TestDeposit(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Happy path: the balance will be credited, if the currency matches.",
+			caseName: "Successfully deposits when the currency matches.",
 			amount:   300,
 			currency: money.JPY,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Edge case: return error, if the currency is unsupported.",
+			caseName: "Error occurs with unsupported currency.",
 			amount:   300,
 			currency: "EUR",
 			wantErr:  money.ErrUnsupportedCurrency,
 		},
 		{
-			caseName: "Edge case: return error, if the currency is different.",
+			caseName: "Error occurs when the currency differs.",
 			amount:   300,
 			currency: money.USD,
 			wantErr:  money.ErrDifferentCurrency,
@@ -389,7 +389,7 @@ func TestDeposit(t *testing.T) {
 }
 
 func TestChangeUpdatedAt(t *testing.T) {
-	t.Run("Happy path: can be changed to valid time.", func(t *testing.T) {
+	t.Run("Successfully changes UpdatedAt to valid time.", func(t *testing.T) {
 		acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
 		newTime := timer.Now()
 		acc.ChangeUpdatedAt(newTime)

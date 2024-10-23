@@ -34,7 +34,7 @@ func TestNewTransaction(t *testing.T) {
 		wantErr           error
 	}{
 		{
-			caseName:          "Happy path: return transaction entity, if arguments are valid.",
+			caseName:          "Successfully creates a transaction.",
 			id:                validID,
 			accountID:         validAccountID,
 			receiverAccountID: validRecieverAccountID,
@@ -45,7 +45,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           nil,
 		},
 		{
-			caseName:          "Edge case: return error, if the ID is invalid.",
+			caseName:          "Error occurs with invalid ID.",
 			id:                "invalid",
 			accountID:         validAccountID,
 			receiverAccountID: validRecieverAccountID,
@@ -56,7 +56,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           transaction.ErrInvalidTransactionID,
 		},
 		{
-			caseName:          "Edge case: return error, if the AccountID is invalid.",
+			caseName:          "Error occurs with invalid AccountID.",
 			id:                validID,
 			accountID:         "inavlid",
 			receiverAccountID: validRecieverAccountID,
@@ -67,7 +67,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           accountDomain.ErrInvalidID,
 		},
 		{
-			caseName:          "Edge case: return error, if the ReceiverAccountID is invalid.",
+			caseName:          "Error occurs with invalid ReceiverAccountID.",
 			id:                validID,
 			accountID:         validAccountID,
 			receiverAccountID: "inavlid",
@@ -78,7 +78,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           accountDomain.ErrInvalidID,
 		},
 		{
-			caseName:          "Happy path: return transaction entity, if the transaction type is TRANSFER.",
+			caseName:          "Successfully creates a transaction with TRANSFER transaction type.",
 			id:                validID,
 			accountID:         validAccountID,
 			receiverAccountID: validRecieverAccountID,
@@ -89,7 +89,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           nil,
 		},
 		{
-			caseName:          "Happy path: return transaction entity, if the transaction type is DEPOSIT.",
+			caseName:          "Successfully creates a transaction with DEPOSIT transaction type.",
 			id:                validID,
 			accountID:         validAccountID,
 			receiverAccountID: validRecieverAccountID,
@@ -100,7 +100,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           nil,
 		},
 		{
-			caseName:          "Happy path: return transaction entity, if the transaction type is WITHDRAW.",
+			caseName:          "Successfully creates a transaction with WITHDRAW transaction type.",
 			id:                validID,
 			accountID:         validAccountID,
 			receiverAccountID: validRecieverAccountID,
@@ -111,7 +111,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           nil,
 		},
 		{
-			caseName:          "Happy path: return error, if the transaction type is unsupported.",
+			caseName:          "Error occurs with unsupported transaction type.",
 			id:                validID,
 			accountID:         validAccountID,
 			receiverAccountID: validRecieverAccountID,
@@ -122,7 +122,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           transaction.ErrUnsupportTransactionType,
 		},
 		{
-			caseName:          "Edge case: return error, if the amount is invalid.",
+			caseName:          "Error occurs with invalid amount.",
 			id:                validID,
 			accountID:         validAccountID,
 			receiverAccountID: validRecieverAccountID,
@@ -133,7 +133,7 @@ func TestNewTransaction(t *testing.T) {
 			wantErr:           money.ErrNegativeAmount,
 		},
 		{
-			caseName:          "Edge case: return error, if the currency is unsupported.",
+			caseName:          "Error occurs with unsupported currency.",
 			id:                validID,
 			accountID:         validAccountID,
 			receiverAccountID: validRecieverAccountID,

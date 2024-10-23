@@ -9,7 +9,7 @@ import (
 )
 
 func TestEncode(t *testing.T) {
-	t.Run("Valid: Hashing good password.", func(t *testing.T) {
+	t.Run("Successfully hashes a password.", func(t *testing.T) {
 		_, err := password.Encode("ValidPassword123")
 		assert.NoError(t, err)
 	})
@@ -25,13 +25,13 @@ func TestCompare(t *testing.T) {
 		wantErr  error
 	}{
 		{
-			caseName: "Valid: return nil, if the password is matched.",
+			caseName: "Successfully returns nil if the password matches.",
 			password: "ValidPassword123",
 			hash:     passwordHash,
 			wantErr:  nil,
 		},
 		{
-			caseName: "Invalid: return error, if the password is not matched.",
+			caseName: "Fails to validate password, returns error if the password does not match.",
 			password: "DifferentPassword456",
 			hash:     passwordHash,
 			wantErr:  bcrypt.ErrMismatchedHashAndPassword,

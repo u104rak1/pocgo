@@ -8,7 +8,7 @@ const (
 )
 
 var (
-	ErrInvalidID                   = errors.New("invalid authentication id")
+	ErrInvalidID                   = errors.New("authentication id must be a valid ULID")
 	ErrPasswordInvalidLength       = errors.New("password must be between 8 and 20 characters")
 	ErrAuthenticationAlreadyExists = errors.New("authentication already exists")
 	ErrUnexpectedSigningMethod     = errors.New("unexpected signing method")

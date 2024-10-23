@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ErrInvalidTransactionID     = errors.New("invalid transaction id")
+	ErrInvalidTransactionID     = errors.New("transaction id must be a valid ULID")
 	ErrUnsupportTransactionType = errors.New("unsupported transaction type")
 )
 

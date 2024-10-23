@@ -13,7 +13,7 @@ const (
 )
 
 var (
-	ErrInvalidUserID          = errors.New("invalid user id")
+	ErrInvalidUserID          = errors.New("user id must be a valid ULID")
 	ErrInvalidUserName        = errors.New("user name must be between 1 and 20 characters")
 	ErrInvalidEmail           = errors.New("the email format is invalid")
 	ErrUserEmailAlreadyExists = errors.New("user email already exists")
