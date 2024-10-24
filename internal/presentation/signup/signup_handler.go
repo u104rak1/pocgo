@@ -70,14 +70,14 @@ type SignupResponseBodyAccount struct {
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 409 {object} response.ErrorResponse "Conflict"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
-// @Router /v1/signup [post]
+// @Router /api/v1/signup [post]
 func (h *SignupHandler) Run(ctx echo.Context) error {
 	req := new(SignupRequestBody)
 	if err := ctx.Bind(req); err != nil {
 		return response.BadRequest(ctx, err)
 	}
 
-	if validationErrors := h.validation(req); len(validationErrors) > 0 {
+	if validationErrors := h.Validation(req); len(validationErrors) > 0 {
 		return response.ValidationFailed(ctx, validationErrors)
 	}
 
@@ -120,7 +120,7 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 	})
 }
 
-func (h *SignupHandler) validation(req *SignupRequestBody) (validationErrors []response.ValidationError) {
+func (h *SignupHandler) Validation(req *SignupRequestBody) (validationErrors []response.ValidationError) {
 	if err := validation.ValidUserName(req.User.Name); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
 			Field:   "user.name",

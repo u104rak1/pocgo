@@ -104,7 +104,7 @@ info:
   title: pocgo API
   version: "1.0"
 paths:
-  /v1/signup:
+  /api/v1/signup:
     post:
       consumes:
       - application/json

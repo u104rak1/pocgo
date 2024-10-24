@@ -16,10 +16,12 @@ type ValidationError struct {
 	Message string `json:"message" example:"error message"`
 }
 
-func ValidationFailed(ctx echo.Context, errors []ValidationError) error {
-	return echo.NewHTTPError(http.StatusBadRequest, ValidationErrorResponse{
-		Code:   "ValidationFailed",
-		Errors: errors,
+var ValidationFailedCode = "ValidationFailed"
+
+func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) error {
+	return ctx.JSON(http.StatusBadRequest, ValidationErrorResponse{
+		Code:   ValidationFailedCode,
+		Errors: validationErrors,
 	})
 }
 
@@ -28,44 +30,53 @@ type ErrorResponse struct {
 	Message string `json:"message" example:"error message"`
 }
 
+var (
+	BadRequestCode          = "BadRequest"
+	UnauthorizedCode        = "Unauthorized"
+	ForbiddenCode           = "Forbidden"
+	NotFoundCode            = "NotFound"
+	ConflictCode            = "Conflict"
+	InternalServerErrorCode = "InternalServerError"
+)
+
 func BadRequest(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusBadRequest, ErrorResponse{
-		Code:    "BadRequest",
+	return ctx.JSON(http.StatusBadRequest, ErrorResponse{
+		Code:    BadRequestCode,
 		Message: err.Error(),
 	})
 }
 
 func Unauthorized(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusUnauthorized, ErrorResponse{
-		Code:    "Unauthorized",
+	return ctx.JSON(http.StatusUnauthorized, ErrorResponse{
+		Code:    UnauthorizedCode,
 		Message: err.Error(),
 	})
 }
 
 func Forbidden(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusForbidden, ErrorResponse{
-		Code:    "Forbidden",
+	return ctx.JSON(http.StatusForbidden, ErrorResponse{
+		Code:    ForbiddenCode,
 		Message: err.Error(),
 	})
 }
 
 func NotFound(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusNotFound, ErrorResponse{
-		Code:    "NotFound",
+	return ctx.JSON(http.StatusNotFound, ErrorResponse{
+		Code:    NotFoundCode,
 		Message: err.Error(),
 	})
 }
 
 func Conflict(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusConflict, ErrorResponse{
-		Code:    "Conflict",
+	return ctx.JSON(http.StatusConflict, ErrorResponse{
+		Code:    ConflictCode,
 		Message: err.Error(),
 	})
 }
 
 func InternalServerError(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusInternalServerError, ErrorResponse{
-		Code:    "InternalServerError",
+	return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+		Code:    InternalServerErrorCode,
 		Message: err.Error(),
 	})
 }

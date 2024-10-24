@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/v1/signup": {
+        "/api/v1/signup": {
             "post": {
                 "description": "Signup",
                 "consumes": [

@@ -59,7 +59,7 @@ func setupEcho(db *bun.DB) *echo.Echo {
 	/** Handler */
 	signupHandler := signupPre.NewSignupHandler(signupUC)
 
-	v1 := e.Group("/v1")
+	v1 := e.Group("/api/v1")
 
 	/** Authentication Endpoint */
 	v1.POST("/signup", signupHandler.Run)
