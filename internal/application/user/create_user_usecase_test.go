@@ -12,18 +12,24 @@ import (
 )
 
 func TestCreateUserUsecase(t *testing.T) {
-	validCmd := userUC.CreateUserCommand{
-		Name:     "Sato taro",
-		Email:    "sato@example.com",
-		Password: "password",
-	}
-	err := errors.New("error")
-
 	type Mocks struct {
 		mockUserRepo *mock.MockIUserRepository
 		mockAuthRepo *mock.MockIAuthenticationRepository
 		mockUserServ *mock.MockIUserService
 		mockAuthServ *mock.MockIAuthenticationService
+	}
+
+	var (
+		validName     = "Sato taro"
+		validEmail    = "sato@example.com"
+		validPassword = "password"
+		err           = errors.New("error")
+	)
+
+	validCmd := userUC.CreateUserCommand{
+		Name:     validName,
+		Email:    validEmail,
+		Password: validPassword,
 	}
 
 	tests := []struct {
@@ -54,7 +60,7 @@ func TestCreateUserUsecase(t *testing.T) {
 		{
 			caseName: "Error occurs during userDomain creation.",
 			cmd: userUC.CreateUserCommand{
-				Email: "sato@example.com",
+				Email: validEmail,
 			},
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
@@ -83,8 +89,8 @@ func TestCreateUserUsecase(t *testing.T) {
 		{
 			caseName: "Error occurs during authenticationDomain creation.",
 			cmd: userUC.CreateUserCommand{
-				Name:  "Sato taro",
-				Email: "sato@example.com",
+				Name:  validName,
+				Email: validEmail,
 			},
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
