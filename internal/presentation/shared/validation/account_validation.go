@@ -3,6 +3,7 @@ package validation
 import (
 	v "github.com/go-ozzo/ozzo-validation/v4"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
+	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
 )
 
 func ValidAccountName(name string) error {
@@ -14,5 +15,5 @@ func ValidAccountPassword(password string) error {
 }
 
 func ValidAccountCurrency(currency string) error {
-	return v.Validate(currency, v.Required, v.In(accountDomain.JPY))
+	return v.Validate(currency, v.Required, v.In(money.JPY, money.USD))
 }

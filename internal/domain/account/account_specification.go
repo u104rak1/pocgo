@@ -10,7 +10,6 @@ const (
 	NameMinLength  = 3
 	NameMaxLength  = 20
 	PasswordLength = 4
-	JPY            = "JPY"
 )
 
 var (
