@@ -13,9 +13,10 @@ import (
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
-	"github.com/ucho456job/pocgo/internal/config"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
+	"github.com/ucho456job/pocgo/internal/environment"
+	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/config"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
 	signupPre "github.com/ucho456job/pocgo/internal/presentation/signup"
 	myMiddleware "github.com/ucho456job/pocgo/internal/server/middleware"
@@ -70,7 +71,7 @@ func setupEcho(db *bun.DB) *echo.Echo {
 }
 
 func startServer(e *echo.Echo) {
-	env := config.NewEnv()
+	env := environment.New()
 	port := ":" + env.APP_PORT
 	go func() {
 		if err := e.Start(port); err != nil && err != http.ErrServerClosed {

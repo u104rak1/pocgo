@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ucho456job/pocgo/internal/environment"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -21,7 +22,7 @@ func LoadDB() (*bun.DB, error) {
 }
 
 func CreateDSN() string {
-	env := NewEnv()
+	env := environment.New()
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s&TimeZone=Asia/Tokyo",
 		env.POSTGRES_USER, env.POSTGRES_PASSWORD, env.POSTGRES_HOST, env.POSTGRES_PORT, env.POSTGRES_DBNAME, env.POSTGRES_SSLMODE)
 }

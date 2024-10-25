@@ -6,8 +6,8 @@ import (
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
-	"github.com/ucho456job/pocgo/internal/config"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
+	"github.com/ucho456job/pocgo/internal/environment"
 )
 
 type ISignupUsecase interface {
@@ -68,7 +68,7 @@ func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO,
 		return nil, err
 	}
 
-	env := config.NewEnv()
+	env := environment.New()
 	accessToken, err := u.authServ.GenerateAccessToken(ctx, dto.User.ID, []byte(env.JWT_SECRET_KEY))
 	if err != nil {
 		return nil, err
