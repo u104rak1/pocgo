@@ -77,7 +77,7 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 		return response.BadRequest(ctx, err)
 	}
 
-	if validationErrors := h.Validation(req); len(validationErrors) > 0 {
+	if validationErrors := h.validation(req); len(validationErrors) > 0 {
 		return response.ValidationFailed(ctx, validationErrors)
 	}
 
@@ -120,7 +120,7 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 	})
 }
 
-func (h *SignupHandler) Validation(req *SignupRequestBody) (validationErrors []response.ValidationError) {
+func (h *SignupHandler) validation(req *SignupRequestBody) (validationErrors []response.ValidationError) {
 	if err := validation.ValidUserName(req.User.Name); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
 			Field:   "user.name",

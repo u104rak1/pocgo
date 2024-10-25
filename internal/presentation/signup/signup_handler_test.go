@@ -60,7 +60,7 @@ func TestSignupHandler_Run(t *testing.T) {
 		expectedResponse interface{}
 	}{
 		{
-			name:        "successful signup.",
+			name:        "Successful signup.",
 			requestBody: validRequestBody,
 			prepare: func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(&authApp.SignupDTO{
@@ -170,6 +170,7 @@ func TestSignupHandler_Run(t *testing.T) {
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, response.ValidationFailedCode, resp.Code)
+				assert.NotEmpty(t, resp.Errors)
 			} else {
 				var resp response.ErrorResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)

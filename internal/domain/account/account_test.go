@@ -71,7 +71,7 @@ func TestNew(t *testing.T) {
 			wantErr:   userDomain.ErrInvalidUserID,
 		},
 		{
-			caseName:  "Error occurs with 0-character name.",
+			caseName:  "Error occurs with 2-character name.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMinLength-1),
@@ -82,7 +82,7 @@ func TestNew(t *testing.T) {
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
-			caseName:  "Successfully creates account with 1-character name.",
+			caseName:  "Successfully creates account with 3-character name.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMinLength),
@@ -93,7 +93,7 @@ func TestNew(t *testing.T) {
 			wantErr:   nil,
 		},
 		{
-			caseName:  "Successfully creates account with 10-character name.",
+			caseName:  "Successfully creates account with 20-character name.",
 			id:        validID,
 			userID:    validUserID,
 			name:      strings.Repeat("a", account.NameMaxLength),
@@ -102,6 +102,17 @@ func TestNew(t *testing.T) {
 			currency:  validCurrency,
 			updatedAt: validTime,
 			wantErr:   nil,
+		},
+		{
+			caseName:  "Error occurs with 21-character name.",
+			id:        validID,
+			userID:    validUserID,
+			name:      strings.Repeat("a", account.NameMaxLength+1),
+			password:  validPassword,
+			amount:    validAmount,
+			currency:  validCurrency,
+			updatedAt: validTime,
+			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
 			caseName:  "Error occurs with 3-character password.",

@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	NameMinLength  = 1
-	NameMaxLength  = 10
+	NameMinLength  = 3
+	NameMaxLength  = 20
 	PasswordLength = 4
 	JPY            = "JPY"
 )

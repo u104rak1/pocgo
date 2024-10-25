@@ -38,14 +38,14 @@ func TestNew(t *testing.T) {
 			wantErr:  user.ErrInvalidUserID,
 		},
 		{
-			caseName: "Error occurs with 0-character name.",
+			caseName: "Error occurs with 2-character name.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMinLength-1),
 			email:    validEmail,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
-			caseName: "Successfully creates a user with 1-character name.",
+			caseName: "Successfully creates a user with 3-character name.",
 			id:       validID,
 			name:     strings.Repeat("a", user.NameMinLength),
 			email:    validEmail,
