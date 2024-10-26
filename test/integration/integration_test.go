@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"runtime"
 	"testing"
 
@@ -18,6 +19,7 @@ import (
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/seed"
 	"github.com/ucho456job/pocgo/internal/server"
+	"github.com/ucho456job/pocgo/pkg/strutil"
 	"github.com/uptrace/bun"
 )
 
@@ -118,13 +120,19 @@ func NewJSONRequest(t *testing.T, method, url string, requestBody interface{}) (
 	return req, rec
 }
 
-func GenerateResultJSON(
+func GenerateResultJSON[T any](
 	t *testing.T,
 	beforeDBData map[string]interface{},
 	afterDBData map[string]interface{},
 	req *http.Request,
 	rec *httptest.ResponseRecorder,
+	bodyType T,
 ) []byte {
+	var responseBody T
+	if err := json.Unmarshal(rec.Body.Bytes(), &responseBody); err != nil {
+		t.Fatalf("Failed to unmarshal response body: %v", err)
+	}
+
 	result := TestResult{
 		BeforeDB: beforeDBData,
 		AfterDB:  afterDBData,
@@ -135,7 +143,7 @@ func GenerateResultJSON(
 		},
 		Response: HTTPResponse{
 			StatusCode: rec.Code,
-			Body:       rec.Body.String(),
+			Body:       responseBody,
 		},
 	}
 	resultJSON, err := json.MarshalIndent(result, "", "  ")
@@ -143,4 +151,16 @@ func GenerateResultJSON(
 		t.Fatalf("Failed to marshal result to JSON: %v", err)
 	}
 	return resultJSON
+}
+
+func ReplaceDynamicValue(jsonData []byte, camelCaseKeys []string) []byte {
+	for _, key := range camelCaseKeys {
+		camelCasePattern := regexp.MustCompile(`"` + key + `":\s*".*?"`)
+		snakeCaseKey := strutil.ToSnakeFromCamel(key)
+		snakeCasePattern := regexp.MustCompile(`"` + snakeCaseKey + `":\s*".*?"`)
+
+		jsonData = camelCasePattern.ReplaceAll(jsonData, []byte(`"`+key+`": "ANY"`))
+		jsonData = snakeCasePattern.ReplaceAll(jsonData, []byte(`"`+snakeCaseKey+`": "ANY"`))
+	}
+	return jsonData
 }

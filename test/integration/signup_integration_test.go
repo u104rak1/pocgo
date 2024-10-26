@@ -2,7 +2,6 @@ package integration_test
 
 import (
 	"net/http"
-	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -54,12 +53,12 @@ func TestSignup(t *testing.T) {
 			assert.Equal(t, tt.wantCode, rec.Code)
 
 			afterDBData := GetDBData(t, db, usedTables)
-			result := GenerateResultJSON(t, beforeDBData, afterDBData, req, rec)
+			result := GenerateResultJSON(t, beforeDBData, afterDBData, req, rec, signup.SignupResponseBody{})
 
-			ulidPattern := regexp.MustCompile(`[0-9A-HJKMNP-TV-Z]{26}`)
-			modifiedJSON := ulidPattern.ReplaceAll(result, []byte("ANY_ID"))
+			camelCaseKeys := []string{"id", "userId", "currencyId", "passwordHash", "updatedAt", "accessToken"}
+			result = ReplaceDynamicValue(result, camelCaseKeys)
 
-			gol.Assert(t, t.Name(), modifiedJSON)
+			gol.Assert(t, t.Name(), result)
 		})
 	}
 }

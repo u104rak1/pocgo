@@ -8,27 +8,27 @@
     "accounts": [
       {
         "balance": 0,
-        "currency_id": "ANY_ID",
+        "currency_id": "ANY",
         "deleted_at": null,
-        "id": "MDFKQjMzNTI3TURQVDZEMjJIU05UWFlNNjM=",
+        "id": "ANY",
         "name": "For work",
-        "password_hash": "$2a$10$vxq4IJaWQalU.4gGvQzU/.gW16RwwLdRQFYHmLqsgHysTTVdarITG",
-        "updated_at": "2024-10-26T09:20:53+09:00",
-        "user_id": "MDFKQjMzNTI2NFRHQVgxRlQyRjQ0R1gyWDE="
+        "password_hash": "ANY",
+        "updated_at": "ANY",
+        "user_id": "ANY"
       }
     ],
     "authentications": [
       {
         "deleted_at": null,
-        "password_hash": "$2a$10$GrN8UD3Mp2KvBWhhBIlAk.DDuOFCzUUyEMVyRMo5m/s/E1M/zq2Ji",
-        "user_id": "MDFKQjMzNTI2NFRHQVgxRlQyRjQ0R1gyWDE="
+        "password_hash": "ANY",
+        "user_id": "ANY"
       }
     ],
     "users": [
       {
         "deleted_at": null,
         "email": "sato@example.com",
-        "id": "MDFKQjMzNTI2NFRHQVgxRlQyRjQ0R1gyWDE=",
+        "id": "ANY",
         "name": "Sato Taro"
       }
     ]
@@ -44,6 +44,20 @@
   },
   "response": {
     "statusCode": 201,
-    "body": "{\"user\":{\"id\":\"ANY_ID\",\"name\":\"Sato Taro\",\"email\":\"sato@example.com\",\"account\":{\"id\":\"ANY_ID\",\"name\":\"For work\",\"balance\":0,\"currency\":\"JPY\",\"updatedAt\":\"2024-10-26 00:20:53 +0000 UTC\"}},\"accessToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3Mjk5ODg0NTMsInN1YiI6IjAxSkIzMzUyNjRUR0FYMUZUMkY0NEdYMlgxIn0.1N3QxGq0glMeIWz05kOQrRTTINc-rpVjWwO8sB-8D8Y\"}\n"
+    "body": {
+      "user": {
+        "id": "ANY",
+        "name": "Sato Taro",
+        "email": "sato@example.com",
+        "account": {
+          "id": "ANY",
+          "name": "For work",
+          "balance": 0,
+          "currency": "JPY",
+          "updatedAt": "ANY"
+        }
+      },
+      "accessToken": "ANY"
+    }
   }
 }
