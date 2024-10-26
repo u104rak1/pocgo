@@ -50,6 +50,15 @@ unit_test: ## Run unit test
 unit_coverage: ## Show unit test coverage report in terminal
 	@go tool cover -func=tmp/coverage.out
 
+integration_test: ## ## Run integration tests (e.g. make integration_test FLAGS=-update to update golden files)
+	@mkdir -p tmp
+	@echo "Running integration tests..."
+	@go test ./test/... -v -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(FLAGS) 2>&1 | tee tmp/integration_test.log
+	@go tool cover -html=tmp/integration_coverage.out -o tmp/integration_test.cover.html
+
+integration_coverage: ## Show integration test coverage report in terminal
+	@go tool cover -func=tmp/integration_coverage.out
+
 swagger: ## Generate swagger document
 	@swag init -g ./cmd/pocgo/main.go
 

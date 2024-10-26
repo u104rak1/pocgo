@@ -30,12 +30,12 @@ func Start() {
 	}
 	defer config.CloseDB(db)
 
-	e := setupEcho(db)
+	e := SetupEcho(db)
 
 	startServer(e)
 }
 
-func setupEcho(db *bun.DB) *echo.Echo {
+func SetupEcho(db *bun.DB) *echo.Echo {
 	e := echo.New()
 	e.Use(echoMiddleware.RequestID())
 	myMiddleware.SetLoggerMiddleware(e)
