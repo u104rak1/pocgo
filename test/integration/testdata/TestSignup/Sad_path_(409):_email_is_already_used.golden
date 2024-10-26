@@ -1,0 +1,56 @@
+{
+  "beforeDB": {
+    "accounts": null,
+    "authentications": null,
+    "users": [
+      {
+        "deleted_at": null,
+        "email": "conflict@example.com",
+        "id": "ANY",
+        "name": "Existing User"
+      }
+    ]
+  },
+  "afterDB": {
+    "accounts": null,
+    "authentications": null,
+    "users": [
+      {
+        "deleted_at": null,
+        "email": "conflict@example.com",
+        "id": "ANY",
+        "name": "Existing User"
+      }
+    ]
+  },
+  "request": {
+    "url": "/api/v1/signup",
+    "method": "POST",
+    "header": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "body": {
+      "user": {
+        "name": "Sato Taro12345678901",
+        "email": "conflict@example.com",
+        "password": "password123456789012",
+        "account": {
+          "name": "For work123456789012",
+          "password": "1234",
+          "currency": "JPY"
+        }
+      }
+    },
+    "query": "",
+    "cookie": []
+  },
+  "response": {
+    "statusCode": 409,
+    "body": {
+      "code": "Conflict",
+      "message": "user email already exists"
+    }
+  }
+}

@@ -24,9 +24,12 @@ import (
 )
 
 type HTTPRequest struct {
-	URL    string      `json:"url"`
-	Method string      `json:"method"`
-	Header interface{} `json:"header"`
+	URL    string         `json:"url"`
+	Method string         `json:"method"`
+	Header http.Header    `json:"header"`
+	Body   interface{}    `json:"body"`
+	Query  string         `json:"query"`
+	Cookie []*http.Cookie `json:"cookie"`
 }
 
 type HTTPResponse struct {
@@ -120,15 +123,15 @@ func NewJSONRequest(t *testing.T, method, url string, requestBody interface{}) (
 	return req, rec
 }
 
-func GenerateResultJSON[T any](
+func GenerateResultJSON(
 	t *testing.T,
-	beforeDBData map[string]interface{},
+	beforeDBData,
 	afterDBData map[string]interface{},
 	req *http.Request,
 	rec *httptest.ResponseRecorder,
-	bodyType T,
+	requestBody interface{},
 ) []byte {
-	var responseBody T
+	var responseBody interface{}
 	if err := json.Unmarshal(rec.Body.Bytes(), &responseBody); err != nil {
 		t.Fatalf("Failed to unmarshal response body: %v", err)
 	}
@@ -140,12 +143,16 @@ func GenerateResultJSON[T any](
 			URL:    req.URL.String(),
 			Method: req.Method,
 			Header: req.Header,
+			Body:   requestBody,
+			Query:  req.URL.RawQuery,
+			Cookie: req.Cookies(),
 		},
 		Response: HTTPResponse{
 			StatusCode: rec.Code,
 			Body:       responseBody,
 		},
 	}
+
 	resultJSON, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
 		t.Fatalf("Failed to marshal result to JSON: %v", err)

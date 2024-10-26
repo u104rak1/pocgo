@@ -5,28 +5,39 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
+	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
 	"github.com/ucho456job/pocgo/internal/presentation/signup"
+	"github.com/ucho456job/pocgo/pkg/ulid"
 	"github.com/uptrace/bun"
 )
 
 func TestSignup(t *testing.T) {
+	var (
+		maxLenUserName       = "Sato Taro12345678901"
+		validUserEmail       = "sato@example.com"
+		maxLenUserPassword   = "password123456789012"
+		maxLenAccountName    = "For work123456789012"
+		validAccountPassword = "1234"
+		validCurrency        = money.JPY
+	)
 	tests := []struct {
 		caseName    string
-		requestBody signup.SignupRequestBody
+		requestBody interface{}
 		prepare     func(t *testing.T, db *bun.DB)
 		wantCode    int
 	}{
 		{
-			caseName: "Happy path: Signup success",
+			caseName: "Happy path (201): Signup successfully",
 			requestBody: signup.SignupRequestBody{
 				User: signup.SignupRequestBodyUser{
-					Name:     "Sato Taro",
-					Email:    "sato@example.com",
-					Password: "password",
+					Name:     maxLenUserName,
+					Email:    validUserEmail,
+					Password: maxLenUserPassword,
 					Account: signup.SignupRequestBodyAccount{
-						Name:     "For work",
-						Password: "1234",
-						Currency: "JPY",
+						Name:     maxLenAccountName,
+						Password: validAccountPassword,
+						Currency: validCurrency,
 					},
 				},
 			},
@@ -34,6 +45,57 @@ func TestSignup(t *testing.T) {
 				InsertTestData(t, db)
 			},
 			wantCode: http.StatusCreated,
+		},
+		{
+			caseName:    "Sad path (400): Bind error occurs",
+			requestBody: "invalid JSON",
+			prepare: func(t *testing.T, db *bun.DB) {
+				InsertTestData(t, db)
+			},
+			wantCode: http.StatusBadRequest,
+		},
+		{
+			caseName: "Sad path (400): validation errors occur",
+			requestBody: signup.SignupRequestBody{
+				User: signup.SignupRequestBodyUser{
+					Name:     maxLenUserName + "1",
+					Email:    "invalid",
+					Password: maxLenUserPassword + "1",
+					Account: signup.SignupRequestBodyAccount{
+						Name:     maxLenAccountName + "1",
+						Password: validAccountPassword + "1",
+						Currency: "Unsupported currency",
+					},
+				},
+			},
+			prepare: func(t *testing.T, db *bun.DB) {
+				InsertTestData(t, db)
+			},
+			wantCode: http.StatusBadRequest,
+		},
+		{
+			caseName: "Sad path (409): email is already used",
+			requestBody: signup.SignupRequestBody{
+				User: signup.SignupRequestBodyUser{
+					Name:     maxLenUserName,
+					Email:    "conflict@example.com",
+					Password: maxLenUserPassword,
+					Account: signup.SignupRequestBodyAccount{
+						Name:     maxLenAccountName,
+						Password: validAccountPassword,
+						Currency: validCurrency,
+					},
+				},
+			},
+			prepare: func(t *testing.T, db *bun.DB) {
+				existingUser := &model.User{
+					ID:    ulid.GenerateStaticULID("user"),
+					Name:  "Existing User",
+					Email: "conflict@example.com",
+				}
+				InsertTestData(t, db, existingUser)
+			},
+			wantCode: http.StatusConflict,
 		},
 	}
 
@@ -49,12 +111,10 @@ func TestSignup(t *testing.T) {
 
 			req, rec := NewJSONRequest(t, http.MethodPost, "/api/v1/signup", tt.requestBody)
 			e.ServeHTTP(rec, req)
-
 			assert.Equal(t, tt.wantCode, rec.Code)
 
 			afterDBData := GetDBData(t, db, usedTables)
-			result := GenerateResultJSON(t, beforeDBData, afterDBData, req, rec, signup.SignupResponseBody{})
-
+			result := GenerateResultJSON(t, beforeDBData, afterDBData, req, rec, tt.requestBody)
 			camelCaseKeys := []string{"id", "userId", "currencyId", "passwordHash", "updatedAt", "accessToken"}
 			result = ReplaceDynamicValue(result, camelCaseKeys)
 

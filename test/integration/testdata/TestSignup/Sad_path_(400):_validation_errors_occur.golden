@@ -1,0 +1,81 @@
+{
+  "beforeDB": {
+    "accounts": null,
+    "authentications": null,
+    "users": [
+      {
+        "deleted_at": null,
+        "email": "conflict@example.com",
+        "id": "ANY",
+        "name": "Existing User"
+      }
+    ]
+  },
+  "afterDB": {
+    "accounts": null,
+    "authentications": null,
+    "users": [
+      {
+        "deleted_at": null,
+        "email": "conflict@example.com",
+        "id": "ANY",
+        "name": "Existing User"
+      }
+    ]
+  },
+  "request": {
+    "url": "/api/v1/signup",
+    "method": "POST",
+    "header": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "body": {
+      "user": {
+        "name": "Sato Taro123456789011",
+        "email": "invalid",
+        "password": "password1234567890121",
+        "account": {
+          "name": "For work1234567890121",
+          "password": "12341",
+          "currency": "Unsupported currency"
+        }
+      }
+    },
+    "query": "",
+    "cookie": []
+  },
+  "response": {
+    "statusCode": 400,
+    "body": {
+      "code": "ValidationFailed",
+      "errors": [
+        {
+          "field": "user.name",
+          "message": "the length must be between 3 and 20"
+        },
+        {
+          "field": "user.email",
+          "message": "the email format is invalid"
+        },
+        {
+          "field": "user.password",
+          "message": "the length must be between 8 and 20"
+        },
+        {
+          "field": "user.account.name",
+          "message": "the length must be between 3 and 20"
+        },
+        {
+          "field": "user.account.password",
+          "message": "the length must be exactly 4"
+        },
+        {
+          "field": "user.account.currency",
+          "message": "must be a valid value"
+        }
+      ]
+    }
+  }
+}
