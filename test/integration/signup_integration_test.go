@@ -47,33 +47,6 @@ func TestSignup(t *testing.T) {
 			wantCode: http.StatusCreated,
 		},
 		{
-			caseName:    "Sad path (400): Bind error occurs",
-			requestBody: "invalid JSON",
-			prepare: func(t *testing.T, db *bun.DB) {
-				InsertTestData(t, db)
-			},
-			wantCode: http.StatusBadRequest,
-		},
-		{
-			caseName: "Sad path (400): validation errors occur",
-			requestBody: signup.SignupRequestBody{
-				User: signup.SignupRequestBodyUser{
-					Name:     maxLenUserName + "1",
-					Email:    "invalid",
-					Password: maxLenUserPassword + "1",
-					Account: signup.SignupRequestBodyAccount{
-						Name:     maxLenAccountName + "1",
-						Password: validAccountPassword + "1",
-						Currency: "Unsupported currency",
-					},
-				},
-			},
-			prepare: func(t *testing.T, db *bun.DB) {
-				InsertTestData(t, db)
-			},
-			wantCode: http.StatusBadRequest,
-		},
-		{
 			caseName: "Sad path (409): email is already used",
 			requestBody: signup.SignupRequestBody{
 				User: signup.SignupRequestBodyUser{
@@ -97,6 +70,7 @@ func TestSignup(t *testing.T) {
 			},
 			wantCode: http.StatusConflict,
 		},
+		// Exclude duplicate  error of authentication because they occur infrequently and are difficult to reproduce.
 	}
 
 	for _, tt := range tests {

@@ -179,4 +179,30 @@ func TestSignupHandler_Run(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("Error occurs during binding request body.", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodPost, "/api/v1/signup", bytes.NewBufferString("invalid json"))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		ctx := e.NewContext(req, rec)
+
+		mockSignupUC := authMock.NewMockISignupUsecase(ctrl)
+		h := signup.NewSignupHandler(mockSignupUC)
+
+		err := h.Run(ctx)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+
+		var resp response.ErrorResponse
+		err = json.Unmarshal(rec.Body.Bytes(), &resp)
+		assert.NoError(t, err)
+		assert.Equal(t, resp, response.ErrorResponse{
+			Code:    response.BadRequestCode,
+			Message: "code=400, message=Syntax error: offset=1, error=invalid character 'i' looking for beginning of value, internal=invalid character 'i' looking for beginning of value",
+		})
+	})
 }
