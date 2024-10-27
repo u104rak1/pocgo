@@ -26,17 +26,17 @@ func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) erro
 }
 
 type ErrorResponse struct {
-	Reason  string `json:"reason" example:"ErrorReason"`
+	Reason  string `json:"reason" example:"error reason"`
 	Message string `json:"message" example:"error message"`
 }
 
 var (
-	BadRequestReason          = "BadRequest"
-	UnauthorizedReason        = "Unauthorized"
-	ForbiddenReason           = "Forbidden"
-	NotFoundReason            = "NotFound"
-	ConflictReason            = "Conflict"
-	InternalServerErrorReason = "InternalServerError"
+	BadRequestReason          = "bad request"
+	UnauthorizedReason        = "unauthorized"
+	ForbiddenReason           = "forbidden"
+	NotFoundReason            = "not found"
+	ConflictReason            = "conflict"
+	InternalServerErrorReason = "internal server error"
 )
 
 func BadRequest(ctx echo.Context, err error) error {

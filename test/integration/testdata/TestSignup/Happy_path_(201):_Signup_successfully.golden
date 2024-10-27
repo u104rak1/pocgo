@@ -2,14 +2,7 @@
   "beforeDB": {
     "accounts": null,
     "authentications": null,
-    "users": [
-      {
-        "deleted_at": null,
-        "email": "conflict@example.com",
-        "id": "ANY",
-        "name": "Existing User"
-      }
-    ]
+    "users": null
   },
   "afterDB": {
     "accounts": [

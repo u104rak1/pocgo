@@ -49,8 +49,8 @@
   "response": {
     "statusCode": 409,
     "body": {
-      "code": "Conflict",
-      "message": "user email already exists"
+      "message": "user email already exists",
+      "reason": "conflict"
     }
   }
 }
