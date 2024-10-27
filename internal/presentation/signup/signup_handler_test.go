@@ -54,9 +54,10 @@ func TestSignupHandler_Run(t *testing.T) {
 
 	tests := []struct {
 		name             string
-		requestBody      signup.SignupRequestBody
+		requestBody      interface{}
 		prepare          func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase)
-		expectedStatus   int
+		expectedCode     int
+		expectedReason   string
 		expectedResponse interface{}
 	}{
 		{
@@ -79,7 +80,7 @@ func TestSignupHandler_Run(t *testing.T) {
 					AccessToken: validAccessToken,
 				}, nil)
 			},
-			expectedStatus: http.StatusCreated,
+			expectedCode: http.StatusCreated,
 			expectedResponse: signup.SignupResponseBody{
 				User: signup.SignupResponseBodyUser{
 					ID:    validUserID,
@@ -97,10 +98,21 @@ func TestSignupHandler_Run(t *testing.T) {
 			},
 		},
 		{
-			name:           "Error occurs during signup when request body is invalid.",
+			name:         "Error occurs during signup when request body is invalid json.",
+			requestBody:  "invalid json",
+			prepare:      func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {},
+			expectedCode: http.StatusBadRequest,
+			expectedResponse: response.ErrorResponse{
+				Reason:  response.BadRequestReason,
+				Message: "code=400, message=Unmarshal type error: expected=signup.SignupRequestBody, got=string, field=, offset=14, internal=json: cannot unmarshal string into Go value of type signup.SignupRequestBody",
+			},
+		},
+		{
+			name:           "Error occurs during signup when validation failed.",
 			requestBody:    signup.SignupRequestBody{},
 			prepare:        func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {},
-			expectedStatus: http.StatusBadRequest,
+			expectedCode:   http.StatusBadRequest,
+			expectedReason: response.ValidationFailedReason,
 		},
 		{
 			name:        "Error occurs during signup when user email already exists.",
@@ -108,9 +120,9 @@ func TestSignupHandler_Run(t *testing.T) {
 			prepare: func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, userDomain.ErrUserEmailAlreadyExists)
 			},
-			expectedStatus: http.StatusConflict,
+			expectedCode: http.StatusConflict,
 			expectedResponse: response.ErrorResponse{
-				Code:    response.ConflictCode,
+				Reason:  response.ConflictReason,
 				Message: userDomain.ErrUserEmailAlreadyExists.Error(),
 			},
 		},
@@ -120,9 +132,9 @@ func TestSignupHandler_Run(t *testing.T) {
 			prepare: func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, authDomain.ErrAuthenticationAlreadyExists)
 			},
-			expectedStatus: http.StatusConflict,
+			expectedCode: http.StatusConflict,
 			expectedResponse: response.ErrorResponse{
-				Code:    response.ConflictCode,
+				Reason:  response.ConflictReason,
 				Message: authDomain.ErrAuthenticationAlreadyExists.Error(),
 			},
 		},
@@ -132,9 +144,9 @@ func TestSignupHandler_Run(t *testing.T) {
 			prepare: func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, errors.New("unknown error"))
 			},
-			expectedStatus: http.StatusInternalServerError,
+			expectedCode: http.StatusInternalServerError,
 			expectedResponse: response.ErrorResponse{
-				Code:    response.InternalServerErrorCode,
+				Reason:  response.InternalServerErrorReason,
 				Message: "unknown error",
 			},
 		},
@@ -158,18 +170,19 @@ func TestSignupHandler_Run(t *testing.T) {
 			h := signup.NewSignupHandler(mockSignupUC)
 
 			err := h.Run(ctx)
+
 			assert.NoError(t, err)
-			assert.Equal(t, tt.expectedStatus, rec.Code)
+			assert.Equal(t, tt.expectedCode, rec.Code)
 			if rec.Code == http.StatusCreated {
 				var resp signup.SignupResponseBody
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponse, resp)
-			} else if rec.Code == http.StatusBadRequest {
+			} else if rec.Code == http.StatusBadRequest && tt.expectedReason == response.ValidationFailedReason {
 				var resp response.ValidationErrorResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
-				assert.Equal(t, response.ValidationFailedCode, resp.Code)
+				assert.Equal(t, response.ValidationFailedReason, resp.Reason)
 				assert.NotEmpty(t, resp.Errors)
 			} else {
 				var resp response.ErrorResponse
@@ -179,30 +192,4 @@ func TestSignupHandler_Run(t *testing.T) {
 			}
 		})
 	}
-
-	t.Run("Error occurs during binding request body.", func(t *testing.T) {
-		ctrl := gomock.NewController(t)
-		defer ctrl.Finish()
-
-		e := echo.New()
-		req := httptest.NewRequest(http.MethodPost, "/api/v1/signup", bytes.NewBufferString("invalid json"))
-		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-		rec := httptest.NewRecorder()
-		ctx := e.NewContext(req, rec)
-
-		mockSignupUC := authMock.NewMockISignupUsecase(ctrl)
-		h := signup.NewSignupHandler(mockSignupUC)
-
-		err := h.Run(ctx)
-		assert.NoError(t, err)
-		assert.Equal(t, http.StatusBadRequest, rec.Code)
-
-		var resp response.ErrorResponse
-		err = json.Unmarshal(rec.Body.Bytes(), &resp)
-		assert.NoError(t, err)
-		assert.Equal(t, resp, response.ErrorResponse{
-			Code:    response.BadRequestCode,
-			Message: "code=400, message=Syntax error: offset=1, error=invalid character 'i' looking for beginning of value, internal=invalid character 'i' looking for beginning of value",
-		})
-	})
 }

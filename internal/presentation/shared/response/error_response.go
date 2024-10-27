@@ -7,7 +7,7 @@ import (
 )
 
 type ValidationErrorResponse struct {
-	Code   string            `json:"code" example:"ErrorCode"`
+	Reason string            `json:"reason" example:"ErrorReason"`
 	Errors []ValidationError `json:"errors"`
 }
 
@@ -16,67 +16,67 @@ type ValidationError struct {
 	Message string `json:"message" example:"error message"`
 }
 
-var ValidationFailedCode = "ValidationFailed"
+var ValidationFailedReason = "ValidationFailed"
 
 func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) error {
 	return ctx.JSON(http.StatusBadRequest, ValidationErrorResponse{
-		Code:   ValidationFailedCode,
+		Reason: ValidationFailedReason,
 		Errors: validationErrors,
 	})
 }
 
 type ErrorResponse struct {
-	Code    string `json:"code" example:"ErrorCode"`
+	Reason  string `json:"reason" example:"ErrorReason"`
 	Message string `json:"message" example:"error message"`
 }
 
 var (
-	BadRequestCode          = "BadRequest"
-	UnauthorizedCode        = "Unauthorized"
-	ForbiddenCode           = "Forbidden"
-	NotFoundCode            = "NotFound"
-	ConflictCode            = "Conflict"
-	InternalServerErrorCode = "InternalServerError"
+	BadRequestReason          = "BadRequest"
+	UnauthorizedReason        = "Unauthorized"
+	ForbiddenReason           = "Forbidden"
+	NotFoundReason            = "NotFound"
+	ConflictReason            = "Conflict"
+	InternalServerErrorReason = "InternalServerError"
 )
 
 func BadRequest(ctx echo.Context, err error) error {
 	return ctx.JSON(http.StatusBadRequest, ErrorResponse{
-		Code:    BadRequestCode,
+		Reason:  BadRequestReason,
 		Message: err.Error(),
 	})
 }
 
 func Unauthorized(ctx echo.Context, err error) error {
 	return ctx.JSON(http.StatusUnauthorized, ErrorResponse{
-		Code:    UnauthorizedCode,
+		Reason:  UnauthorizedReason,
 		Message: err.Error(),
 	})
 }
 
 func Forbidden(ctx echo.Context, err error) error {
 	return ctx.JSON(http.StatusForbidden, ErrorResponse{
-		Code:    ForbiddenCode,
+		Reason:  ForbiddenReason,
 		Message: err.Error(),
 	})
 }
 
 func NotFound(ctx echo.Context, err error) error {
 	return ctx.JSON(http.StatusNotFound, ErrorResponse{
-		Code:    NotFoundCode,
+		Reason:  NotFoundReason,
 		Message: err.Error(),
 	})
 }
 
 func Conflict(ctx echo.Context, err error) error {
 	return ctx.JSON(http.StatusConflict, ErrorResponse{
-		Code:    ConflictCode,
+		Reason:  ConflictReason,
 		Message: err.Error(),
 	})
 }
 
 func InternalServerError(ctx echo.Context, err error) error {
 	return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
-		Code:    InternalServerErrorCode,
+		Reason:  InternalServerErrorReason,
 		Message: err.Error(),
 	})
 }
