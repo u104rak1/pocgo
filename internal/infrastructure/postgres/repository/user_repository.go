@@ -45,6 +45,14 @@ func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.U
 	return userDomain.New(userModel.ID, userModel.Name, userModel.Email)
 }
 
+func (r *userRepository) FindByEmail(ctx context.Context, email string) (*userDomain.User, error) {
+	userModel := &model.User{}
+	if err := r.db.NewSelect().Model(userModel).Where("email = ?", email).Scan(ctx); err != nil {
+		return nil, err
+	}
+	return userDomain.New(userModel.ID, userModel.Name, userModel.Email)
+}
+
 func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	exists, err := r.db.NewSelect().Model((*model.User)(nil)).Where("email = ?", email).Exists(ctx)
 	if err != nil {

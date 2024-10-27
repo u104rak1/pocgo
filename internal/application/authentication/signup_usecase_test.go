@@ -17,7 +17,7 @@ import (
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
-func TestSignupUsecase_Run(t *testing.T) {
+func TestSignupUsecase(t *testing.T) {
 	type Mocks struct {
 		mockUserUC    *appMock.MockICreateUserUsecase
 		mockAccountUC *appMock.MockICreateAccountUsecase
@@ -36,7 +36,6 @@ func TestSignupUsecase_Run(t *testing.T) {
 		validAccountCurrency  = money.JPY
 		validAccountUpdatedAt = timer.Now().String()
 		validAccessToken      = "token"
-		err                   = errors.New("error")
 	)
 
 	validCmd := authentication.SignupCommand{
@@ -83,7 +82,7 @@ func TestSignupUsecase_Run(t *testing.T) {
 			caseName: "Error occurs during userCreateDto creation.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.mockUserUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, err)
+				mocks.mockUserUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, errors.New("error"))
 			},
 			wantErr: true,
 		},
@@ -96,7 +95,7 @@ func TestSignupUsecase_Run(t *testing.T) {
 					Name:  validUserName,
 					Email: validUserEmail,
 				}, nil)
-				mocks.mockAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, err)
+				mocks.mockAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, errors.New("error"))
 			},
 			wantErr: true,
 		},
@@ -117,7 +116,7 @@ func TestSignupUsecase_Run(t *testing.T) {
 					Currency:  validAccountCurrency,
 					UpdatedAt: validAccountUpdatedAt,
 				}, nil)
-				mocks.mockAuthServ.EXPECT().GenerateAccessToken(ctx, validUserID, gomock.Any()).Return("", err)
+				mocks.mockAuthServ.EXPECT().GenerateAccessToken(ctx, validUserID, gomock.Any()).Return("", errors.New("error"))
 			},
 			wantErr: true,
 		},
@@ -129,17 +128,15 @@ func TestSignupUsecase_Run(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockUserUC := appMock.NewMockICreateUserUsecase(ctrl)
-			mockAccountUC := appMock.NewMockICreateAccountUsecase(ctrl)
-			mockAuthServ := domainMock.NewMockIAuthenticationService(ctrl)
-			mockUnitOfWork := &appMock.MockIUnitOfWorkWithResult[authentication.SignupDTO]{}
-			uc := authentication.NewSignupUsecase(mockUserUC, mockAccountUC, mockAuthServ, mockUnitOfWork)
-			ctx := context.Background()
 			mocks := Mocks{
-				mockUserUC:    mockUserUC,
-				mockAccountUC: mockAccountUC,
-				mockAuthServ:  mockAuthServ,
+				mockUserUC:    appMock.NewMockICreateUserUsecase(ctrl),
+				mockAccountUC: appMock.NewMockICreateAccountUsecase(ctrl),
+				mockAuthServ:  domainMock.NewMockIAuthenticationService(ctrl),
 			}
+			mockUnitOfWork := &appMock.MockIUnitOfWorkWithResult[authentication.SignupDTO]{}
+
+			uc := authentication.NewSignupUsecase(mocks.mockUserUC, mocks.mockAccountUC, mocks.mockAuthServ, mockUnitOfWork)
+			ctx := context.Background()
 			tt.prepare(ctx, mocks)
 
 			dto, err := uc.Run(ctx, tt.cmd)

@@ -23,7 +23,6 @@ func TestCreateUserUsecase(t *testing.T) {
 		validName     = "Sato taro"
 		validEmail    = "sato@example.com"
 		validPassword = "password"
-		err           = errors.New("error")
 	)
 
 	validCmd := userUC.CreateUserCommand{
@@ -53,7 +52,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			caseName: "Error occurs during VerifyEmailUniqueness in userService.",
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(err)
+				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(errors.New("error"))
 			},
 			wantErr: true,
 		},
@@ -72,7 +71,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			cmd:      validCmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
-				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(err)
+				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(errors.New("error"))
 			},
 			wantErr: true,
 		},
@@ -82,7 +81,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
 				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mocks.mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(err)
+				mocks.mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(errors.New("error"))
 			},
 			wantErr: true,
 		},
@@ -106,7 +105,7 @@ func TestCreateUserUsecase(t *testing.T) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
 				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
 				mocks.mockAuthServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
-				mocks.mockAuthRepo.EXPECT().Save(ctx, gomock.Any()).Return(err)
+				mocks.mockAuthRepo.EXPECT().Save(ctx, gomock.Any()).Return(errors.New("error"))
 			},
 			wantErr: true,
 		},

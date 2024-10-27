@@ -165,6 +165,62 @@ func TestUserRepository_FindByID(t *testing.T) {
 	}
 }
 
+func TestUserRepository_FindByEmail(t *testing.T) {
+	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewUserRepository)
+	userID := ulid.GenerateStaticULID("user")
+	user, err := userDomain.New(userID, "sato taro", "sato@example.com")
+	assert.NoError(t, err)
+
+	expectQuery := fmt.Sprintf(`
+		SELECT "user"."id", "user"."name", "user"."email", "user"."deleted_at"
+		FROM "users" AS "user"
+		WHERE (email = '%s') AND "user"."deleted_at" IS NULL
+	`, user.Email())
+
+	tests := []struct {
+		caseName string
+		prepare  func()
+		wantUser *userDomain.User
+		wantErr  error
+	}{
+		{
+			caseName: "Successfully finds user by email.",
+			prepare: func() {
+				rows := sqlmock.NewRows([]string{"id", "name", "email", "deleted_at"}).
+					AddRow(userID, user.Name(), user.Email(), nil)
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(rows)
+			},
+			wantUser: user,
+			wantErr:  nil,
+		},
+		{
+			caseName: "Error occurs in database when user is not found.",
+			prepare: func() {
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
+			},
+			wantUser: nil,
+			wantErr:  ErrDB,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.caseName, func(t *testing.T) {
+			tt.prepare()
+			foundUser, err := repo.FindByEmail(ctx, user.Email())
+
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				assert.Nil(t, foundUser)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.wantUser, foundUser)
+			}
+			err = mock.ExpectationsWereMet()
+			assert.NoError(t, err)
+		})
+	}
+}
+
 func TestUserRepository_ExistsByEmail(t *testing.T) {
 	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewUserRepository)
 	email := "sato@example.com"

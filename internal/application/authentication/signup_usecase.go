@@ -24,13 +24,13 @@ type signupUsecase struct {
 func NewSignupUsecase(
 	createUserUsecase userApp.ICreateUserUsecase,
 	createAccountUsecase accountApp.ICreateAccountUsecase,
-	authService authDomain.IAuthenticationService,
+	authenticationService authDomain.IAuthenticationService,
 	unitOfWork unitofwork.IUnitOfWorkWithResult[SignupDTO],
 ) ISignupUsecase {
 	return &signupUsecase{
 		createUserUC:    createUserUsecase,
 		createAccountUC: createAccountUsecase,
-		authServ:        authService,
+		authServ:        authenticationService,
 		unitOfWork:      unitOfWork,
 	}
 }
