@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/pkg/timer"
 )
 
@@ -12,20 +13,23 @@ type IAuthenticationService interface {
 	VerifyUniqueness(ctx context.Context, userID string) error
 	GenerateAccessToken(ctx context.Context, userID string, jwtSecretKey []byte) (string, error)
 	GetUserIDFromAccessToken(ctx context.Context, accessToken string, jwtSecretKey []byte) (string, error)
+	Authenticate(ctx context.Context, email, password string) (userID string, err error)
 }
 
 type authenticationService struct {
-	authenticationRepo IAuthenticationRepository
+	authRepo IAuthenticationRepository
+	userRepo userDomain.IUserRepository
 }
 
-func NewService(authenticationRepository IAuthenticationRepository) IAuthenticationService {
+func NewService(authenticationRepository IAuthenticationRepository, userRepository userDomain.IUserRepository) IAuthenticationService {
 	return &authenticationService{
-		authenticationRepo: authenticationRepository,
+		authRepo: authenticationRepository,
+		userRepo: userRepository,
 	}
 }
 
 func (s *authenticationService) VerifyUniqueness(ctx context.Context, userID string) error {
-	exists, err := s.authenticationRepo.ExistsByUserID(ctx, userID)
+	exists, err := s.authRepo.ExistsByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -63,5 +67,29 @@ func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, ac
 		}
 	}
 
-	return "", ErrAuthenticationFailed
+	return "", ErrInvalidAccessToken
+}
+
+func (s *authenticationService) Authenticate(ctx context.Context, email, password string) (userID string, err error) {
+	user, err := s.userRepo.FindByEmail(ctx, email)
+	if err != nil {
+		if err == userDomain.ErrUserNotFound {
+			return "", ErrAuthenticationFailed
+		}
+		return "", err
+	}
+
+	auth, err := s.authRepo.FindByUserID(ctx, user.ID())
+	if err != nil {
+		if err == ErrAuthenticationNotFound {
+			return "", ErrAuthenticationFailed
+		}
+		return "", err
+	}
+
+	if err := auth.ComparePassword(password); err != nil {
+		return "", ErrAuthenticationFailed
+	}
+
+	return user.ID(), nil
 }
