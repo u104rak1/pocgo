@@ -88,7 +88,6 @@ func TestSignin(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
-			t.Parallel()
 			e, gol, db := BeforeAll(t)
 			defer AfterAll(t, db)
 

@@ -27,12 +27,6 @@
     "users": [
       {
         "deleted_at": null,
-        "email": "conflict@example.com",
-        "id": "ANY",
-        "name": "Existing User"
-      },
-      {
-        "deleted_at": null,
         "email": "sato@example.com",
         "id": "ANY",
         "name": "Sato Taro12345678901"
