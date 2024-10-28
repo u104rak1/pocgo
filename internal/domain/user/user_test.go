@@ -9,13 +9,13 @@ import (
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
-var (
-	validID    = ulid.GenerateStaticULID("user")
-	validName  = "sato taro"
-	validEmail = "sato@example.com"
-)
-
 func TestNew(t *testing.T) {
+	var (
+		id    = ulid.GenerateStaticULID("user")
+		name  = "sato taro"
+		email = "sato@example.com"
+	)
+
 	tests := []struct {
 		caseName string
 		id       string
@@ -25,50 +25,50 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			caseName: "Successfully creates a user.",
-			id:       validID,
-			name:     validName,
-			email:    validEmail,
+			id:       id,
+			name:     name,
+			email:    email,
 			wantErr:  nil,
 		},
 		{
 			caseName: "Error occurs with invalid ID.",
 			id:       "invalid",
-			name:     validName,
-			email:    validEmail,
+			name:     name,
+			email:    email,
 			wantErr:  user.ErrInvalidUserID,
 		},
 		{
 			caseName: "Error occurs with 2-character name.",
-			id:       validID,
+			id:       id,
 			name:     strings.Repeat("a", user.NameMinLength-1),
-			email:    validEmail,
+			email:    email,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
 			caseName: "Successfully creates a user with 3-character name.",
-			id:       validID,
+			id:       id,
 			name:     strings.Repeat("a", user.NameMinLength),
-			email:    validEmail,
+			email:    email,
 			wantErr:  nil,
 		},
 		{
 			caseName: "Successfully creates a user with 20-character name.",
-			id:       validID,
+			id:       id,
 			name:     strings.Repeat("a", user.NameMaxLength),
-			email:    validEmail,
+			email:    email,
 			wantErr:  nil,
 		},
 		{
 			caseName: "Error occurs with 21-character name.",
-			id:       validID,
+			id:       id,
 			name:     strings.Repeat("a", user.NameMaxLength+1),
-			email:    validEmail,
+			email:    email,
 			wantErr:  user.ErrInvalidUserName,
 		},
 		{
 			caseName: "Error occurs with invalid email.",
-			id:       validID,
-			name:     validName,
+			id:       id,
+			name:     name,
 			email:    "invalid",
 			wantErr:  user.ErrInvalidEmail,
 		},
@@ -93,6 +93,12 @@ func TestNew(t *testing.T) {
 }
 
 func TestChangeName(t *testing.T) {
+	var (
+		id    = ulid.GenerateStaticULID("user")
+		name  = "sato taro"
+		email = "sato@example.com"
+	)
+
 	tests := []struct {
 		caseName string
 		newName  string
@@ -113,12 +119,12 @@ func TestChangeName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			u, _ := user.New(validID, validName, validEmail)
+			u, _ := user.New(id, name, email)
 			err := u.ChangeName(tt.newName)
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
-				assert.Equal(t, validName, u.Name())
+				assert.Equal(t, name, u.Name())
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.newName, u.Name())
@@ -128,6 +134,12 @@ func TestChangeName(t *testing.T) {
 }
 
 func TestChangeEmail(t *testing.T) {
+	var (
+		id    = ulid.GenerateStaticULID("user")
+		name  = "sato taro"
+		email = "sato@example.com"
+	)
+
 	tests := []struct {
 		caseName string
 		newEmail string
@@ -148,12 +160,12 @@ func TestChangeEmail(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			u, _ := user.New(validID, validName, validEmail)
+			u, _ := user.New(id, name, email)
 			err := u.ChangeEmail(tt.newEmail)
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
-				assert.Equal(t, validEmail, u.Email())
+				assert.Equal(t, email, u.Email())
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.newEmail, u.Email())

@@ -10,12 +10,12 @@ import (
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
-var (
-	validUserID   = ulid.GenerateStaticULID("user")
-	validPassword = "password"
-)
-
 func TestNew(t *testing.T) {
+	var (
+		userID   = ulid.GenerateStaticULID("user")
+		password = "password"
+	)
+
 	tests := []struct {
 		name     string
 		userID   string
@@ -24,37 +24,37 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			name:     "Successfully creates an authentication.",
-			userID:   validUserID,
-			password: validPassword,
+			userID:   userID,
+			password: password,
 			wantErr:  nil,
 		},
 		{
 			name:     "Error occurs with invalid userID.",
 			userID:   "invalid",
-			password: validPassword,
+			password: password,
 			wantErr:  userDomain.ErrInvalidUserID,
 		},
 		{
 			name:     "Error occurs with 7-character password.",
-			userID:   validUserID,
+			userID:   userID,
 			password: "1234567",
 			wantErr:  authentication.ErrPasswordInvalidLength,
 		},
 		{
 			name:     "Successfully creates an authentication with 8-character password.",
-			userID:   validUserID,
+			userID:   userID,
 			password: "12345678",
 			wantErr:  nil,
 		},
 		{
 			name:     "Successfully creates an authentication with 20-character password.",
-			userID:   validUserID,
+			userID:   userID,
 			password: "12345678901234567890",
 			wantErr:  nil,
 		},
 		{
 			name:     "Error occurs with 21-character password.",
-			userID:   validUserID,
+			userID:   userID,
 			password: "123456789012345678901",
 			wantErr:  authentication.ErrPasswordInvalidLength,
 		},
@@ -79,18 +79,27 @@ func TestNew(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
+	var (
+		userID   = ulid.GenerateStaticULID("user")
+		password = "password"
+	)
 	t.Run("Successfully reconstructs an authentication.", func(t *testing.T) {
-		encodedPassword, _ := passwordUtil.Encode(validPassword)
-		auth, err := authentication.Reconstruct(validUserID, encodedPassword)
+		encodedPassword, _ := passwordUtil.Encode(password)
+		auth, err := authentication.Reconstruct(userID, encodedPassword)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, auth)
-		assert.Equal(t, validUserID, auth.UserID())
+		assert.Equal(t, userID, auth.UserID())
 		assert.Equal(t, encodedPassword, auth.PasswordHash())
 	})
 }
 
 func TestComparePassword(t *testing.T) {
+	var (
+		userID   = ulid.GenerateStaticULID("user")
+		password = "password"
+	)
+
 	tests := []struct {
 		name        string
 		newPassword string
@@ -98,7 +107,7 @@ func TestComparePassword(t *testing.T) {
 	}{
 		{
 			name:        "Passwords match without errors.",
-			newPassword: validPassword,
+			newPassword: password,
 			wantErr:     nil,
 		},
 		{
@@ -111,7 +120,7 @@ func TestComparePassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			auth, _ := authentication.New(validUserID, validPassword)
+			auth, _ := authentication.New(userID, password)
 			err := auth.ComparePassword(tt.newPassword)
 
 			if tt.wantErr != nil {

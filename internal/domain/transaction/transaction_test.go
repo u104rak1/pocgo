@@ -12,16 +12,16 @@ import (
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
-var (
-	validID                = ulid.GenerateStaticULID("transaction")
-	validAccountID         = ulid.GenerateStaticULID("account")
-	validRecieverAccountID = ulid.GenerateStaticULID("accountReceiver")
-	validAmount            = 1000.0
-	validCurrency          = money.JPY
-	validTransactionAt     = timer.Now()
-)
-
 func TestNewTransaction(t *testing.T) {
+	var (
+		transactionID     = ulid.GenerateStaticULID("transaction")
+		accountID         = ulid.GenerateStaticULID("account")
+		recieverAccountID = ulid.GenerateStaticULID("accountReceiver")
+		amount            = 1000.0
+		currency          = money.JPY
+		transactionAt     = timer.Now()
+	)
+
 	tests := []struct {
 		caseName          string
 		id                string
@@ -35,112 +35,112 @@ func TestNewTransaction(t *testing.T) {
 	}{
 		{
 			caseName:          "Successfully creates a transaction.",
-			id:                validID,
-			accountID:         validAccountID,
-			receiverAccountID: validRecieverAccountID,
+			id:                transactionID,
+			accountID:         accountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   transaction.Transfer,
-			amount:            validAmount,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			amount:            amount,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           nil,
 		},
 		{
 			caseName:          "Error occurs with invalid ID.",
 			id:                "invalid",
-			accountID:         validAccountID,
-			receiverAccountID: validRecieverAccountID,
+			accountID:         accountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   transaction.Transfer,
-			amount:            validAmount,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			amount:            amount,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           transaction.ErrInvalidTransactionID,
 		},
 		{
 			caseName:          "Error occurs with invalid AccountID.",
-			id:                validID,
+			id:                transactionID,
 			accountID:         "inavlid",
-			receiverAccountID: validRecieverAccountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   transaction.Transfer,
-			amount:            validAmount,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			amount:            amount,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           accountDomain.ErrInvalidID,
 		},
 		{
 			caseName:          "Error occurs with invalid ReceiverAccountID.",
-			id:                validID,
-			accountID:         validAccountID,
+			id:                transactionID,
+			accountID:         accountID,
 			receiverAccountID: "inavlid",
 			transactionType:   transaction.Transfer,
-			amount:            validAmount,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			amount:            amount,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           accountDomain.ErrInvalidID,
 		},
 		{
 			caseName:          "Successfully creates a transaction with TRANSFER transaction type.",
-			id:                validID,
-			accountID:         validAccountID,
-			receiverAccountID: validRecieverAccountID,
+			id:                transactionID,
+			accountID:         accountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   transaction.Transfer,
-			amount:            validAmount,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			amount:            amount,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           nil,
 		},
 		{
 			caseName:          "Successfully creates a transaction with DEPOSIT transaction type.",
-			id:                validID,
-			accountID:         validAccountID,
-			receiverAccountID: validRecieverAccountID,
+			id:                transactionID,
+			accountID:         accountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   transaction.Deposit,
-			amount:            validAmount,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			amount:            amount,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           nil,
 		},
 		{
 			caseName:          "Successfully creates a transaction with WITHDRAW transaction type.",
-			id:                validID,
-			accountID:         validAccountID,
-			receiverAccountID: validRecieverAccountID,
+			id:                transactionID,
+			accountID:         accountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   transaction.Withdraw,
-			amount:            validAmount,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			amount:            amount,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           nil,
 		},
 		{
 			caseName:          "Error occurs with unsupported transaction type.",
-			id:                validID,
-			accountID:         validAccountID,
-			receiverAccountID: validRecieverAccountID,
+			id:                transactionID,
+			accountID:         accountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   "UNSUPPORTED",
-			amount:            validAmount,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			amount:            amount,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           transaction.ErrUnsupportTransactionType,
 		},
 		{
 			caseName:          "Error occurs with invalid amount.",
-			id:                validID,
-			accountID:         validAccountID,
-			receiverAccountID: validRecieverAccountID,
+			id:                transactionID,
+			accountID:         accountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   transaction.Transfer,
 			amount:            -1000,
-			currency:          validCurrency,
-			transactionAt:     validTransactionAt,
+			currency:          currency,
+			transactionAt:     transactionAt,
 			wantErr:           money.ErrNegativeAmount,
 		},
 		{
 			caseName:          "Error occurs with unsupported currency.",
-			id:                validID,
-			accountID:         validAccountID,
-			receiverAccountID: validRecieverAccountID,
+			id:                transactionID,
+			accountID:         accountID,
+			receiverAccountID: recieverAccountID,
 			transactionType:   transaction.Transfer,
-			amount:            validAmount,
+			amount:            amount,
 			currency:          "EUR",
-			transactionAt:     validTransactionAt,
+			transactionAt:     transactionAt,
 			wantErr:           money.ErrUnsupportedCurrency,
 		},
 	}

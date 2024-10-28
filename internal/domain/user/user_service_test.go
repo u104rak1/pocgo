@@ -12,21 +12,18 @@ import (
 )
 
 func TestVerifyEmailUniqueness(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockUserRepo := mock.NewMockIUserRepository(ctrl)
+	var unknownErr = errors.New("unknown error")
 
 	tests := []struct {
 		caseName string
 		email    string
-		setup    func(ctx context.Context, email string)
+		setup    func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string)
 		wantErr  error
 	}{
 		{
 			caseName: "Successfully verifies that the email is unique.",
 			email:    "new@example.com",
-			setup: func(ctx context.Context, email string) {
+			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string) {
 				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, nil)
 			},
 			wantErr: nil,
@@ -34,30 +31,36 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 		{
 			caseName: "Error occurs when the email already exists.",
 			email:    "existing@example.com",
-			setup: func(ctx context.Context, email string) {
+			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string) {
 				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(true, nil)
 			},
 			wantErr: user.ErrUserEmailAlreadyExists,
 		},
 		{
-			caseName: "Error occurs when the repository returns an error.",
+			caseName: "Un known error occurs in ExsitsByEmail.",
 			email:    "error@example.com",
-			setup: func(ctx context.Context, email string) {
-				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, errors.New("repository error"))
+			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string) {
+				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, unknownErr)
 			},
-			wantErr: errors.New("repository error"),
+			wantErr: unknownErr,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockUserRepo := mock.NewMockIUserRepository(ctrl)
+
 			service := user.NewService(mockUserRepo)
 			ctx := context.Background()
-			tt.setup(ctx, tt.email)
+			tt.setup(ctx, mockUserRepo, tt.email)
+
 			err := service.VerifyEmailUniqueness(ctx, tt.email)
 
-			assert.Equal(t, tt.wantErr, err)
+			assert.ErrorIs(t, tt.wantErr, err)
 		})
 	}
 }

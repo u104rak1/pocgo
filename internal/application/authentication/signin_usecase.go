@@ -40,22 +40,13 @@ type SigninDTO struct {
 }
 
 func (u *signinUsecase) Run(ctx context.Context, cmd SigninCommand) (*SigninDTO, error) {
-	user, err := u.userRepo.FindByEmail(ctx, cmd.Email)
+	userID, err := u.authServ.Authenticate(ctx, cmd.Email, cmd.Password)
 	if err != nil {
-		return nil, err
-	}
-
-	auth, err := u.authRepo.FindByUserID(ctx, user.ID())
-	if err != nil {
-		return nil, err
-	}
-
-	if err := auth.ComparePassword(cmd.Password); err != nil {
 		return nil, err
 	}
 
 	env := environment.New()
-	token, err := u.authServ.GenerateAccessToken(ctx, user.ID(), []byte(env.JWT_SECRET_KEY))
+	token, err := u.authServ.GenerateAccessToken(ctx, userID, []byte(env.JWT_SECRET_KEY))
 	if err != nil {
 		return nil, err
 	}

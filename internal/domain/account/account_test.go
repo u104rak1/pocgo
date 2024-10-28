@@ -14,17 +14,17 @@ import (
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
-var (
-	validID       = ulid.GenerateStaticULID("account")
-	validUserID   = ulid.GenerateStaticULID("user")
-	validName     = "For work"
-	validPassword = "1234"
-	validAmount   = 1000.0
-	validCurrency = "JPY"
-	validTime     = timer.Now()
-)
-
 func TestNew(t *testing.T) {
+	var (
+		accountID = ulid.GenerateStaticULID("account")
+		userID    = ulid.GenerateStaticULID("user")
+		name      = "For work"
+		password  = "1234"
+		amount    = 1000.0
+		currency  = "JPY"
+		now       = timer.Now()
+	)
+
 	tests := []struct {
 		caseName  string
 		id        string
@@ -38,136 +38,136 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			caseName:  "Successfully creates an account.",
-			id:        validID,
-			userID:    validUserID,
-			name:      validName,
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			id:        accountID,
+			userID:    userID,
+			name:      name,
+			password:  password,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   nil,
 		},
 		{
 			caseName:  "Error occurs with invalid ID.",
 			id:        "invalid",
-			userID:    validUserID,
-			name:      validName,
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			userID:    userID,
+			name:      name,
+			password:  password,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   account.ErrInvalidID,
 		},
 		{
 			caseName:  "Error occurs with invalid UserID.",
-			id:        validID,
+			id:        accountID,
 			userID:    "invalid",
-			name:      validName,
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			name:      name,
+			password:  password,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   userDomain.ErrInvalidUserID,
 		},
 		{
 			caseName:  "Error occurs with 2-character name.",
-			id:        validID,
-			userID:    validUserID,
+			id:        accountID,
+			userID:    userID,
 			name:      strings.Repeat("a", account.NameMinLength-1),
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			password:  password,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
 			caseName:  "Successfully creates account with 3-character name.",
-			id:        validID,
-			userID:    validUserID,
+			id:        accountID,
+			userID:    userID,
 			name:      strings.Repeat("a", account.NameMinLength),
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			password:  password,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   nil,
 		},
 		{
 			caseName:  "Successfully creates account with 20-character name.",
-			id:        validID,
-			userID:    validUserID,
+			id:        accountID,
+			userID:    userID,
 			name:      strings.Repeat("a", account.NameMaxLength),
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			password:  password,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   nil,
 		},
 		{
 			caseName:  "Error occurs with 21-character name.",
-			id:        validID,
-			userID:    validUserID,
+			id:        accountID,
+			userID:    userID,
 			name:      strings.Repeat("a", account.NameMaxLength+1),
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			password:  password,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
 			caseName:  "Error occurs with 3-character password.",
-			id:        validID,
-			userID:    validUserID,
+			id:        accountID,
+			userID:    userID,
 			name:      strings.Repeat("a", account.NameMaxLength+1),
-			password:  validPassword,
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			password:  password,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   account.ErrInvalidAccountName,
 		},
 		{
 			caseName:  "an error occurs when the password is 3 characters.",
-			id:        validID,
-			userID:    validUserID,
-			name:      validName,
+			id:        accountID,
+			userID:    userID,
+			name:      name,
 			password:  "123",
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   account.ErrPasswordInvalidLength,
 		},
 		{
 			caseName:  "Successfully creates account with 4-character password.",
-			id:        validID,
-			userID:    validUserID,
-			name:      validName,
+			id:        accountID,
+			userID:    userID,
+			name:      name,
 			password:  "1234",
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   nil,
 		},
 		{
 			caseName:  "Error occurs with 5-character password.",
-			id:        validID,
-			userID:    validUserID,
-			name:      validName,
+			id:        accountID,
+			userID:    userID,
+			name:      name,
 			password:  "12345",
-			amount:    validAmount,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			amount:    amount,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   account.ErrPasswordInvalidLength,
 		},
 		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
 
 		{
 			caseName:  "Error occurs with invalid amount.",
-			id:        validID,
-			userID:    validUserID,
-			name:      validName,
-			password:  validPassword,
+			id:        accountID,
+			userID:    userID,
+			name:      name,
+			password:  password,
 			amount:    -1,
-			currency:  validCurrency,
-			updatedAt: validTime,
+			currency:  currency,
+			updatedAt: now,
 			wantErr:   money.ErrNegativeAmount,
 		},
 	}
@@ -195,22 +195,41 @@ func TestNew(t *testing.T) {
 }
 
 func TestReconstruct(t *testing.T) {
+	var (
+		accountID = ulid.GenerateStaticULID("account")
+		userID    = ulid.GenerateStaticULID("user")
+		name      = "For work"
+		password  = "1234"
+		amount    = 1000.0
+		currency  = "JPY"
+		now       = timer.Now()
+	)
 	t.Run("Successfully reconstructs an account.", func(t *testing.T) {
-		encodedPassword, _ := passwordUtil.Encode(validPassword)
-		acc, err := account.Reconstruct(validID, validUserID, validName, encodedPassword, validAmount, validCurrency, validTime)
+		encodedPassword, _ := passwordUtil.Encode(password)
+		acc, err := account.Reconstruct(accountID, userID, name, encodedPassword, amount, currency, now)
 
 		assert.NoError(t, err)
-		assert.Equal(t, validID, acc.ID())
-		assert.Equal(t, validUserID, acc.UserID())
-		assert.Equal(t, validName, acc.Name())
+		assert.Equal(t, accountID, acc.ID())
+		assert.Equal(t, userID, acc.UserID())
+		assert.Equal(t, name, acc.Name())
 		assert.Equal(t, encodedPassword, acc.PasswordHash())
-		assert.Equal(t, validAmount, acc.Balance().Amount())
-		assert.Equal(t, validCurrency, acc.Balance().Currency())
-		assert.Equal(t, validTime, acc.UpdatedAt())
+		assert.Equal(t, amount, acc.Balance().Amount())
+		assert.Equal(t, currency, acc.Balance().Currency())
+		assert.Equal(t, now, acc.UpdatedAt())
 	})
 }
 
 func TestChangeName(t *testing.T) {
+	var (
+		accountID = ulid.GenerateStaticULID("account")
+		userID    = ulid.GenerateStaticULID("user")
+		name      = "For work"
+		password  = "1234"
+		amount    = 1000.0
+		currency  = "JPY"
+		now       = timer.Now()
+	)
+
 	tests := []struct {
 		caseName string
 		newName  string
@@ -231,12 +250,12 @@ func TestChangeName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
+			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.ChangeName(tt.newName)
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
-				assert.Equal(t, validName, acc.Name())
+				assert.Equal(t, name, acc.Name())
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.newName, acc.Name())
@@ -246,6 +265,16 @@ func TestChangeName(t *testing.T) {
 }
 
 func TestChangePassword(t *testing.T) {
+	var (
+		accountID = ulid.GenerateStaticULID("account")
+		userID    = ulid.GenerateStaticULID("user")
+		name      = "For work"
+		password  = "1234"
+		amount    = 1000.0
+		currency  = "JPY"
+		now       = timer.Now()
+	)
+
 	tests := []struct {
 		caseName    string
 		newPassword string
@@ -267,7 +296,7 @@ func TestChangePassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
+			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.ChangePassword(tt.newPassword)
 
 			if tt.wantErr != nil {
@@ -282,6 +311,16 @@ func TestChangePassword(t *testing.T) {
 }
 
 func TestComparePassword(t *testing.T) {
+	var (
+		accountID = ulid.GenerateStaticULID("account")
+		userID    = ulid.GenerateStaticULID("user")
+		name      = "For work"
+		password  = "1234"
+		amount    = 1000.0
+		currency  = "JPY"
+		now       = timer.Now()
+	)
+
 	tests := []struct {
 		caseName    string
 		newPassword string
@@ -289,7 +328,7 @@ func TestComparePassword(t *testing.T) {
 	}{
 		{
 			caseName:    "Passwords match without errors.",
-			newPassword: validPassword,
+			newPassword: password,
 			wantErr:     nil,
 		},
 		{
@@ -302,7 +341,7 @@ func TestComparePassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
+			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.ComparePassword(tt.newPassword)
 
 			if tt.wantErr != nil {
@@ -315,6 +354,16 @@ func TestComparePassword(t *testing.T) {
 }
 
 func TestWithdraw(t *testing.T) {
+	var (
+		accountID = ulid.GenerateStaticULID("account")
+		userID    = ulid.GenerateStaticULID("user")
+		name      = "For work"
+		password  = "1234"
+		amount    = 1000.0
+		currency  = "JPY"
+		now       = timer.Now()
+	)
+
 	tests := []struct {
 		caseName string
 		amount   float64
@@ -343,12 +392,12 @@ func TestWithdraw(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
-			acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
+			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.Withdraw(tt.amount, tt.currency)
 
 			if tt.wantErr == nil {
 				assert.NoError(t, err)
-				assert.Equal(t, validAmount-tt.amount, acc.Balance().Amount())
+				assert.Equal(t, amount-tt.amount, acc.Balance().Amount())
 			} else {
 				assert.ErrorIs(t, err, tt.wantErr)
 			}
@@ -357,6 +406,16 @@ func TestWithdraw(t *testing.T) {
 }
 
 func TestDeposit(t *testing.T) {
+	var (
+		accountID = ulid.GenerateStaticULID("account")
+		userID    = ulid.GenerateStaticULID("user")
+		name      = "For work"
+		password  = "1234"
+		amount    = 1000.0
+		currency  = "JPY"
+		now       = timer.Now()
+	)
+
 	tests := []struct {
 		caseName string
 		amount   float64
@@ -385,12 +444,12 @@ func TestDeposit(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
-			acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
+			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.Deposit(tt.amount, tt.currency)
 
 			if tt.wantErr == nil {
 				assert.NoError(t, err)
-				assert.Equal(t, validAmount+tt.amount, acc.Balance().Amount())
+				assert.Equal(t, amount+tt.amount, acc.Balance().Amount())
 			} else {
 				assert.ErrorIs(t, err, tt.wantErr)
 			}
@@ -399,8 +458,18 @@ func TestDeposit(t *testing.T) {
 }
 
 func TestChangeUpdatedAt(t *testing.T) {
+	var (
+		accountID = ulid.GenerateStaticULID("account")
+		userID    = ulid.GenerateStaticULID("user")
+		name      = "For work"
+		password  = "1234"
+		amount    = 1000.0
+		currency  = "JPY"
+		now       = timer.Now()
+	)
+
 	t.Run("Successfully changes UpdatedAt to valid time.", func(t *testing.T) {
-		acc, _ := account.New(validID, validUserID, validName, validPassword, validAmount, validCurrency, validTime)
+		acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
 		newTime := timer.Now()
 		acc.ChangeUpdatedAt(newTime)
 		assert.Equal(t, newTime, acc.UpdatedAt())
