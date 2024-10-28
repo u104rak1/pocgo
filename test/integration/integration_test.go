@@ -71,7 +71,7 @@ func ClearDB(t *testing.T, db *bun.DB) {
 	for i := len(model.Models) - 1; i >= 0; i-- {
 		model := model.Models[i]
 		modelType := reflect.TypeOf(model).Elem()
-		tableName := modelType.Field(0).Tag.Get("bun")[6:] // Remove "table:" from `bun:"table:users"`
+		tableName := modelType.Field(0).Tag.Get("bun")[6:] // Remove "table:" from `bun:"table:table_name"`
 
 		if tableName == "" {
 			t.Fatalf("could not retrieve table name for model: %v", model)
