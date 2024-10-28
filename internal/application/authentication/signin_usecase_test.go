@@ -8,87 +8,52 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
-	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	domainMock "github.com/ucho456job/pocgo/internal/domain/mock"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
 func TestSigninUsecase(t *testing.T) {
-	type Mocks struct {
-		mockUserRepo *domainMock.MockIUserRepository
-		mockAuthRepo *domainMock.MockIAuthenticationRepository
-		mockAuthServ *domainMock.MockIAuthenticationService
-	}
-
 	var (
-		validEmail       = "sato@example.com"
-		validPassword    = "password"
-		validAccessToken = "token"
+		userID      = ulid.GenerateStaticULID("user")
+		email       = "sato@example.com"
+		password    = "password"
+		accessToken = "token"
 	)
 
-	userID := ulid.GenerateStaticULID("user")
-	user, err := userDomain.New(userID, "sato", validEmail)
-	assert.NoError(t, err)
-	auth, err := authDomain.New(userID, validPassword)
-	assert.NoError(t, err)
-
-	validCmd := authApp.SigninCommand{
-		Email:    validEmail,
-		Password: validPassword,
+	cmd := authApp.SigninCommand{
+		Email:    email,
+		Password: password,
 	}
 
 	tests := []struct {
 		caseName string
 		cmd      authApp.SigninCommand
-		prepare  func(ctx context.Context, mocks Mocks)
+		prepare  func(ctx context.Context, authServ *domainMock.MockIAuthenticationService)
 		wantErr  bool
 	}{
 		{
 			caseName: "Signin is successfully done.",
-			cmd:      validCmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.mockUserRepo.EXPECT().FindByEmail(ctx, validEmail).Return(user, nil)
-				mocks.mockAuthRepo.EXPECT().FindByUserID(ctx, userID).Return(auth, nil)
-				mocks.mockAuthServ.EXPECT().GenerateAccessToken(ctx, userID, gomock.Any()).Return(validAccessToken, nil)
+			cmd:      cmd,
+			prepare: func(ctx context.Context, authServ *domainMock.MockIAuthenticationService) {
+				authServ.EXPECT().Authenticate(ctx, email, password).Return(userID, nil)
+				authServ.EXPECT().GenerateAccessToken(ctx, userID, gomock.Any()).Return(accessToken, nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "Error occurs because the user does not exist.",
-			cmd:      validCmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.mockUserRepo.EXPECT().FindByEmail(ctx, validEmail).Return(nil, errors.New("error"))
+			caseName: "Error occurs when authentication fails.",
+			cmd:      cmd,
+			prepare: func(ctx context.Context, authServ *domainMock.MockIAuthenticationService) {
+				authServ.EXPECT().Authenticate(ctx, email, password).Return("", errors.New("error"))
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "Error occurs because the authentication does not exist.",
-			cmd:      validCmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.mockUserRepo.EXPECT().FindByEmail(ctx, validEmail).Return(user, nil)
-				mocks.mockAuthRepo.EXPECT().FindByUserID(ctx, userID).Return(nil, errors.New("error"))
-			},
-			wantErr: true,
-		},
-		{
-			caseName: "Error occurs because the password is incorrect.",
-			cmd:      validCmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				auth, err := authDomain.New(userID, "invalidPassword")
-				assert.NoError(t, err)
-				mocks.mockUserRepo.EXPECT().FindByEmail(ctx, validEmail).Return(user, nil)
-				mocks.mockAuthRepo.EXPECT().FindByUserID(ctx, userID).Return(auth, nil)
-			},
-			wantErr: true,
-		},
-		{
-			caseName: "Error occurs during access token generation.",
-			cmd:      validCmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.mockUserRepo.EXPECT().FindByEmail(ctx, validEmail).Return(user, nil)
-				mocks.mockAuthRepo.EXPECT().FindByUserID(ctx, userID).Return(auth, nil)
-				mocks.mockAuthServ.EXPECT().GenerateAccessToken(ctx, userID, gomock.Any()).Return("", errors.New("error"))
+			caseName: "Error occurs when generating an access token fails.",
+			cmd:      cmd,
+			prepare: func(ctx context.Context, authServ *domainMock.MockIAuthenticationService) {
+				authServ.EXPECT().Authenticate(ctx, email, password).Return(userID, nil)
+				authServ.EXPECT().GenerateAccessToken(ctx, userID, gomock.Any()).Return("", errors.New("error"))
 			},
 			wantErr: true,
 		},
@@ -100,15 +65,10 @@ func TestSigninUsecase(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mocks := Mocks{
-				mockUserRepo: domainMock.NewMockIUserRepository(ctrl),
-				mockAuthRepo: domainMock.NewMockIAuthenticationRepository(ctrl),
-				mockAuthServ: domainMock.NewMockIAuthenticationService(ctrl),
-			}
-
-			uc := authApp.NewSigninUsecase(mocks.mockUserRepo, mocks.mockAuthRepo, mocks.mockAuthServ)
+			authServ := domainMock.NewMockIAuthenticationService(ctrl)
+			uc := authApp.NewSigninUsecase(authServ)
 			ctx := context.Background()
-			tt.prepare(ctx, mocks)
+			tt.prepare(ctx, authServ)
 
 			dto, err := uc.Run(ctx, tt.cmd)
 
@@ -117,7 +77,7 @@ func TestSigninUsecase(t *testing.T) {
 				assert.Nil(t, dto)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, validAccessToken, dto.AccessToken)
+				assert.Equal(t, accessToken, dto.AccessToken)
 			}
 		})
 	}

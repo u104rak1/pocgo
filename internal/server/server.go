@@ -57,7 +57,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	createUserUC := userApp.NewCreateUserUsecase(userRepo, authRepo, userServ, authServ)
 	createAccountUC := accountApp.NewCreateAccountUsecase(accountRepo)
 	signupUC := authApp.NewSignupUsecase(createUserUC, createAccountUC, authServ, signupUW)
-	signinUC := authApp.NewSigninUsecase(userRepo, authRepo, authServ)
+	signinUC := authApp.NewSigninUsecase(authServ)
 
 	/** Handler */
 	signupHandler := signupPre.NewSignupHandler(signupUC)

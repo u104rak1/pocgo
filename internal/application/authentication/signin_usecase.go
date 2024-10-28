@@ -4,7 +4,6 @@ import (
 	"context"
 
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/environment"
 )
 
@@ -13,19 +12,13 @@ type ISigninUsecase interface {
 }
 
 type signinUsecase struct {
-	userRepo userDomain.IUserRepository
-	authRepo authDomain.IAuthenticationRepository
 	authServ authDomain.IAuthenticationService
 }
 
 func NewSigninUsecase(
-	userRepository userDomain.IUserRepository,
-	authenticationRepository authDomain.IAuthenticationRepository,
 	authenticationService authDomain.IAuthenticationService,
 ) ISigninUsecase {
 	return &signinUsecase{
-		userRepo: userRepository,
-		authRepo: authenticationRepository,
 		authServ: authenticationService,
 	}
 }
