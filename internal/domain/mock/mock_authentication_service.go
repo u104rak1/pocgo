@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	user "github.com/ucho456job/pocgo/internal/domain/user"
 )
 
 // MockIAuthenticationService is a mock of IAuthenticationService interface.
@@ -32,6 +33,21 @@ func NewMockIAuthenticationService(ctrl *gomock.Controller) *MockIAuthentication
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockIAuthenticationService) EXPECT() *MockIAuthenticationServiceMockRecorder {
 	return m.recorder
+}
+
+// Authenticate mocks base method.
+func (m *MockIAuthenticationService) Authenticate(ctx context.Context, email, password string) (*user.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Authenticate", ctx, email, password)
+	ret0, _ := ret[0].(*user.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Authenticate indicates an expected call of Authenticate.
+func (mr *MockIAuthenticationServiceMockRecorder) Authenticate(ctx, email, password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Authenticate", reflect.TypeOf((*MockIAuthenticationService)(nil).Authenticate), ctx, email, password)
 }
 
 // GenerateAccessToken mocks base method.

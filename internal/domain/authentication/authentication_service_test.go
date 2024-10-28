@@ -18,6 +18,7 @@ func TestVerifyUniqueness(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
+	mockUserRepo := mock.NewMockIUserRepository(ctrl)
 	errRepo := errors.New("repository error")
 
 	tests := []struct {
@@ -55,7 +56,7 @@ func TestVerifyUniqueness(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			service := authentication.NewService(mockAuthRepo)
+			service := authentication.NewService(mockAuthRepo, mockUserRepo)
 			ctx := context.Background()
 			tt.setup(ctx, tt.userID)
 			err := service.VerifyUniqueness(ctx, tt.userID)
@@ -75,7 +76,8 @@ func TestGenerateAccessToken(t *testing.T) {
 		defer ctrl.Finish()
 
 		mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
-		service := authentication.NewService(mockAuthRepo)
+		mockUserRepo := mock.NewMockIUserRepository(ctrl)
+		service := authentication.NewService(mockAuthRepo, mockUserRepo)
 
 		ctx := context.Background()
 		userID := ulid.GenerateStaticULID("user")
@@ -92,7 +94,8 @@ func TestGetUserIDFromAccessToken(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
-	service := authentication.NewService(mockAuthRepo)
+	mockUserRepo := mock.NewMockIUserRepository(ctrl)
+	service := authentication.NewService(mockAuthRepo, mockUserRepo)
 
 	ctx := context.Background()
 	userID := ulid.GenerateStaticULID("user")

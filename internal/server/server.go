@@ -48,7 +48,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 
 	/** Domain Service */
 	userServ := userDomain.NewService(userRepo)
-	authServ := authDomain.NewService(authRepo)
+	authServ := authDomain.NewService(authRepo, userRepo)
 
 	/** Unit of Work */
 	signupUW := repository.NewUnitOfWorkWithResult[authApp.SignupDTO](db)
