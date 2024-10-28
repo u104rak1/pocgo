@@ -41,19 +41,19 @@ run: ## Run application
 clean: ## Delete cache
 	@go clean -cache -modcache
 
-unit_test: ## Run unit test
+unit_test: ## Run unit test (Specify CASE to run only a specific test, e.g. CASE=TestSignup)
 	@mkdir -p tmp
 	@echo "Running tests and generating log and coverage reports..."
-	@go test ./internal/... ./pkg/... -v -coverprofile=tmp/coverage.out 2>&1 | tee tmp/unit_test.log
+	@go test ./internal/... ./pkg/... -v -coverprofile=tmp/coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log
 	@go tool cover -html=tmp/coverage.out -o tmp/unit_test.cover.html
 
 unit_coverage: ## Show unit test coverage report in terminal
 	@go tool cover -func=tmp/coverage.out
 
-integration_test: ## ## Run integration tests (e.g. make integration_test FLAGS=-update to update golden files)
+integration_test: ## Run integration tests (Specify CASE to run only a specific test, e.g., CASE=TestSignup | Use UPDATE=-update to refresh golden files)
 	@mkdir -p tmp
 	@echo "Running integration tests..."
-	@go test ./test/... -v -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(FLAGS) 2>&1 | tee tmp/integration_test.log
+	@go test ./test/... -v -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log
 	@go tool cover -html=tmp/integration_coverage.out -o tmp/integration_test.cover.html
 
 integration_coverage: ## Show integration test coverage report in terminal
