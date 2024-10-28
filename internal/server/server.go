@@ -18,6 +18,7 @@ import (
 	"github.com/ucho456job/pocgo/internal/environment"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/config"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
+	healthPre "github.com/ucho456job/pocgo/internal/presentation/health"
 	signinPre "github.com/ucho456job/pocgo/internal/presentation/signin"
 	signupPre "github.com/ucho456job/pocgo/internal/presentation/signup"
 	myMiddleware "github.com/ucho456job/pocgo/internal/server/middleware"
@@ -60,8 +61,12 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	signinUC := authApp.NewSigninUsecase(authServ)
 
 	/** Handler */
+	healthHandler := healthPre.NewHealthHandler(db)
 	signupHandler := signupPre.NewSignupHandler(signupUC)
 	signinHandler := signinPre.NewSigninHandler(signinUC)
+
+	/** Health Endpoint */
+	e.GET("/", healthHandler.Run)
 
 	v1 := e.Group("/api/v1")
 
