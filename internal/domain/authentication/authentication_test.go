@@ -8,7 +8,6 @@ import (
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
 	"github.com/ucho456job/pocgo/pkg/ulid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -105,7 +104,7 @@ func TestComparePassword(t *testing.T) {
 		{
 			name:        "Error occurs when passwords do not match.",
 			newPassword: "deffirentPassword",
-			wantErr:     bcrypt.ErrMismatchedHashAndPassword,
+			wantErr:     authentication.ErrUnmatchedPassword,
 		},
 	}
 

@@ -14,12 +14,12 @@ import (
 )
 
 type SignupHandler struct {
-	signupUsecase authApp.ISignupUsecase
+	signupUC authApp.ISignupUsecase
 }
 
 func NewSignupHandler(signupUsecase authApp.ISignupUsecase) *SignupHandler {
 	return &SignupHandler{
-		signupUsecase: signupUsecase,
+		signupUC: signupUsecase,
 	}
 }
 
@@ -61,7 +61,7 @@ type SignupResponseBodyAccount struct {
 }
 
 // @Summary Signup
-// @Description Signup
+// @Description This endpoint creates a new user and account, and issues an access token.
 // @Tags Authentication
 // @Accept json
 // @Produce json
@@ -81,7 +81,7 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 		return response.ValidationFailed(ctx, validationErrors)
 	}
 
-	dto, err := h.signupUsecase.Run(ctx.Request().Context(), authApp.SignupCommand{
+	dto, err := h.signupUC.Run(ctx.Request().Context(), authApp.SignupCommand{
 		User: userApp.CreateUserCommand{
 			Name:     req.User.Name,
 			Email:    req.User.Email,

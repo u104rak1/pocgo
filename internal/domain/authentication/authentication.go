@@ -47,5 +47,8 @@ func (a *Authentication) PasswordHash() string {
 }
 
 func (a *Authentication) ComparePassword(password string) error {
-	return passwordUtil.Compare(a.passwordHash, password)
+	if err := passwordUtil.Compare(a.passwordHash, password); err != nil {
+		return ErrUnmatchedPassword
+	}
+	return nil
 }

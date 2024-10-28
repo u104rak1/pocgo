@@ -13,6 +13,8 @@ var (
 	ErrAuthenticationAlreadyExists = errors.New("authentication already exists")
 	ErrUnexpectedSigningMethod     = errors.New("unexpected signing method")
 	ErrAuthenticationFailed        = errors.New("invalid token or missing userID")
+	ErrAuthenticationNotFound      = errors.New("authentication not found")
+	ErrUnmatchedPassword           = errors.New("passwords do not match")
 )
 
 func validPassword(password string) error {

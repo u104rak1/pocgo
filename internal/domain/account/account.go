@@ -108,7 +108,10 @@ func (a *Account) ChangePassword(new string) error {
 }
 
 func (a *Account) ComparePassword(password string) error {
-	return passwordUtil.Compare(a.passwordHash, password)
+	if err := passwordUtil.Compare(a.passwordHash, password); err != nil {
+		return ErrUnmatchedPassword
+	}
+	return nil
 }
 
 func (a *Account) Withdraw(amount float64, currency string) error {

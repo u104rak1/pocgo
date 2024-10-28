@@ -15,9 +15,67 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/signin": {
+            "post": {
+                "description": "This endpoint authenticates the user using their email and password, and issues an access token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Signin",
+                "parameters": [
+                    {
+                        "description": "SigninRequestBody",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/signin.SigninRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/signin.SigninResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation Failed or Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/signup": {
             "post": {
-                "description": "Signup",
+                "description": "This endpoint creates a new user and account, and issues an access token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -72,13 +130,13 @@ const docTemplate = `{
         "response.ErrorResponse": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "ErrorCode"
-                },
                 "message": {
                     "type": "string",
                     "example": "error message"
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "error reason"
                 }
             }
         },
@@ -98,15 +156,37 @@ const docTemplate = `{
         "response.ValidationErrorResponse": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "string",
-                    "example": "ErrorCode"
-                },
                 "errors": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/response.ValidationError"
                     }
+                },
+                "reason": {
+                    "type": "string",
+                    "example": "ErrorReason"
+                }
+            }
+        },
+        "signin.SigninRequestBody": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "sato@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password"
+                }
+            }
+        },
+        "signin.SigninResponseBody": {
+            "type": "object",
+            "properties": {
+                "accessToken": {
+                    "type": "string",
+                    "example": "eyJhb..."
                 }
             }
         },

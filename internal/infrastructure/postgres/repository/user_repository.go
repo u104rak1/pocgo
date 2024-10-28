@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
@@ -40,6 +42,9 @@ func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error 
 func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.User, error) {
 	userModel := &model.User{}
 	if err := r.db.NewSelect().Model(userModel).Where("id = ?", id).Scan(ctx); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, userDomain.ErrUserNotFound
+		}
 		return nil, err
 	}
 	return userDomain.New(userModel.ID, userModel.Name, userModel.Email)
@@ -48,6 +53,9 @@ func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.U
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*userDomain.User, error) {
 	userModel := &model.User{}
 	if err := r.db.NewSelect().Model(userModel).Where("email = ?", email).Scan(ctx); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, userDomain.ErrUserNotFound
+		}
 		return nil, err
 	}
 	return userDomain.New(userModel.ID, userModel.Name, userModel.Email)

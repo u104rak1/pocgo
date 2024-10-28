@@ -1,11 +1,11 @@
 definitions:
   response.ErrorResponse:
     properties:
-      code:
-        example: ErrorCode
-        type: string
       message:
         example: error message
+        type: string
+      reason:
+        example: error reason
         type: string
     type: object
   response.ValidationError:
@@ -19,13 +19,28 @@ definitions:
     type: object
   response.ValidationErrorResponse:
     properties:
-      code:
-        example: ErrorCode
-        type: string
       errors:
         items:
           $ref: '#/definitions/response.ValidationError'
         type: array
+      reason:
+        example: ErrorReason
+        type: string
+    type: object
+  signin.SigninRequestBody:
+    properties:
+      email:
+        example: sato@example.com
+        type: string
+      password:
+        example: password
+        type: string
+    type: object
+  signin.SigninResponseBody:
+    properties:
+      accessToken:
+        example: eyJhb...
+        type: string
     type: object
   signup.SignupRequestBody:
     properties:
@@ -104,11 +119,51 @@ info:
   title: pocgo API
   version: "1.0"
 paths:
+  /api/v1/signin:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint authenticates the user using their email and password,
+        and issues an access token.
+      parameters:
+      - description: SigninRequestBody
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/signin.SigninRequestBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/signin.SigninResponseBody'
+        "400":
+          description: Validation Failed or Bad Request
+          schema:
+            $ref: '#/definitions/response.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Signin
+      tags:
+      - Authentication
   /api/v1/signup:
     post:
       consumes:
       - application/json
-      description: Signup
+      description: This endpoint creates a new user and account, and issues an access
+        token.
       parameters:
       - description: SignupRequestBody
         in: body

@@ -17,6 +17,7 @@ var (
 	ErrInvalidUserName        = errors.New("user name must be between 3 and 20 characters")
 	ErrInvalidEmail           = errors.New("the email format is invalid")
 	ErrUserEmailAlreadyExists = errors.New("user email already exists")
+	ErrUserNotFound           = errors.New("user not found")
 )
 
 func ValidID(id string) error {

@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
@@ -72,6 +74,9 @@ func (r *accountRepository) FindByID(ctx context.Context, id string) (*accountDo
 		Join("JOIN currency_master ON currency_master.id = account.currency_id").
 		Where("account.id = ?", id).
 		Scan(ctx, &currencyCode); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, accountDomain.ErrAccountNotFound
+		}
 		return nil, err
 	}
 

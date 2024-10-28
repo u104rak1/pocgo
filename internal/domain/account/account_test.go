@@ -12,7 +12,6 @@ import (
 	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
 	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/ucho456job/pocgo/pkg/ulid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var (
@@ -296,7 +295,7 @@ func TestComparePassword(t *testing.T) {
 		{
 			caseName:    "Error occurs when passwords do not match.",
 			newPassword: "invalid",
-			wantErr:     bcrypt.ErrMismatchedHashAndPassword,
+			wantErr:     account.ErrUnmatchedPassword,
 		},
 	}
 

@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
@@ -37,6 +39,9 @@ func (r *authenticationRepository) Save(ctx context.Context, authentication *aut
 func (r *authenticationRepository) FindByUserID(ctx context.Context, userID string) (*authDomain.Authentication, error) {
 	authModel := &model.Authentication{}
 	if err := r.db.NewSelect().Model(authModel).Where("user_id = ?", userID).Scan(ctx); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, authDomain.ErrAuthenticationNotFound
+		}
 		return nil, err
 	}
 	return authDomain.Reconstruct(userID, authModel.PasswordHash)

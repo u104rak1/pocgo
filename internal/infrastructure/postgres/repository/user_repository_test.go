@@ -2,6 +2,7 @@ package repository_test
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"regexp"
@@ -138,7 +139,15 @@ func TestUserRepository_FindByID(t *testing.T) {
 			wantErr:  nil,
 		},
 		{
-			caseName: "Error occurs in database when user is not found.",
+			caseName: "Returns ErrUserNotFound when no user is found.",
+			prepare: func() {
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(sql.ErrNoRows)
+			},
+			wantUser: nil,
+			wantErr:  userDomain.ErrUserNotFound,
+		},
+		{
+			caseName: "Returns database error when unknown error occurs.",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
 			},
@@ -194,7 +203,15 @@ func TestUserRepository_FindByEmail(t *testing.T) {
 			wantErr:  nil,
 		},
 		{
-			caseName: "Error occurs in database when user is not found.",
+			caseName: "Returns ErrUserNotFound when no user is found.",
+			prepare: func() {
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(sql.ErrNoRows)
+			},
+			wantUser: nil,
+			wantErr:  userDomain.ErrUserNotFound,
+		},
+		{
+			caseName: "Returns database error when unknown error occurs.",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
 			},
