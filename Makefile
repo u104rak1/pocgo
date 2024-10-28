@@ -1,6 +1,7 @@
 .PHONY: develop_start dependencies_start dependencies_stop migrate_refresh \
 				migrate_up migrate_down migrate_reset drop_tables seed run clean \
-				unit_test godoc swagger help
+				unit_test unit_coverage integration_test integration_coverage \
+				swagger mockgen help
 
 develop_start: ## Start docker container, migrate, seed
 	@docker compose -f ./docker/docker-compose.yml up -d
@@ -44,11 +45,11 @@ clean: ## Delete cache
 unit_test: ## Run unit test (Specify CASE to run only a specific test, e.g. CASE=TestSignup)
 	@mkdir -p tmp
 	@echo "Running tests and generating log and coverage reports..."
-	@go test ./internal/... ./pkg/... -v -coverprofile=tmp/coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log
-	@go tool cover -html=tmp/coverage.out -o tmp/unit_test.cover.html
+	@go test ./internal/... ./pkg/... -v -coverprofile=tmp/unit_coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log
+	@go tool cover -html=tmp/unit_coverage.out -o tmp/unit_test.cover.html
 
 unit_coverage: ## Show unit test coverage report in terminal
-	@go tool cover -func=tmp/coverage.out
+	@go tool cover -func=tmp/unit_coverage.out
 
 integration_test: ## Run integration tests (Specify CASE to run only a specific test, e.g., CASE=TestSignup | Use UPDATE=-update to refresh golden files)
 	@mkdir -p tmp
