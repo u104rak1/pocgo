@@ -2,7 +2,6 @@ package config
 
 import "errors"
 
-// CtxUserIDKey is a key for user id in context
 type ctxUserIDKey struct{}
 
 func CtxUserIDKey() interface{} {
