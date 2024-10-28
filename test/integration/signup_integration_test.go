@@ -14,13 +14,14 @@ import (
 
 func TestSignup(t *testing.T) {
 	var (
-		maxLenUserName       = "Sato Taro12345678901"
-		validUserEmail       = "sato@example.com"
-		maxLenUserPassword   = "password123456789012"
-		maxLenAccountName    = "For work123456789012"
-		validAccountPassword = "1234"
-		validCurrency        = money.JPY
+		maxLenUserName     = "Sato Taro12345678901"
+		userEmail          = "sato@example.com"
+		maxLenUserPassword = "password123456789012"
+		maxLenAccountName  = "For work123456789012"
+		accountPassword    = "1234"
+		currency           = money.JPY
 	)
+
 	tests := []struct {
 		caseName    string
 		requestBody interface{}
@@ -32,12 +33,12 @@ func TestSignup(t *testing.T) {
 			requestBody: signup.SignupRequestBody{
 				User: signup.SignupRequestBodyUser{
 					Name:     maxLenUserName,
-					Email:    validUserEmail,
+					Email:    userEmail,
 					Password: maxLenUserPassword,
 					Account: signup.SignupRequestBodyAccount{
 						Name:     maxLenAccountName,
-						Password: validAccountPassword,
-						Currency: validCurrency,
+						Password: accountPassword,
+						Currency: currency,
 					},
 				},
 			},
@@ -55,8 +56,8 @@ func TestSignup(t *testing.T) {
 					Password: maxLenUserPassword,
 					Account: signup.SignupRequestBodyAccount{
 						Name:     maxLenAccountName,
-						Password: validAccountPassword,
-						Currency: validCurrency,
+						Password: accountPassword,
+						Currency: currency,
 					},
 				},
 			},
@@ -89,8 +90,8 @@ func TestSignup(t *testing.T) {
 
 			afterDBData := GetDBData(t, db, usedTables)
 			result := GenerateResultJSON(t, beforeDBData, afterDBData, req, rec, tt.requestBody)
-			camelCaseKeys := []string{"id", "userId", "currencyId", "passwordHash", "updatedAt", "accessToken"}
-			result = ReplaceDynamicValue(result, camelCaseKeys)
+			replaceKeys := []string{"id", "userId", "currencyId", "passwordHash", "updatedAt", "accessToken"}
+			result = ReplaceDynamicValue(result, replaceKeys)
 
 			gol.Assert(t, t.Name(), result)
 		})

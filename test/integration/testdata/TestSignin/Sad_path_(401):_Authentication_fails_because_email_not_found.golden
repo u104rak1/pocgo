@@ -1,0 +1,42 @@
+{
+  "beforeDB": {
+    "authentications": [
+      {
+        "deleted_at": null,
+        "password_hash": "ANY",
+        "user_id": "MDAwMDAwMDAwMEMzM0NSVEgwWDVBQzNSNlA="
+      }
+    ],
+    "users": [
+      {
+        "deleted_at": null,
+        "email": "sato@example.com",
+        "id": "MDAwMDAwMDAwMEMzM0NSVEgwWDVBQzNSNlA=",
+        "name": "Sato Taro12345678901"
+      }
+    ]
+  },
+  "afterDB": null,
+  "request": {
+    "url": "/api/v1/signin",
+    "method": "POST",
+    "header": {
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "body": {
+      "email": "diff@example.com",
+      "password": "password123456789012"
+    },
+    "query": "",
+    "cookie": []
+  },
+  "response": {
+    "statusCode": 401,
+    "body": {
+      "message": "email or password is incorrect",
+      "reason": "unauthorized"
+    }
+  }
+}

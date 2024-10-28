@@ -160,8 +160,8 @@ func GenerateResultJSON(
 	return resultJSON
 }
 
-func ReplaceDynamicValue(jsonData []byte, camelCaseKeys []string) []byte {
-	for _, key := range camelCaseKeys {
+func ReplaceDynamicValue(jsonData []byte, replaceKeys []string) []byte {
+	for _, key := range replaceKeys {
 		camelCasePattern := regexp.MustCompile(`"` + key + `":\s*".*?"`)
 		snakeCaseKey := strutil.ToSnakeFromCamel(key)
 		snakeCasePattern := regexp.MustCompile(`"` + snakeCaseKey + `":\s*".*?"`)

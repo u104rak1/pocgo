@@ -4,9 +4,9 @@ import (
 	"crypto/md5"
 	"encoding/binary"
 	"math/rand"
+	"time"
 
 	"github.com/oklog/ulid/v2"
-	"github.com/ucho456job/pocgo/pkg/timer"
 )
 
 func New() string {
@@ -23,6 +23,6 @@ func GenerateStaticULID(seed string) string {
 	seedInt := binary.BigEndian.Uint64(hash[:8])
 	source := rand.NewSource(int64(seedInt))
 	entropy := rand.New(source)
-	t := timer.Now()
-	return ulid.MustNew(ulid.Timestamp(t), entropy).String()
+	fixedTime := ulid.Timestamp(time.Unix(0, 0))
+	return ulid.MustNew(fixedTime, entropy).String()
 }
