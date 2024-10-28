@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
-	authMock "github.com/ucho456job/pocgo/internal/application/mock"
+	appMock "github.com/ucho456job/pocgo/internal/application/mock"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
@@ -24,136 +24,137 @@ import (
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
-func TestSignupHandler_Run(t *testing.T) {
+func TestSignupHandler(t *testing.T) {
 	var (
-		validUserID           = ulid.GenerateStaticULID("user")
-		validUserName         = "sato taro"
-		validUserEmail        = "sato@example.com"
-		validUserPassword     = "password"
-		validAccountID        = ulid.GenerateStaticULID("account")
-		validAccountName      = "For work"
-		validAccountBalance   = 0.0
-		validAccountPassword  = "1234"
-		validAccountCurrency  = money.JPY
-		validAccountUpdatedAt = "2023-10-20T00:00:00Z"
-		validAccessToken      = "token"
+		userID           = ulid.GenerateStaticULID("user")
+		userName         = "sato taro"
+		userEmail        = "sato@example.com"
+		userPassword     = "password"
+		accountID        = ulid.GenerateStaticULID("account")
+		accountName      = "For work"
+		accountBalance   = 0.0
+		accountPassword  = "1234"
+		accountCurrency  = money.JPY
+		accountUpdatedAt = "2023-10-20T00:00:00Z"
+		accessToken      = "token"
+		unknownErr       = errors.New("unknown error")
 	)
 
-	var validRequestBody = signup.SignupRequestBody{
+	var requestBody = signup.SignupRequestBody{
 		User: signup.SignupRequestBodyUser{
-			Name:     validUserName,
-			Email:    validUserEmail,
-			Password: validUserPassword,
+			Name:     userName,
+			Email:    userEmail,
+			Password: userPassword,
 			Account: signup.SignupRequestBodyAccount{
-				Name:     validAccountName,
-				Password: validAccountPassword,
-				Currency: validAccountCurrency,
+				Name:     accountName,
+				Password: accountPassword,
+				Currency: accountCurrency,
 			},
 		},
 	}
 
 	tests := []struct {
-		name             string
-		requestBody      interface{}
-		prepare          func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase)
-		expectedCode     int
-		expectedReason   string
-		expectedResponse interface{}
+		caseName             string
+		requestBody          interface{}
+		prepare              func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase)
+		expectedCode         int
+		expectedReason       string
+		expectedResponseBody interface{}
 	}{
 		{
-			name:        "Successful signup.",
-			requestBody: validRequestBody,
-			prepare: func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {
+			caseName:    "Successful signup.",
+			requestBody: requestBody,
+			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(&authApp.SignupDTO{
 					User: userApp.CreateUserDTO{
-						ID:    validUserID,
-						Name:  validUserName,
-						Email: validUserEmail,
+						ID:    userID,
+						Name:  userName,
+						Email: userEmail,
 					},
 					Account: accountApp.CreateAccountDTO{
-						ID:        validAccountID,
-						Name:      validAccountName,
-						Balance:   validAccountBalance,
-						Currency:  validAccountCurrency,
-						UpdatedAt: validAccountUpdatedAt,
+						ID:        accountID,
+						Name:      accountName,
+						Balance:   accountBalance,
+						Currency:  accountCurrency,
+						UpdatedAt: accountUpdatedAt,
 					},
-					AccessToken: validAccessToken,
+					AccessToken: accessToken,
 				}, nil)
 			},
 			expectedCode: http.StatusCreated,
-			expectedResponse: signup.SignupResponseBody{
+			expectedResponseBody: signup.SignupResponseBody{
 				User: signup.SignupResponseBodyUser{
-					ID:    validUserID,
-					Name:  validUserName,
-					Email: validUserEmail,
+					ID:    userID,
+					Name:  userName,
+					Email: userEmail,
 					Account: signup.SignupResponseBodyAccount{
-						ID:        validAccountID,
-						Name:      validAccountName,
-						Balance:   validAccountBalance,
-						Currency:  validAccountCurrency,
-						UpdatedAt: validAccountUpdatedAt,
+						ID:        accountID,
+						Name:      accountName,
+						Balance:   accountBalance,
+						Currency:  accountCurrency,
+						UpdatedAt: accountUpdatedAt,
 					},
 				},
-				AccessToken: validAccessToken,
+				AccessToken: accessToken,
 			},
 		},
 		{
-			name:         "Error occurs during signup when request body is invalid json.",
+			caseName:     "Error occurs during signup when request body is invalid json.",
 			requestBody:  "invalid json",
-			prepare:      func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {},
+			prepare:      func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
 			expectedCode: http.StatusBadRequest,
-			expectedResponse: response.ErrorResponse{
+			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.BadRequestReason,
 				Message: "code=400, message=Unmarshal type error: expected=signup.SignupRequestBody, got=string, field=, offset=14, internal=json: cannot unmarshal string into Go value of type signup.SignupRequestBody",
 			},
 		},
 		{
-			name:           "Error occurs during signup when validation failed.",
+			caseName:       "Error occurs during signup when validation failed.",
 			requestBody:    signup.SignupRequestBody{},
-			prepare:        func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {},
+			prepare:        func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
 			expectedCode:   http.StatusBadRequest,
 			expectedReason: response.ValidationFailedReason,
 		},
 		{
-			name:        "Error occurs during signup when user email already exists.",
-			requestBody: validRequestBody,
-			prepare: func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {
+			caseName:    "Error occurs during signup when user email already exists.",
+			requestBody: requestBody,
+			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, userDomain.ErrUserEmailAlreadyExists)
 			},
 			expectedCode: http.StatusConflict,
-			expectedResponse: response.ErrorResponse{
+			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.ConflictReason,
 				Message: userDomain.ErrUserEmailAlreadyExists.Error(),
 			},
 		},
 		{
-			name:        "Error occurs during signup when authentication already exists.",
-			requestBody: validRequestBody,
-			prepare: func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {
+			caseName:    "Error occurs during signup when authentication already exists.",
+			requestBody: requestBody,
+			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, authDomain.ErrAuthenticationAlreadyExists)
 			},
 			expectedCode: http.StatusConflict,
-			expectedResponse: response.ErrorResponse{
+			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.ConflictReason,
 				Message: authDomain.ErrAuthenticationAlreadyExists.Error(),
 			},
 		},
 		{
-			name:        "Error occurs during signup when unknown error occurs.",
-			requestBody: validRequestBody,
-			prepare: func(ctx context.Context, mockSignupUC *authMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, errors.New("unknown error"))
+			caseName:    "Unknown error occurs during signup.",
+			requestBody: requestBody,
+			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
+				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, unknownErr)
 			},
 			expectedCode: http.StatusInternalServerError,
-			expectedResponse: response.ErrorResponse{
+			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.InternalServerErrorReason,
-				Message: "unknown error",
+				Message: unknownErr.Error(),
 			},
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
@@ -165,10 +166,10 @@ func TestSignupHandler_Run(t *testing.T) {
 			rec := httptest.NewRecorder()
 			ctx := e.NewContext(req, rec)
 
-			mockSignupUC := authMock.NewMockISignupUsecase(ctrl)
+			mockSignupUC := appMock.NewMockISignupUsecase(ctrl)
 			tt.prepare(ctx.Request().Context(), mockSignupUC)
-			h := signup.NewSignupHandler(mockSignupUC)
 
+			h := signup.NewSignupHandler(mockSignupUC)
 			err := h.Run(ctx)
 
 			assert.NoError(t, err)
@@ -177,7 +178,7 @@ func TestSignupHandler_Run(t *testing.T) {
 				var resp signup.SignupResponseBody
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedResponse, resp)
+				assert.Equal(t, tt.expectedResponseBody, resp)
 			} else if rec.Code == http.StatusBadRequest && tt.expectedReason == response.ValidationFailedReason {
 				var resp response.ValidationErrorResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
@@ -188,7 +189,7 @@ func TestSignupHandler_Run(t *testing.T) {
 				var resp response.ErrorResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedResponse, resp)
+				assert.Equal(t, tt.expectedResponseBody, resp)
 			}
 		})
 	}
