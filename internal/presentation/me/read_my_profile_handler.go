@@ -5,8 +5,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
+	"github.com/ucho456job/pocgo/internal/config"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
-	contextkey "github.com/ucho456job/pocgo/internal/server/context_key"
 )
 
 type ReadMyProfileHandler struct {
@@ -37,9 +37,9 @@ type ReadMyProfileResponseBody struct {
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /api/v1/me [get]
 func (h *ReadMyProfileHandler) Run(ctx echo.Context) error {
-	userID, ok := ctx.Request().Context().Value(contextkey.UserIDKey()).(string)
+	userID, ok := ctx.Request().Context().Value(config.CtxUserIDKey()).(string)
 	if !ok {
-		return response.Unauthorized(ctx, nil)
+		return response.Unauthorized(ctx, config.ErrUserIDMissing)
 	}
 
 	dto, err := h.userReadUC.Run(ctx.Request().Context(), userApp.ReadUserCommand{

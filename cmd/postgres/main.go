@@ -11,7 +11,7 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/config"
+	"github.com/ucho456job/pocgo/internal/config"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/seed"
 	"github.com/uptrace/bun"

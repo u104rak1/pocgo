@@ -3,8 +3,8 @@ package authentication
 import (
 	"context"
 
+	"github.com/ucho456job/pocgo/internal/config"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	"github.com/ucho456job/pocgo/internal/environment"
 )
 
 type ISigninUsecase interface {
@@ -38,7 +38,7 @@ func (u *signinUsecase) Run(ctx context.Context, cmd SigninCommand) (*SigninDTO,
 		return nil, err
 	}
 
-	env := environment.New()
+	env := config.NewEnv()
 	token, err := u.authServ.GenerateAccessToken(ctx, userID, []byte(env.JWT_SECRET_KEY))
 	if err != nil {
 		return nil, err

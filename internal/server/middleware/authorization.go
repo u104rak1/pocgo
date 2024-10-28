@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/ucho456job/pocgo/internal/config"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
-	contextkey "github.com/ucho456job/pocgo/internal/server/context_key"
 )
 
 func AuthorizationMiddleware(authService authDomain.IAuthenticationService, jwtSecretKey []byte) echo.MiddlewareFunc {
@@ -25,7 +25,7 @@ func AuthorizationMiddleware(authService authDomain.IAuthenticationService, jwtS
 				return response.Unauthorized(c, err)
 			}
 
-			ctx := context.WithValue(c.Request().Context(), contextkey.UserIDKey(), userID)
+			ctx := context.WithValue(c.Request().Context(), config.CtxUserIDKey(), userID)
 			c.SetRequest(c.Request().WithContext(ctx))
 
 			return next(c)

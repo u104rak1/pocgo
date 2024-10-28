@@ -1,4 +1,4 @@
-package environment
+package config
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/caarlos0/env/v11"
 )
 
-type Environment struct {
+type Env struct {
 	APP_PORT          string `env:"APP_PORT" envDefault:"8080"`
 	POSTGRES_HOST     string `env:"POSTGRES_HOST" envDefault:"localhost"`
 	POSTGRES_DBNAME   string `env:"POSTGRES_DBNAME" envDefault:"POCGO_LOCAL_DB"`
@@ -17,8 +17,8 @@ type Environment struct {
 	JWT_SECRET_KEY    string `env:"JWT_SECRET_KEY" envDefault:"jwt_secret_key"`
 }
 
-func New() *Environment {
-	e, err := env.ParseAs[Environment]()
+func NewEnv() *Env {
+	e, err := env.ParseAs[Env]()
 	if err != nil {
 		panic(fmt.Errorf("failed to parse env: %w", err))
 	}

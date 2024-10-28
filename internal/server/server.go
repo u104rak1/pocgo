@@ -13,10 +13,9 @@ import (
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
+	"github.com/ucho456job/pocgo/internal/config"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/environment"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/config"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
 	healthPre "github.com/ucho456job/pocgo/internal/presentation/health"
 	"github.com/ucho456job/pocgo/internal/presentation/me"
@@ -53,7 +52,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	/** Middleware */
 	e.Use(echoMiddleware.RequestID())
 	myMiddleware.SetLoggerMiddleware(e)
-	env := environment.New()
+	env := config.NewEnv()
 	authMiddleware := myMiddleware.AuthorizationMiddleware(authServ, []byte(env.JWT_SECRET_KEY))
 
 	/** Unit of Work */
@@ -90,7 +89,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 }
 
 func startServer(e *echo.Echo) {
-	env := environment.New()
+	env := config.NewEnv()
 	port := ":" + env.APP_PORT
 	go func() {
 		if err := e.Start(port); err != nil && err != http.ErrServerClosed {

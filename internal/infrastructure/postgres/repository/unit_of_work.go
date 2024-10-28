@@ -4,6 +4,7 @@ import (
 	"context"
 
 	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
+	"github.com/ucho456job/pocgo/internal/config"
 	"github.com/uptrace/bun"
 )
 
@@ -68,14 +69,12 @@ func (u *unitOfWorkWithResult[T]) RunInTx(ctx context.Context, f func(ctx contex
 	return result, err
 }
 
-type ctxKeyTransaction struct{}
-
 func setTx(ctx context.Context, tx bun.Tx) context.Context {
-	return context.WithValue(ctx, ctxKeyTransaction{}, tx)
+	return context.WithValue(ctx, config.CtxTransactionKey(), tx)
 }
 
 func getTx(ctx context.Context) bun.IDB {
-	tx, ok := ctx.Value(ctxKeyTransaction{}).(bun.IDB)
+	tx, ok := ctx.Value(config.CtxTransactionKey()).(bun.IDB)
 	if !ok {
 		return nil
 	}

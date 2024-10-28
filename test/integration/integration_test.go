@@ -15,7 +15,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/sebdah/goldie/v2"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/config"
+	"github.com/ucho456job/pocgo/internal/config"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/seed"
 	"github.com/ucho456job/pocgo/internal/server"
