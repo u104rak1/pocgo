@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "This endpoint returns the profile of the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "Read My Profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/me.ReadMyProfileResponseBody"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/signin": {
             "post": {
                 "description": "This endpoint authenticates the user using their email and password, and issues an access token.",
@@ -25,7 +71,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Authentication"
+                    "Authentication API"
                 ],
                 "summary": "Signin",
                 "parameters": [
@@ -77,7 +123,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Authentication"
+                    "Authentication API"
                 ],
                 "summary": "Signup",
                 "parameters": [
@@ -121,6 +167,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "me.ReadMyProfileResponseBody": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "sato@example.com"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Sato Taro"
+                }
+            }
+        },
         "response.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -303,7 +366,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "pocgo API",
-	Description:      "This is a sample server.",
+	Description:      "This is a sample server. Please enter your token in the format: \"Bearer <token>\" in the Authorization header.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

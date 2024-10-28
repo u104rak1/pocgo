@@ -31,7 +31,7 @@ type SigninResponseBody struct {
 
 // @Summary Signin
 // @Description This endpoint authenticates the user using their email and password, and issues an access token.
-// @Tags Authentication
+// @Tags Authentication API
 // @Accept json
 // @Produce json
 // @Param request body SigninRequestBody true "SigninRequestBody"

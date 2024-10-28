@@ -7,7 +7,7 @@ import (
 
 // @title pocgo API
 // @version 1.0
-// @description This is a sample server.
+// @description This is a sample server. Please enter your token in the format: "Bearer <token>" in the Authorization header.
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization

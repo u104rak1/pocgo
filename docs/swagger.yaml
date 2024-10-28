@@ -1,4 +1,16 @@
 definitions:
+  me.ReadMyProfileResponseBody:
+    properties:
+      email:
+        example: sato@example.com
+        type: string
+      id:
+        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        type: string
+      name:
+        example: Sato Taro
+        type: string
+    type: object
   response.ErrorResponse:
     properties:
       message:
@@ -115,10 +127,40 @@ definitions:
     type: object
 info:
   contact: {}
-  description: This is a sample server.
+  description: 'This is a sample server. Please enter your token in the format: "Bearer
+    <token>" in the Authorization header.'
   title: pocgo API
   version: "1.0"
 paths:
+  /api/v1/me:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint returns the profile of the authenticated user.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/me.ReadMyProfileResponseBody'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Read My Profile
+      tags:
+      - User API
   /api/v1/signin:
     post:
       consumes:
@@ -153,7 +195,7 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Signin
       tags:
-      - Authentication
+      - Authentication API
   /api/v1/signup:
     post:
       consumes:
@@ -188,7 +230,7 @@ paths:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Signup
       tags:
-      - Authentication
+      - Authentication API
 securityDefinitions:
   BearerAuth:
     in: header

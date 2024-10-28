@@ -62,7 +62,7 @@ type SignupResponseBodyAccount struct {
 
 // @Summary Signup
 // @Description This endpoint creates a new user and account, and issues an access token.
-// @Tags Authentication
+// @Tags Authentication API
 // @Accept json
 // @Produce json
 // @Param body body SignupRequestBody true "SignupRequestBody"

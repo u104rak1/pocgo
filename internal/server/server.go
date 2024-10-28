@@ -19,6 +19,7 @@ import (
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/config"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
 	healthPre "github.com/ucho456job/pocgo/internal/presentation/health"
+	"github.com/ucho456job/pocgo/internal/presentation/me"
 	signinPre "github.com/ucho456job/pocgo/internal/presentation/signin"
 	signupPre "github.com/ucho456job/pocgo/internal/presentation/signup"
 	myMiddleware "github.com/ucho456job/pocgo/internal/server/middleware"
@@ -39,8 +40,6 @@ func Start() {
 
 func SetupEcho(db *bun.DB) *echo.Echo {
 	e := echo.New()
-	e.Use(echoMiddleware.RequestID())
-	myMiddleware.SetLoggerMiddleware(e)
 
 	/** Repository */
 	userRepo := repository.NewUserRepository(db)
@@ -51,11 +50,18 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	userServ := userDomain.NewService(userRepo)
 	authServ := authDomain.NewService(authRepo, userRepo)
 
+	/** Middleware */
+	e.Use(echoMiddleware.RequestID())
+	myMiddleware.SetLoggerMiddleware(e)
+	env := environment.New()
+	authMiddleware := myMiddleware.AuthorizationMiddleware(authServ, []byte(env.JWT_SECRET_KEY))
+
 	/** Unit of Work */
 	signupUW := repository.NewUnitOfWorkWithResult[authApp.SignupDTO](db)
 
 	/** Usecase */
 	createUserUC := userApp.NewCreateUserUsecase(userRepo, authRepo, userServ, authServ)
+	readUserUC := userApp.NewReadUserUsecase(userRepo)
 	createAccountUC := accountApp.NewCreateAccountUsecase(accountRepo)
 	signupUC := authApp.NewSignupUsecase(createUserUC, createAccountUC, authServ, signupUW)
 	signinUC := authApp.NewSigninUsecase(authServ)
@@ -64,6 +70,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	healthHandler := healthPre.NewHealthHandler(db)
 	signupHandler := signupPre.NewSignupHandler(signupUC)
 	signinHandler := signinPre.NewSigninHandler(signinUC)
+	readMyProfHandler := me.NewReadMyProfileHandler(readUserUC)
 
 	/** Health Endpoint */
 	e.GET("/", healthHandler.Run)
@@ -73,6 +80,9 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	/** Authentication Endpoint */
 	v1.POST("/signup", signupHandler.Run)
 	v1.POST("/signin", signinHandler.Run)
+
+	/** User Endpoint */
+	v1.GET("/me", readMyProfHandler.Run, authMiddleware)
 
 	/** Swagger */
 	e.GET("/swagger/*", echoSwagger.WrapHandler)

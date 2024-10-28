@@ -1,0 +1,2 @@
+AccessTokenからuserIDを取得するmiddlewareでは例外的にdomainサービスのコードを利用している。
+ctxに含まれる可能性があるのはuserID、トランザクション、apmかな。

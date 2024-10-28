@@ -1,12 +1,58 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample server.",
+        "description": "This is a sample server. Please enter your token in the format: \"Bearer \u003ctoken\u003e\" in the Authorization header.",
         "title": "pocgo API",
         "contact": {},
         "version": "1.0"
     },
     "paths": {
+        "/api/v1/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "This endpoint returns the profile of the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User API"
+                ],
+                "summary": "Read My Profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/me.ReadMyProfileResponseBody"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/signin": {
             "post": {
                 "description": "This endpoint authenticates the user using their email and password, and issues an access token.",
@@ -17,7 +63,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Authentication"
+                    "Authentication API"
                 ],
                 "summary": "Signin",
                 "parameters": [
@@ -69,7 +115,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Authentication"
+                    "Authentication API"
                 ],
                 "summary": "Signup",
                 "parameters": [
@@ -113,6 +159,23 @@
         }
     },
     "definitions": {
+        "me.ReadMyProfileResponseBody": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "sato@example.com"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Sato Taro"
+                }
+            }
+        },
         "response.ErrorResponse": {
             "type": "object",
             "properties": {
