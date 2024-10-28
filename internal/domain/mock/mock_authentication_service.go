@@ -9,7 +9,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	user "github.com/ucho456job/pocgo/internal/domain/user"
 )
 
 // MockIAuthenticationService is a mock of IAuthenticationService interface.
@@ -36,10 +35,10 @@ func (m *MockIAuthenticationService) EXPECT() *MockIAuthenticationServiceMockRec
 }
 
 // Authenticate mocks base method.
-func (m *MockIAuthenticationService) Authenticate(ctx context.Context, email, password string) (*user.User, error) {
+func (m *MockIAuthenticationService) Authenticate(ctx context.Context, email, password string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Authenticate", ctx, email, password)
-	ret0, _ := ret[0].(*user.User)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
