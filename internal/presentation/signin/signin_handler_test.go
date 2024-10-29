@@ -102,7 +102,8 @@ func TestSigninHandler(t *testing.T) {
 			defer ctrl.Finish()
 
 			e := echo.New()
-			body, _ := json.Marshal(tt.requestBody)
+			body, err := json.Marshal(tt.requestBody)
+			assert.NoError(t, err)
 			req := httptest.NewRequest(http.MethodPost, "/api/v1/signin", bytes.NewBuffer(body))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
@@ -112,7 +113,7 @@ func TestSigninHandler(t *testing.T) {
 			tt.prepare(ctx.Request().Context(), mockSigninUC)
 
 			h := signin.NewSigninHandler(mockSigninUC)
-			err := h.Run(ctx)
+			err = h.Run(ctx)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectedCode, rec.Code)
