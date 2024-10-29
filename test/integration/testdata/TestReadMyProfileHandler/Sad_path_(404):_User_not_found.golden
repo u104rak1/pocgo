@@ -1,0 +1,26 @@
+{
+  "beforeDB": {
+    "users": null
+  },
+  "afterDB": null,
+  "request": {
+    "url": "/api/v1/me",
+    "method": "GET",
+    "header": {
+      "Authorization": ["Bearer ACCESS_TOKEN"],
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "body": null,
+    "query": "",
+    "cookie": []
+  },
+  "response": {
+    "statusCode": 404,
+    "body": {
+      "message": "user not found",
+      "reason": "not found"
+    }
+  }
+}

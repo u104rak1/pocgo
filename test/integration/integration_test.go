@@ -13,9 +13,13 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/sebdah/goldie/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/ucho456job/pocgo/internal/config"
+	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
+	"github.com/ucho456job/pocgo/internal/domain/mock"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/seed"
 	"github.com/ucho456job/pocgo/internal/server"
@@ -104,10 +108,38 @@ func GetDBData(t *testing.T, db *bun.DB, usedTables []string) map[string]interfa
 			t.Fatalf("failed to retrieve data from table %s: %v", table, err)
 		}
 
+		// Convert []uint8 to string for id fields
+		idPattern := regexp.MustCompile(`(^id$|.*_id$)`)
+		for _, record := range records {
+			for field, value := range record {
+				if idPattern.MatchString(field) {
+					if id, ok := value.([]uint8); ok {
+						record[field] = string(id)
+					}
+				}
+			}
+		}
+
 		data[table] = records
 	}
 
 	return data
+}
+
+func SetAccessToken(t *testing.T, userID string, req *http.Request) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
+	mockUserRepo := mock.NewMockIUserRepository(ctrl)
+	service := authDomain.NewService(mockAuthRepo, mockUserRepo)
+
+	ctx := context.Background()
+	env := config.NewEnv()
+	jwtSecretKey := []byte(env.JWT_SECRET_KEY)
+	token, err := service.GenerateAccessToken(ctx, userID, jwtSecretKey)
+	assert.NoError(t, err)
+	req.Header.Set("Authorization", "Bearer "+token)
 }
 
 func NewJSONRequest(t *testing.T, method, url string, requestBody interface{}) (*http.Request, *httptest.ResponseRecorder) {
@@ -169,5 +201,9 @@ func ReplaceDynamicValue(jsonData []byte, replaceKeys []string) []byte {
 		jsonData = camelCasePattern.ReplaceAll(jsonData, []byte(`"`+key+`": "ANY"`))
 		jsonData = snakeCasePattern.ReplaceAll(jsonData, []byte(`"`+snakeCaseKey+`": "ANY"`))
 	}
+
+	bearerTokenPattern := regexp.MustCompile(`"Authorization":\s*\[\s*"\s*Bearer\s+[A-Za-z0-9-_\.]+"\s*\]`)
+	jsonData = bearerTokenPattern.ReplaceAll(jsonData, []byte(`"Authorization": ["Bearer ACCESS_TOKEN"]`))
+
 	return jsonData
 }

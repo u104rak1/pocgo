@@ -1,0 +1,34 @@
+{
+  "beforeDB": {
+    "users": [
+      {
+        "deleted_at": null,
+        "email": "sato@example.com",
+        "id": "0000000000C33CRTH0X5AC3R6P",
+        "name": "Sato Taro"
+      }
+    ]
+  },
+  "afterDB": null,
+  "request": {
+    "url": "/api/v1/me",
+    "method": "GET",
+    "header": {
+      "Authorization": ["Bearer ACCESS_TOKEN"],
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "body": null,
+    "query": "",
+    "cookie": []
+  },
+  "response": {
+    "statusCode": 200,
+    "body": {
+      "email": "sato@example.com",
+      "id": "0000000000C33CRTH0X5AC3R6P",
+      "name": "Sato Taro"
+    }
+  }
+}

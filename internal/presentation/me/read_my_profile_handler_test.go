@@ -14,6 +14,7 @@ import (
 	appMock "github.com/ucho456job/pocgo/internal/application/mock"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/config"
+	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/presentation/me"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
 )
@@ -63,6 +64,21 @@ func TestReadMyProfileHandler(t *testing.T) {
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.UnauthorizedReason,
 				Message: config.ErrUserIDMissing.Error(),
+			},
+		},
+		{
+			caseName: "Error occurs during profile retrieval because user not found.",
+			setupContext: func() context.Context {
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				return ctx
+			},
+			prepare: func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {
+				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, userDomain.ErrUserNotFound)
+			},
+			expectedCode: http.StatusNotFound,
+			expectedResponseBody: response.ErrorResponse{
+				Reason:  response.NotFoundReason,
+				Message: userDomain.ErrUserNotFound.Error(),
 			},
 		},
 		{

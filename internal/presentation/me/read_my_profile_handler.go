@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/config"
+	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
 )
 
@@ -46,7 +47,12 @@ func (h *ReadMyProfileHandler) Run(ctx echo.Context) error {
 		ID: userID,
 	})
 	if err != nil {
-		return response.InternalServerError(ctx, err)
+		switch err {
+		case userDomain.ErrUserNotFound:
+			return response.NotFound(ctx, err)
+		default:
+			return response.InternalServerError(ctx, err)
+		}
 	}
 
 	return ctx.JSON(http.StatusOK, ReadMyProfileResponseBody{
