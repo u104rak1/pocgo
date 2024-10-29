@@ -7,7 +7,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	userUC "github.com/ucho456job/pocgo/internal/application/user"
+	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/domain/mock"
 )
 
@@ -20,26 +20,26 @@ func TestCreateUserUsecase(t *testing.T) {
 	}
 
 	var (
-		validName     = "Sato taro"
-		validEmail    = "sato@example.com"
-		validPassword = "password"
+		name     = "Sato taro"
+		email    = "sato@example.com"
+		password = "password"
 	)
 
-	validCmd := userUC.CreateUserCommand{
-		Name:     validName,
-		Email:    validEmail,
-		Password: validPassword,
+	cmd := userApp.CreateUserCommand{
+		Name:     name,
+		Email:    email,
+		Password: password,
 	}
 
 	tests := []struct {
 		caseName string
-		cmd      userUC.CreateUserCommand
+		cmd      userApp.CreateUserCommand
 		prepare  func(ctx context.Context, mocks Mocks)
 		wantErr  bool
 	}{
 		{
 			caseName: "User is successfully created.",
-			cmd:      validCmd,
+			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
 				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
@@ -50,7 +50,7 @@ func TestCreateUserUsecase(t *testing.T) {
 		},
 		{
 			caseName: "Error occurs during VerifyEmailUniqueness in userService.",
-			cmd:      validCmd,
+			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(errors.New("error"))
 			},
@@ -58,8 +58,8 @@ func TestCreateUserUsecase(t *testing.T) {
 		},
 		{
 			caseName: "Error occurs during userDomain creation.",
-			cmd: userUC.CreateUserCommand{
-				Email: validEmail,
+			cmd: userApp.CreateUserCommand{
+				Email: email,
 			},
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
@@ -68,7 +68,7 @@ func TestCreateUserUsecase(t *testing.T) {
 		},
 		{
 			caseName: "Error occurs during Save in userRepository.",
-			cmd:      validCmd,
+			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
 				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(errors.New("error"))
@@ -77,7 +77,7 @@ func TestCreateUserUsecase(t *testing.T) {
 		},
 		{
 			caseName: "Error occurs during VerifyUniqueness in authenticationService.",
-			cmd:      validCmd,
+			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
 				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
@@ -87,9 +87,9 @@ func TestCreateUserUsecase(t *testing.T) {
 		},
 		{
 			caseName: "Error occurs during authenticationDomain creation.",
-			cmd: userUC.CreateUserCommand{
-				Name:  validName,
-				Email: validEmail,
+			cmd: userApp.CreateUserCommand{
+				Name:  name,
+				Email: email,
 			},
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
@@ -100,7 +100,7 @@ func TestCreateUserUsecase(t *testing.T) {
 		},
 		{
 			caseName: "Error occurs during Save in authenticationRepository.",
-			cmd:      validCmd,
+			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
 				mocks.mockUserServ.EXPECT().VerifyEmailUniqueness(ctx, gomock.Any()).Return(nil)
 				mocks.mockUserRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
@@ -121,7 +121,7 @@ func TestCreateUserUsecase(t *testing.T) {
 			mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
 			mockUserServ := mock.NewMockIUserService(ctrl)
 			mockAuthServ := mock.NewMockIAuthenticationService(ctrl)
-			uc := userUC.NewCreateUserUsecase(mockUserRepo, mockAuthRepo, mockUserServ, mockAuthServ)
+			uc := userApp.NewCreateUserUsecase(mockUserRepo, mockAuthRepo, mockUserServ, mockAuthServ)
 			ctx := context.Background()
 			mocks := Mocks{
 				mockUserRepo: mockUserRepo,
