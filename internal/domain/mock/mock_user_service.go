@@ -34,6 +34,20 @@ func (m *MockIUserService) EXPECT() *MockIUserServiceMockRecorder {
 	return m.recorder
 }
 
+// EnsureUserExists mocks base method.
+func (m *MockIUserService) EnsureUserExists(ctx context.Context, id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EnsureUserExists", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EnsureUserExists indicates an expected call of EnsureUserExists.
+func (mr *MockIUserServiceMockRecorder) EnsureUserExists(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnsureUserExists", reflect.TypeOf((*MockIUserService)(nil).EnsureUserExists), ctx, id)
+}
+
 // VerifyEmailUniqueness mocks base method.
 func (m *MockIUserService) VerifyEmailUniqueness(ctx context.Context, email string) error {
 	m.ctrl.T.Helper()

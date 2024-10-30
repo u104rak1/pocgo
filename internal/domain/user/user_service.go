@@ -4,6 +4,7 @@ import "context"
 
 type IUserService interface {
 	VerifyEmailUniqueness(ctx context.Context, email string) error
+	EnsureUserExists(ctx context.Context, id string) error
 }
 
 type userService struct {
@@ -23,6 +24,17 @@ func (s *userService) VerifyEmailUniqueness(ctx context.Context, email string) e
 	}
 	if exists {
 		return ErrEmailAlreadyExists
+	}
+	return nil
+}
+
+func (s *userService) EnsureUserExists(ctx context.Context, id string) error {
+	exists, err := s.userRepo.ExistsByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return ErrNotFound
 	}
 	return nil
 }

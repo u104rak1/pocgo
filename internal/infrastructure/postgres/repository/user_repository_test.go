@@ -299,6 +299,67 @@ func TestUserRepository_ExistsByEmail(t *testing.T) {
 	}
 }
 
+func TestUserRepository_ExistsByID(t *testing.T) {
+	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewUserRepository)
+	id := ulid.GenerateStaticULID("user")
+
+	expectQuery := fmt.Sprintf(`
+		SELECT EXISTS
+			(SELECT "user"."id", "user"."name", "user"."email", "user"."deleted_at"
+			FROM "users" AS "user"
+			WHERE (id = '%s') AND "user"."deleted_at" IS NULL)
+	`, id)
+
+	tests := []struct {
+		caseName   string
+		prepare    func()
+		wantExists bool
+		wantErr    error
+	}{
+		{
+			caseName: "User exists in the database.",
+			prepare: func() {
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(1))
+			},
+			wantExists: true,
+			wantErr:    nil,
+		},
+		{
+			caseName: "User does not exist in the database.",
+			prepare: func() {
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(0))
+			},
+			wantExists: false,
+			wantErr:    nil,
+		},
+		{
+			caseName: "Error occurs in database when checking ID existence.",
+			prepare: func() {
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
+			},
+			wantExists: false,
+			wantErr:    ErrDB,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.caseName, func(t *testing.T) {
+			tt.prepare()
+			exists, err := repo.ExistsByID(ctx, id)
+
+			if tt.wantErr != nil {
+				assert.ErrorIs(t, err, tt.wantErr)
+				assert.False(t, exists)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.wantExists, exists)
+			}
+			err = mock.ExpectationsWereMet()
+			assert.NoError(t, err)
+		})
+	}
+}
+
 // TODO
 // func TestUserRepository_Delete(t *testing.T) {
 // 	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewUserRepository)

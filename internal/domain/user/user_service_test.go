@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/ucho456job/pocgo/internal/domain/mock"
 	"github.com/ucho456job/pocgo/internal/domain/user"
+	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
 func TestVerifyEmailUniqueness(t *testing.T) {
@@ -61,6 +62,60 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 			err := service.VerifyEmailUniqueness(ctx, tt.email)
 
 			assert.ErrorIs(t, tt.wantErr, err)
+		})
+	}
+}
+
+func TestEnsureUserExists(t *testing.T) {
+	var unknownErr = errors.New("unknown error")
+
+	tests := []struct {
+		caseName string
+		id       string
+		setup    func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string)
+		wantErr  error
+	}{
+		{
+			caseName: "Successfully verifies that the user exists.",
+			id:       ulid.GenerateStaticULID("existing-user-id"),
+			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string) {
+				mockUserRepo.EXPECT().ExistsByID(ctx, id).Return(true, nil)
+			},
+			wantErr: nil,
+		},
+		{
+			caseName: "Error occurs when the user does not exist.",
+			id:       ulid.GenerateStaticULID("non-existing-user-id"),
+			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string) {
+				mockUserRepo.EXPECT().ExistsByID(ctx, id).Return(false, nil)
+			},
+			wantErr: user.ErrNotFound,
+		},
+		{
+			caseName: "Unknown error occurs in ExistsByID.",
+			id:       ulid.GenerateStaticULID("unknown-error-user-id"),
+			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string) {
+				mockUserRepo.EXPECT().ExistsByID(ctx, id).Return(false, unknownErr)
+			},
+			wantErr: unknownErr,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.caseName, func(t *testing.T) {
+			t.Parallel()
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockUserRepo := mock.NewMockIUserRepository(ctrl)
+
+			service := user.NewService(mockUserRepo)
+			ctx := context.Background()
+			tt.setup(ctx, mockUserRepo, tt.id)
+
+			err := service.EnsureUserExists(ctx, tt.id)
+
+			assert.ErrorIs(t, err, tt.wantErr)
 		})
 	}
 }

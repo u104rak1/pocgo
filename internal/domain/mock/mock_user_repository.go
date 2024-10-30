@@ -64,6 +64,21 @@ func (mr *MockIUserRepositoryMockRecorder) ExistsByEmail(ctx, email interface{})
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsByEmail", reflect.TypeOf((*MockIUserRepository)(nil).ExistsByEmail), ctx, email)
 }
 
+// ExistsByID mocks base method.
+func (m *MockIUserRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistsByID", ctx, id)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExistsByID indicates an expected call of ExistsByID.
+func (mr *MockIUserRepositoryMockRecorder) ExistsByID(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsByID", reflect.TypeOf((*MockIUserRepository)(nil).ExistsByID), ctx, id)
+}
+
 // FindByEmail mocks base method.
 func (m *MockIUserRepository) FindByEmail(ctx context.Context, email string) (*user.User, error) {
 	m.ctrl.T.Helper()
