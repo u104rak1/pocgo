@@ -3,7 +3,9 @@ package account
 import (
 	"context"
 
+	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
+	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/pkg/timer"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
@@ -14,11 +16,22 @@ type ICreateAccountUsecase interface {
 
 type createAccountUsecase struct {
 	accountRepo accountDomain.IAccountRepository
+	accountServ accountDomain.IAccountService
+	userServ    userDomain.IUserService
+	unitOfWork  unitofwork.IUnitOfWork
 }
 
-func NewCreateAccountUsecase(accountRepo accountDomain.IAccountRepository) ICreateAccountUsecase {
+func NewCreateAccountUsecase(
+	accountRepository accountDomain.IAccountRepository,
+	accountService accountDomain.IAccountService,
+	userService userDomain.IUserService,
+	unitOfWork unitofwork.IUnitOfWork,
+) ICreateAccountUsecase {
 	return &createAccountUsecase{
-		accountRepo: accountRepo,
+		accountRepo: accountRepository,
+		accountServ: accountService,
+		userServ:    userService,
+		unitOfWork:  unitOfWork,
 	}
 }
 
@@ -48,7 +61,22 @@ func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand
 		return nil, err
 	}
 
-	if err = u.accountRepo.Save(ctx, account); err != nil {
+	err = u.unitOfWork.RunInTx(ctx, func(ctx context.Context) error {
+		if err := u.userServ.EnsureUserExists(ctx, cmd.UserID); err != nil {
+			return err
+		}
+
+		if err := u.accountServ.CheckLimit(ctx, cmd.UserID); err != nil {
+			return err
+		}
+
+		if err = u.accountRepo.Save(ctx, account); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
 

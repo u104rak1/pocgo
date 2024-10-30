@@ -1,4 +1,34 @@
 definitions:
+  accounts.CreateAccountRequestBody:
+    properties:
+      currency:
+        example: JPY
+        type: string
+      name:
+        example: For work
+        type: string
+      password:
+        example: "1234"
+        type: string
+    type: object
+  accounts.CreateAccountResponseBody:
+    properties:
+      balance:
+        example: 0
+        type: number
+      currency:
+        example: JPY
+        type: string
+      id:
+        example: 01J9R7YPV1FH1V0PPKVSB5C7LE
+        type: string
+      name:
+        example: For work
+        type: string
+      updatedAt:
+        example: "2021-08-01T00:00:00Z"
+        type: string
+    type: object
   me.ReadMyProfileResponseBody:
     properties:
       email:
@@ -161,6 +191,50 @@ paths:
       summary: Read My Profile
       tags:
       - User API
+  /api/v1/me/accounts:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint creates a new account.
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/accounts.CreateAccountRequestBody'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/accounts.CreateAccountResponseBody'
+        "400":
+          description: Validation Failed or Bad Request
+          schema:
+            $ref: '#/definitions/response.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create Account
+      tags:
+      - Account API
   /api/v1/signin:
     post:
       consumes:
@@ -168,7 +242,7 @@ paths:
       description: This endpoint authenticates the user using their email and password,
         and issues an access token.
       parameters:
-      - description: SigninRequestBody
+      - description: Request Body
         in: body
         name: request
         required: true
@@ -203,7 +277,7 @@ paths:
       description: This endpoint creates a new user and account, and issues an access
         token.
       parameters:
-      - description: SignupRequestBody
+      - description: Request Body
         in: body
         name: body
         required: true

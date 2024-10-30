@@ -61,6 +61,75 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/me/accounts": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "This endpoint creates a new account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account API"
+                ],
+                "summary": "Create Account",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/accounts.CreateAccountRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/accounts.CreateAccountResponseBody"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation Failed or Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/signin": {
             "post": {
                 "description": "This endpoint authenticates the user using their email and password, and issues an access token.",
@@ -76,7 +145,7 @@ const docTemplate = `{
                 "summary": "Signin",
                 "parameters": [
                     {
-                        "description": "SigninRequestBody",
+                        "description": "Request Body",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -128,7 +197,7 @@ const docTemplate = `{
                 "summary": "Signup",
                 "parameters": [
                     {
-                        "description": "SignupRequestBody",
+                        "description": "Request Body",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -167,6 +236,48 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "accounts.CreateAccountRequestBody": {
+            "type": "object",
+            "properties": {
+                "currency": {
+                    "type": "string",
+                    "example": "JPY"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "For work"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "1234"
+                }
+            }
+        },
+        "accounts.CreateAccountResponseBody": {
+            "type": "object",
+            "properties": {
+                "balance": {
+                    "type": "number",
+                    "example": 0
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "JPY"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C7LE"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "For work"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2021-08-01T00:00:00Z"
+                }
+            }
+        },
         "me.ReadMyProfileResponseBody": {
             "type": "object",
             "properties": {

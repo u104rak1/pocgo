@@ -14,11 +14,13 @@ import (
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/config"
+	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
 	healthPre "github.com/ucho456job/pocgo/internal/presentation/health"
 	"github.com/ucho456job/pocgo/internal/presentation/me"
+	"github.com/ucho456job/pocgo/internal/presentation/me/accounts"
 	signinPre "github.com/ucho456job/pocgo/internal/presentation/signin"
 	signupPre "github.com/ucho456job/pocgo/internal/presentation/signup"
 	myMiddleware "github.com/ucho456job/pocgo/internal/server/middleware"
@@ -48,6 +50,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	/** Domain Service */
 	userServ := userDomain.NewService(userRepo)
 	authServ := authDomain.NewService(authRepo, userRepo)
+	accountServ := accountDomain.NewService(accountRepo)
 
 	/** Middleware */
 	e.Use(echoMiddleware.RequestID())
@@ -56,12 +59,13 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	authMiddleware := myMiddleware.AuthorizationMiddleware(authServ, []byte(env.JWT_SECRET_KEY))
 
 	/** Unit of Work */
+	unitOfWork := repository.NewUnitOfWork(db)
 	signupUW := repository.NewUnitOfWorkWithResult[authApp.SignupDTO](db)
 
 	/** Usecase */
 	createUserUC := userApp.NewCreateUserUsecase(userRepo, authRepo, userServ, authServ)
 	readUserUC := userApp.NewReadUserUsecase(userRepo)
-	createAccountUC := accountApp.NewCreateAccountUsecase(accountRepo)
+	createAccountUC := accountApp.NewCreateAccountUsecase(accountRepo, accountServ, userServ, unitOfWork)
 	signupUC := authApp.NewSignupUsecase(createUserUC, createAccountUC, authServ, signupUW)
 	signinUC := authApp.NewSigninUsecase(authServ)
 
@@ -70,6 +74,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	signupHandler := signupPre.NewSignupHandler(signupUC)
 	signinHandler := signinPre.NewSigninHandler(signinUC)
 	readMyProfHandler := me.NewReadMyProfileHandler(readUserUC)
+	createAccountHandler := accounts.NewCreateAccountHandler(createAccountUC)
 
 	/** Health Endpoint */
 	e.GET("/", healthHandler.Run)
@@ -82,6 +87,9 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 
 	/** User Endpoint */
 	v1.GET("/me", readMyProfHandler.Run, authMiddleware)
+
+	/** Account Endpoint */
+	v1.POST("/me/accounts", createAccountHandler.Run, authMiddleware)
 
 	/** Swagger */
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
