@@ -44,8 +44,11 @@ clean: ## Delete cache
 
 unit_test: ## Run unit test (Specify CASE to run only a specific test, e.g. CASE=TestSignup)
 	@mkdir -p tmp
-	@echo "Running tests and generating log and coverage reports..."
-	@go test ./internal/... ./pkg/... -v -coverprofile=tmp/unit_coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log
+	@if [ -z "$(CASE)" ]; then \
+		go test ./internal/... ./pkg/... -v -coverprofile=tmp/unit_coverage.out 2>&1 | tee tmp/unit_test.log; \
+	else \
+		go test ./internal/... ./pkg/... -v -coverprofile=tmp/unit_coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log; \
+	fi
 	@go tool cover -html=tmp/unit_coverage.out -o tmp/unit_test.cover.html
 
 unit_coverage: ## Show unit test coverage report in terminal
@@ -53,8 +56,11 @@ unit_coverage: ## Show unit test coverage report in terminal
 
 integration_test: ## Run integration tests (Specify CASE to run only a specific test, e.g., CASE=TestSignup | Use UPDATE=-update to refresh golden files)
 	@mkdir -p tmp
-	@echo "Running integration tests..."
-	@go test ./test/... -v -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log
+	@if [ -z "$(CASE)" ]; then \
+		go test ./test/... -v -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
+	else \
+		go test ./test/... -v -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
+	fi
 	@go tool cover -html=tmp/integration_coverage.out -o tmp/integration_test.cover.html
 
 integration_coverage: ## Show integration test coverage report in terminal
