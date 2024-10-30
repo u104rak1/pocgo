@@ -12,25 +12,18 @@ import (
 )
 
 type accountRepository struct {
-	db *bun.DB
+	*Repository[model.Account]
 }
 
 func NewAccountRepository(db *bun.DB) accountDomain.IAccountRepository {
-	return &accountRepository{db: db}
+	return &accountRepository{Repository: NewRepository[model.Account](db)}
 }
 
 func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Account) error {
-	tx := getTx(ctx)
-
-	var execDB bun.IDB = r.db
-	if tx != nil {
-		execDB = tx
-	}
-
 	currencyCode := account.Balance().Currency()
 
 	var currencyID string
-	err := execDB.NewSelect().
+	err := r.execDB(ctx).NewSelect().
 		Model((*model.CurrencyMaster)(nil)).
 		Column("id").
 		Where("code = ?", currencyCode).
@@ -52,7 +45,7 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 
 	// TODO: If use a subquery, the following error will occur, so first get the current_id and then update it.
 	// pgdriver.Error: ERROR: insert or update on table "accounts" violates foreign key constraint "fk_account_currency_id" (SQLSTATE=23503)
-	_, err = execDB.NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
+	_, err = r.execDB(ctx).NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
 		Set("name = EXCLUDED.name").
 		Set("user_id = EXCLUDED.user_id").
 		Set("password_hash = EXCLUDED.password_hash").
@@ -68,7 +61,7 @@ func (r *accountRepository) FindByID(ctx context.Context, id string) (*accountDo
 	accountModel := &model.Account{}
 	var currencyCode string
 
-	if err := r.db.NewSelect().
+	if err := r.execDB(ctx).NewSelect().
 		Model(accountModel).
 		ColumnExpr("account.*, currency_master.code AS currency_code").
 		Join("JOIN currency_master ON currency_master.id = account.currency_id").
@@ -95,7 +88,7 @@ func (r *accountRepository) ListByUserID(ctx context.Context, userID string) ([]
 	var accountModels []*model.Account
 	var currencyCodes []string
 
-	if err := r.db.NewSelect().
+	if err := r.execDB(ctx).NewSelect().
 		Model(&accountModels).
 		ColumnExpr("account.*, currency_master.code AS currency_code").
 		Join("JOIN currency_master ON currency_master.id = account.currency_id").
@@ -126,18 +119,11 @@ func (r *accountRepository) ListByUserID(ctx context.Context, userID string) ([]
 }
 
 func (r *accountRepository) CountByUserID(ctx context.Context, userID string) (int, error) {
-	return r.db.NewSelect().Model((*model.Account)(nil)).Where("user_id = ?", userID).Count(ctx)
+	return r.execDB(ctx).NewSelect().Model((*model.Account)(nil)).Where("user_id = ?", userID).Count(ctx)
 }
 
 func (r *accountRepository) Delete(ctx context.Context, id string) error {
-	tx := getTx(ctx)
-
-	var execDB bun.IDB = r.db
-	if tx != nil {
-		execDB = tx
-	}
-
-	_, err := execDB.NewUpdate().
+	_, err := r.execDB(ctx).NewUpdate().
 		Model(&model.Account{ID: id, DeletedAt: timer.Now()}).
 		Column("deleted_at").
 		WherePK().

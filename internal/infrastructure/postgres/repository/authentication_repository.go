@@ -11,26 +11,19 @@ import (
 )
 
 type authenticationRepository struct {
-	db *bun.DB
+	*Repository[model.Authentication]
 }
 
 func NewAuthenticationRepository(db *bun.DB) authDomain.IAuthenticationRepository {
-	return &authenticationRepository{db: db}
+	return &authenticationRepository{Repository: NewRepository[model.Authentication](db)}
 }
 
 func (r *authenticationRepository) Save(ctx context.Context, authentication *authDomain.Authentication) error {
-	tx := getTx(ctx)
-
-	var execDB bun.IDB = r.db
-	if tx != nil {
-		execDB = tx
-	}
-
 	authModel := &model.Authentication{
 		UserID:       authentication.UserID(),
 		PasswordHash: authentication.PasswordHash(),
 	}
-	_, err := execDB.NewInsert().Model(authModel).On("CONFLICT (user_id) DO UPDATE").
+	_, err := r.execDB(ctx).NewInsert().Model(authModel).On("CONFLICT (user_id) DO UPDATE").
 		Set("password_hash = EXCLUDED.password_hash").
 		Exec(ctx)
 	return err
@@ -38,7 +31,7 @@ func (r *authenticationRepository) Save(ctx context.Context, authentication *aut
 
 func (r *authenticationRepository) FindByUserID(ctx context.Context, userID string) (*authDomain.Authentication, error) {
 	authModel := &model.Authentication{}
-	if err := r.db.NewSelect().Model(authModel).Where("user_id = ?", userID).Scan(ctx); err != nil {
+	if err := r.execDB(ctx).NewSelect().Model(authModel).Where("user_id = ?", userID).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, authDomain.ErrNotFound
 		}
@@ -48,7 +41,7 @@ func (r *authenticationRepository) FindByUserID(ctx context.Context, userID stri
 }
 
 func (r *authenticationRepository) ExistsByUserID(ctx context.Context, userID string) (bool, error) {
-	exists, err := r.db.NewSelect().Model((*model.Authentication)(nil)).Where("user_id = ?", userID).Exists(ctx)
+	exists, err := r.execDB(ctx).NewSelect().Model((*model.Authentication)(nil)).Where("user_id = ?", userID).Exists(ctx)
 	if err != nil {
 		return false, err
 	}

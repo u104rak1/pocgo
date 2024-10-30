@@ -8,9 +8,10 @@ import (
 )
 
 const (
-	NameMinLength  = 3
-	NameMaxLength  = 20
-	PasswordLength = 4
+	NameMinLength   = 3
+	NameMaxLength   = 20
+	PasswordLength  = 4
+	MaxAccountLimit = 3
 )
 
 var (
@@ -19,7 +20,7 @@ var (
 	ErrPasswordInvalidLength = fmt.Errorf("account password must be %d characters", PasswordLength)
 	ErrNotFound              = errors.New("account not found")
 	ErrUnmatchedPassword     = errors.New("passwords do not match")
-	ErrLimitReached          = errors.New("account limit reached")
+	ErrLimitReached          = fmt.Errorf("account limit reached, maximum %d accounts", MaxAccountLimit)
 )
 
 func ValidID(id string) error {

@@ -12,27 +12,20 @@ import (
 )
 
 type userRepository struct {
-	db *bun.DB
+	*Repository[model.User]
 }
 
 func NewUserRepository(db *bun.DB) userDomain.IUserRepository {
-	return &userRepository{db: db}
+	return &userRepository{Repository: NewRepository[model.User](db)}
 }
 
 func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error {
-	tx := getTx(ctx)
-
-	var execDB bun.IDB = r.db
-	if tx != nil {
-		execDB = tx
-	}
-
 	userModel := &model.User{
 		ID:    user.ID(),
 		Email: user.Email(),
 		Name:  user.Name(),
 	}
-	_, err := execDB.NewInsert().Model(userModel).On("CONFLICT (id) DO UPDATE").
+	_, err := r.execDB(ctx).NewInsert().Model(userModel).On("CONFLICT (id) DO UPDATE").
 		Set("name = EXCLUDED.name").
 		Set("email = EXCLUDED.email").
 		Exec(ctx)
@@ -41,7 +34,7 @@ func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error 
 
 func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.User, error) {
 	userModel := &model.User{}
-	if err := r.db.NewSelect().Model(userModel).Where("id = ?", id).Scan(ctx); err != nil {
+	if err := r.execDB(ctx).NewSelect().Model(userModel).Where("id = ?", id).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, userDomain.ErrNotFound
 		}
@@ -52,7 +45,7 @@ func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.U
 
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*userDomain.User, error) {
 	userModel := &model.User{}
-	if err := r.db.NewSelect().Model(userModel).Where("email = ?", email).Scan(ctx); err != nil {
+	if err := r.execDB(ctx).NewSelect().Model(userModel).Where("email = ?", email).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, userDomain.ErrNotFound
 		}
@@ -62,7 +55,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*userDo
 }
 
 func (r *userRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
-	exists, err := r.db.NewSelect().Model((*model.User)(nil)).Where("id = ?", id).Exists(ctx)
+	exists, err := r.execDB(ctx).NewSelect().Model((*model.User)(nil)).Where("id = ?", id).Exists(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -70,7 +63,7 @@ func (r *userRepository) ExistsByID(ctx context.Context, id string) (bool, error
 }
 
 func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
-	exists, err := r.db.NewSelect().Model((*model.User)(nil)).Where("email = ?", email).Exists(ctx)
+	exists, err := r.execDB(ctx).NewSelect().Model((*model.User)(nil)).Where("email = ?", email).Exists(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -78,14 +71,7 @@ func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool,
 }
 
 func (r *userRepository) Delete(ctx context.Context, id string) error {
-	tx := getTx(ctx)
-
-	var execDB bun.IDB = r.db
-	if tx != nil {
-		execDB = tx
-	}
-
-	_, err := execDB.NewUpdate().
+	_, err := r.execDB(ctx).NewUpdate().
 		Model(&model.User{ID: id, DeletedAt: timer.Now()}).
 		Column("deleted_at").
 		WherePK().
