@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	ErrInvalidTransactionID     = errors.New("transaction id must be a valid ULID")
-	ErrUnsupportTransactionType = errors.New("unsupported transaction type")
+	ErrInvalidID       = errors.New("transaction id must be a valid ULID")
+	ErrUnsupportedType = errors.New("unsupported transaction type")
 )
 
 const (
@@ -19,7 +19,7 @@ const (
 
 func ValidID(id string) error {
 	if !ulid.IsValid(id) {
-		return ErrInvalidTransactionID
+		return ErrInvalidID
 	}
 	return nil
 }
@@ -35,5 +35,5 @@ func validTransactionType(transactionType string) error {
 			return nil
 		}
 	}
-	return ErrUnsupportTransactionType
+	return ErrUnsupportedType
 }

@@ -35,14 +35,14 @@ func TestNew(t *testing.T) {
 			id:       "invalid",
 			name:     name,
 			email:    email,
-			wantErr:  user.ErrInvalidUserID,
+			wantErr:  user.ErrInvalidID,
 		},
 		{
 			caseName: "Error occurs with 2-character name.",
 			id:       id,
 			name:     strings.Repeat("a", user.NameMinLength-1),
 			email:    email,
-			wantErr:  user.ErrInvalidUserName,
+			wantErr:  user.ErrInvalidName,
 		},
 		{
 			caseName: "Successfully creates a user with 3-character name.",
@@ -63,7 +63,7 @@ func TestNew(t *testing.T) {
 			id:       id,
 			name:     strings.Repeat("a", user.NameMaxLength+1),
 			email:    email,
-			wantErr:  user.ErrInvalidUserName,
+			wantErr:  user.ErrInvalidName,
 		},
 		{
 			caseName: "Error occurs with invalid email.",
@@ -112,7 +112,7 @@ func TestChangeName(t *testing.T) {
 		{
 			caseName: "Error occurs with an invalid name.",
 			newName:  strings.Repeat("a", user.NameMaxLength+1),
-			wantErr:  user.ErrInvalidUserName,
+			wantErr:  user.ErrInvalidName,
 		},
 	}
 

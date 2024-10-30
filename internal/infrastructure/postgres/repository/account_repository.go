@@ -75,7 +75,7 @@ func (r *accountRepository) FindByID(ctx context.Context, id string) (*accountDo
 		Where("account.id = ?", id).
 		Scan(ctx, &currencyCode); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, accountDomain.ErrAccountNotFound
+			return nil, accountDomain.ErrNotFound
 		}
 		return nil, err
 	}

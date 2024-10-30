@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"fmt"
 
 	emailUtil "github.com/ucho456job/pocgo/pkg/email"
 	"github.com/ucho456job/pocgo/pkg/ulid"
@@ -13,23 +14,23 @@ const (
 )
 
 var (
-	ErrInvalidUserID          = errors.New("user id must be a valid ULID")
-	ErrInvalidUserName        = errors.New("user name must be between 3 and 20 characters")
-	ErrInvalidEmail           = errors.New("the email format is invalid")
-	ErrUserEmailAlreadyExists = errors.New("user email already exists")
-	ErrUserNotFound           = errors.New("user not found")
+	ErrInvalidID          = errors.New("user id must be a valid ULID")
+	ErrInvalidName        = fmt.Errorf("user name must be between %d and %d characters", NameMinLength, NameMaxLength)
+	ErrInvalidEmail       = errors.New("the email format is invalid")
+	ErrEmailAlreadyExists = errors.New("user email already exists")
+	ErrNotFound           = errors.New("user not found")
 )
 
 func ValidID(id string) error {
 	if !ulid.IsValid(id) {
-		return ErrInvalidUserID
+		return ErrInvalidID
 	}
 	return nil
 }
 
 func validName(name string) error {
 	if len(name) < NameMinLength || len(name) > NameMaxLength {
-		return ErrInvalidUserName
+		return ErrInvalidName
 	}
 	return nil
 }

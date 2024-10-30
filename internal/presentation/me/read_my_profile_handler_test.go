@@ -73,12 +73,12 @@ func TestReadMyProfileHandler(t *testing.T) {
 				return ctx
 			},
 			prepare: func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {
-				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, userDomain.ErrUserNotFound)
+				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, userDomain.ErrNotFound)
 			},
 			expectedCode: http.StatusNotFound,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.NotFoundReason,
-				Message: userDomain.ErrUserNotFound.Error(),
+				Message: userDomain.ErrNotFound.Error(),
 			},
 		},
 		{

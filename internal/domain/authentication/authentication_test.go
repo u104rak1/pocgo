@@ -32,7 +32,7 @@ func TestNew(t *testing.T) {
 			name:     "Error occurs with invalid userID.",
 			userID:   "invalid",
 			password: password,
-			wantErr:  userDomain.ErrInvalidUserID,
+			wantErr:  userDomain.ErrInvalidID,
 		},
 		{
 			name:     "Error occurs with 7-character password.",

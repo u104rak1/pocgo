@@ -34,7 +34,7 @@ func (s *authenticationService) VerifyUniqueness(ctx context.Context, userID str
 		return err
 	}
 	if exists {
-		return ErrAuthenticationAlreadyExists
+		return ErrAlreadyExists
 	}
 	return nil
 }
@@ -73,7 +73,7 @@ func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, ac
 func (s *authenticationService) Authenticate(ctx context.Context, email, password string) (userID string, err error) {
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		if err == userDomain.ErrUserNotFound {
+		if err == userDomain.ErrNotFound {
 			return "", ErrAuthenticationFailed
 		}
 		return "", err
@@ -81,7 +81,7 @@ func (s *authenticationService) Authenticate(ctx context.Context, email, passwor
 
 	auth, err := s.authRepo.FindByUserID(ctx, user.ID())
 	if err != nil {
-		if err == ErrAuthenticationNotFound {
+		if err == ErrNotFound {
 			return "", ErrAuthenticationFailed
 		}
 		return "", err

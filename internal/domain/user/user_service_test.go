@@ -34,7 +34,7 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string) {
 				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(true, nil)
 			},
-			wantErr: user.ErrUserEmailAlreadyExists,
+			wantErr: user.ErrEmailAlreadyExists,
 		},
 		{
 			caseName: "Un known error occurs in ExsitsByEmail.",

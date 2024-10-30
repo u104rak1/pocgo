@@ -119,24 +119,24 @@ func TestSignupHandler(t *testing.T) {
 			caseName:    "Error occurs during signup when user email already exists.",
 			requestBody: requestBody,
 			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, userDomain.ErrUserEmailAlreadyExists)
+				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, userDomain.ErrEmailAlreadyExists)
 			},
 			expectedCode: http.StatusConflict,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.ConflictReason,
-				Message: userDomain.ErrUserEmailAlreadyExists.Error(),
+				Message: userDomain.ErrEmailAlreadyExists.Error(),
 			},
 		},
 		{
 			caseName:    "Error occurs during signup when authentication already exists.",
 			requestBody: requestBody,
 			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, authDomain.ErrAuthenticationAlreadyExists)
+				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, authDomain.ErrAlreadyExists)
 			},
 			expectedCode: http.StatusConflict,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.ConflictReason,
-				Message: authDomain.ErrAuthenticationAlreadyExists.Error(),
+				Message: authDomain.ErrAlreadyExists.Error(),
 			},
 		},
 		{

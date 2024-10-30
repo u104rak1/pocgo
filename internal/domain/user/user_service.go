@@ -22,7 +22,7 @@ func (s *userService) VerifyEmailUniqueness(ctx context.Context, email string) e
 		return err
 	}
 	if exists {
-		return ErrUserEmailAlreadyExists
+		return ErrEmailAlreadyExists
 	}
 	return nil
 }

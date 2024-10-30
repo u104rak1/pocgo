@@ -144,7 +144,7 @@ func TestUserRepository_FindByID(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(sql.ErrNoRows)
 			},
 			wantUser: nil,
-			wantErr:  userDomain.ErrUserNotFound,
+			wantErr:  userDomain.ErrNotFound,
 		},
 		{
 			caseName: "Returns database error when unknown error occurs.",
@@ -208,7 +208,7 @@ func TestUserRepository_FindByEmail(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(sql.ErrNoRows)
 			},
 			wantUser: nil,
-			wantErr:  userDomain.ErrUserNotFound,
+			wantErr:  userDomain.ErrNotFound,
 		},
 		{
 			caseName: "Returns database error when unknown error occurs.",

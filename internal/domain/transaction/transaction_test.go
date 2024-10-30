@@ -53,7 +53,7 @@ func TestNewTransaction(t *testing.T) {
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           transaction.ErrInvalidTransactionID,
+			wantErr:           transaction.ErrInvalidID,
 		},
 		{
 			caseName:          "Error occurs with invalid AccountID.",
@@ -119,7 +119,7 @@ func TestNewTransaction(t *testing.T) {
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           transaction.ErrUnsupportTransactionType,
+			wantErr:           transaction.ErrUnsupportedType,
 		},
 		{
 			caseName:          "Error occurs with invalid amount.",

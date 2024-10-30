@@ -43,7 +43,7 @@ func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.U
 	userModel := &model.User{}
 	if err := r.db.NewSelect().Model(userModel).Where("id = ?", id).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, userDomain.ErrUserNotFound
+			return nil, userDomain.ErrNotFound
 		}
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*userDo
 	userModel := &model.User{}
 	if err := r.db.NewSelect().Model(userModel).Where("email = ?", email).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, userDomain.ErrUserNotFound
+			return nil, userDomain.ErrNotFound
 		}
 		return nil, err
 	}

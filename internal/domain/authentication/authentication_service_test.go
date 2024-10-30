@@ -39,7 +39,7 @@ func TestVerifyUniqueness(t *testing.T) {
 			setup: func(ctx context.Context, mockAuthRepo *mock.MockIAuthenticationRepository, userID string) {
 				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(true, nil)
 			},
-			wantErr: authentication.ErrAuthenticationAlreadyExists,
+			wantErr: authentication.ErrAlreadyExists,
 		},
 		{
 			caseName: "Unknown Error occurs in ExistsByUserID.",
@@ -188,7 +188,7 @@ func TestAuthenticate(t *testing.T) {
 			email:    "not-found@example.com",
 			password: password,
 			setup: func(ctx context.Context, mocks Mocks) {
-				mocks.userRepo.EXPECT().FindByEmail(ctx, "not-found@example.com").Return(nil, userDomain.ErrUserNotFound)
+				mocks.userRepo.EXPECT().FindByEmail(ctx, "not-found@example.com").Return(nil, userDomain.ErrNotFound)
 			},
 			wantUserID: "",
 			wantErr:    authentication.ErrAuthenticationFailed,
@@ -209,7 +209,7 @@ func TestAuthenticate(t *testing.T) {
 			password: password,
 			setup: func(ctx context.Context, mocks Mocks) {
 				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(user, nil)
-				mocks.authRepo.EXPECT().FindByUserID(ctx, userID).Return(nil, authentication.ErrAuthenticationNotFound)
+				mocks.authRepo.EXPECT().FindByUserID(ctx, userID).Return(nil, authentication.ErrNotFound)
 			},
 			wantUserID: "",
 			wantErr:    authentication.ErrAuthenticationFailed,

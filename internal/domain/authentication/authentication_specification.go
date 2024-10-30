@@ -1,6 +1,9 @@
 package authentication
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 const (
 	PasswordMinLength = 8
@@ -9,12 +12,12 @@ const (
 
 var (
 	ErrInvalidID                           = errors.New("authentication id must be a valid ULID")
-	ErrPasswordInvalidLength               = errors.New("password must be between 8 and 20 characters")
-	ErrAuthenticationAlreadyExists         = errors.New("authentication already exists")
+	ErrPasswordInvalidLength               = fmt.Errorf("password must be between %d and %d characters", PasswordMinLength, PasswordMaxLength)
+	ErrAlreadyExists                       = errors.New("authentication already exists")
 	ErrUnexpectedSigningMethod             = errors.New("unexpected signing method")
 	ErrInvalidAccessToken                  = errors.New("invalid access token")
 	ErrAuthenticationFailed                = errors.New("email or password is incorrect")
-	ErrAuthenticationNotFound              = errors.New("authentication not found")
+	ErrNotFound                            = errors.New("authentication not found")
 	ErrUnmatchedPassword                   = errors.New("passwords do not match")
 	ErrAuthorizationHeaderMissingOrInvalid = errors.New("authorization header missing or invalid")
 )

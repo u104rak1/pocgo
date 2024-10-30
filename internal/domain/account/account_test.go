@@ -67,7 +67,7 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   userDomain.ErrInvalidUserID,
+			wantErr:   userDomain.ErrInvalidID,
 		},
 		{
 			caseName:  "Error occurs with 2-character name.",
@@ -78,7 +78,7 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   account.ErrInvalidAccountName,
+			wantErr:   account.ErrInvalidName,
 		},
 		{
 			caseName:  "Successfully creates account with 3-character name.",
@@ -111,7 +111,7 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   account.ErrInvalidAccountName,
+			wantErr:   account.ErrInvalidName,
 		},
 		{
 			caseName:  "Error occurs with 3-character password.",
@@ -122,7 +122,7 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   account.ErrInvalidAccountName,
+			wantErr:   account.ErrInvalidName,
 		},
 		{
 			caseName:  "an error occurs when the password is 3 characters.",
@@ -243,7 +243,7 @@ func TestChangeName(t *testing.T) {
 		{
 			caseName: "Error occurs with an invalid name.",
 			newName:  "",
-			wantErr:  account.ErrInvalidAccountName,
+			wantErr:  account.ErrInvalidName,
 		},
 	}
 

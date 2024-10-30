@@ -2,6 +2,7 @@ package account
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
@@ -14,10 +15,11 @@ const (
 
 var (
 	ErrInvalidID             = errors.New("account id must be a valid ULID")
-	ErrInvalidAccountName    = errors.New("account name must be between 1 and 10 characters")
-	ErrPasswordInvalidLength = errors.New("account password must be 4 characters")
-	ErrAccountNotFound       = errors.New("account not found")
+	ErrInvalidName           = fmt.Errorf("account name must be between %d and %d characters", NameMinLength, NameMaxLength)
+	ErrPasswordInvalidLength = fmt.Errorf("account password must be %d characters", PasswordLength)
+	ErrNotFound              = errors.New("account not found")
 	ErrUnmatchedPassword     = errors.New("passwords do not match")
+	ErrLimitReached          = errors.New("account limit reached")
 )
 
 func ValidID(id string) error {
@@ -29,7 +31,7 @@ func ValidID(id string) error {
 
 func validName(name string) error {
 	if len(name) < NameMinLength || len(name) > NameMaxLength {
-		return ErrInvalidAccountName
+		return ErrInvalidName
 	}
 	return nil
 }

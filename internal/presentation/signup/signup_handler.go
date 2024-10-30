@@ -65,7 +65,7 @@ type SignupResponseBodyAccount struct {
 // @Tags Authentication API
 // @Accept json
 // @Produce json
-// @Param body body SignupRequestBody true "SignupRequestBody"
+// @Param body body SignupRequestBody true "Request Body"
 // @Success 201 {object} SignupResponseBody
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 409 {object} response.ErrorResponse "Conflict"
@@ -95,8 +95,8 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 	})
 	if err != nil {
 		switch err {
-		case userDomain.ErrUserEmailAlreadyExists,
-			authDomain.ErrAuthenticationAlreadyExists:
+		case userDomain.ErrEmailAlreadyExists,
+			authDomain.ErrAlreadyExists:
 			return response.Conflict(ctx, err)
 		default:
 			return response.InternalServerError(ctx, err)

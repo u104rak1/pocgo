@@ -40,7 +40,7 @@ func (r *authenticationRepository) FindByUserID(ctx context.Context, userID stri
 	authModel := &model.Authentication{}
 	if err := r.db.NewSelect().Model(authModel).Where("user_id = ?", userID).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, authDomain.ErrAuthenticationNotFound
+			return nil, authDomain.ErrNotFound
 		}
 		return nil, err
 	}

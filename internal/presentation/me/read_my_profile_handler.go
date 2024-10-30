@@ -11,12 +11,12 @@ import (
 )
 
 type ReadMyProfileHandler struct {
-	userReadUC userApp.IReadUserUsecase
+	readUserUC userApp.IReadUserUsecase
 }
 
 func NewReadMyProfileHandler(userReadUsecase userApp.IReadUserUsecase) *ReadMyProfileHandler {
 	return &ReadMyProfileHandler{
-		userReadUC: userReadUsecase,
+		readUserUC: userReadUsecase,
 	}
 }
 
@@ -43,12 +43,12 @@ func (h *ReadMyProfileHandler) Run(ctx echo.Context) error {
 		return response.Unauthorized(ctx, config.ErrUserIDMissing)
 	}
 
-	dto, err := h.userReadUC.Run(ctx.Request().Context(), userApp.ReadUserCommand{
+	dto, err := h.readUserUC.Run(ctx.Request().Context(), userApp.ReadUserCommand{
 		ID: userID,
 	})
 	if err != nil {
 		switch err {
-		case userDomain.ErrUserNotFound:
+		case userDomain.ErrNotFound:
 			return response.NotFound(ctx, err)
 		default:
 			return response.InternalServerError(ctx, err)

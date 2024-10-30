@@ -34,7 +34,7 @@ type SigninResponseBody struct {
 // @Tags Authentication API
 // @Accept json
 // @Produce json
-// @Param request body SigninRequestBody true "SigninRequestBody"
+// @Param request body SigninRequestBody true "Request Body"
 // @Success 201 {object} SigninResponseBody
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
