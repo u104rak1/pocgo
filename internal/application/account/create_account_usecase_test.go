@@ -2,20 +2,26 @@ package account_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	accountUC "github.com/ucho456job/pocgo/internal/application/account"
+	appMock "github.com/ucho456job/pocgo/internal/application/mock"
 	"github.com/ucho456job/pocgo/internal/domain/mock"
 	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
 func TestCreateAccountUsecase(t *testing.T) {
+	type Mocks struct {
+		accountRepo *mock.MockIAccountRepository
+		accountServ *mock.MockIAccountService
+		userServ    *mock.MockIUserService
+	}
+
 	userID := ulid.GenerateStaticULID("user")
-	validCmd := accountUC.CreateAccountCommand{
+	cmd := accountUC.CreateAccountCommand{
 		UserID:   userID,
 		Name:     "For work",
 		Password: "1234",
@@ -25,28 +31,49 @@ func TestCreateAccountUsecase(t *testing.T) {
 	tests := []struct {
 		caseName string
 		cmd      accountUC.CreateAccountCommand
-		prepare  func(ctx context.Context, mockRepo *mock.MockIAccountRepository)
+		prepare  func(ctx context.Context, mocks Mocks)
 		wantErr  bool
 	}{
 		{
 			caseName: "Account is successfully created.",
-			cmd:      validCmd,
-			prepare: func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {
-				mockRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+			cmd:      cmd,
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.userServ.EXPECT().EnsureUserExists(ctx, userID).Return(nil)
+				mocks.accountServ.EXPECT().CheckLimit(ctx, userID).Return(nil)
+				mocks.accountRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "Error occurs during accountDomain creation.",
+			caseName: "An error occurs during account creation.",
 			cmd:      accountUC.CreateAccountCommand{},
-			prepare:  func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {},
+			prepare:  func(ctx context.Context, mocks Mocks) {},
 			wantErr:  true,
 		},
 		{
-			caseName: "Error occurs during Save in accountRepository.",
-			cmd:      validCmd,
-			prepare: func(ctx context.Context, mockRepo *mock.MockIAccountRepository) {
-				mockRepo.EXPECT().Save(ctx, gomock.Any()).Return(errors.New("error"))
+			caseName: "An error occurs when the user not found.",
+			cmd:      cmd,
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.userServ.EXPECT().EnsureUserExists(ctx, userID).Return(assert.AnError)
+			},
+			wantErr: true,
+		},
+		{
+			caseName: "An error occurs if the user has reached the limit of accounts.",
+			cmd:      cmd,
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.userServ.EXPECT().EnsureUserExists(ctx, userID).Return(nil)
+				mocks.accountServ.EXPECT().CheckLimit(ctx, userID).Return(assert.AnError)
+			},
+			wantErr: true,
+		},
+		{
+			caseName: "An error occurs during Save in accountRepository.",
+			cmd:      cmd,
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.userServ.EXPECT().EnsureUserExists(ctx, userID).Return(nil)
+				mocks.accountServ.EXPECT().CheckLimit(ctx, userID).Return(nil)
+				mocks.accountRepo.EXPECT().Save(ctx, gomock.Any()).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
@@ -58,10 +85,18 @@ func TestCreateAccountUsecase(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockRepo := mock.NewMockIAccountRepository(ctrl)
-			uc := accountUC.NewCreateAccountUsecase(mockRepo)
+			mocks := Mocks{
+				accountRepo: mock.NewMockIAccountRepository(ctrl),
+				accountServ: mock.NewMockIAccountService(ctrl),
+				userServ:    mock.NewMockIUserService(ctrl),
+			}
+			mockUnitOfWork := &appMock.MockIUnitOfWork{}
+
+			uc := accountUC.NewCreateAccountUsecase(
+				mocks.accountRepo, mocks.accountServ, mocks.userServ, mockUnitOfWork,
+			)
 			ctx := context.Background()
-			tt.prepare(ctx, mockRepo)
+			tt.prepare(ctx, mocks)
 
 			dto, err := uc.Run(ctx, tt.cmd)
 
