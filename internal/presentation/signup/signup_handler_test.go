@@ -25,17 +25,18 @@ import (
 
 func TestSignupHandler(t *testing.T) {
 	var (
-		userID           = ulid.GenerateStaticULID("user")
-		userName         = "sato taro"
-		userEmail        = "sato@example.com"
-		userPassword     = "password"
-		accountID        = ulid.GenerateStaticULID("account")
-		accountName      = "For work"
-		accountBalance   = 0.0
-		accountPassword  = "1234"
-		accountCurrency  = money.JPY
-		accountUpdatedAt = "2023-10-20T00:00:00Z"
-		accessToken      = "token"
+		userID             = ulid.GenerateStaticULID("user")
+		userName           = "sato taro"
+		userEmail          = "sato@example.com"
+		userPassword       = "password"
+		accountID          = ulid.GenerateStaticULID("account")
+		accountName        = "For work"
+		accountBalance     = 0.0
+		accountPassword    = "1234"
+		accountCurrency    = money.JPY
+		accountUpdatedAt   = "2023-10-20T00:00:00Z"
+		accessToken        = "token"
+		invalidRequestBody = "invalid json"
 	)
 
 	var requestBody = signup.SignupRequestBody{
@@ -56,7 +57,6 @@ func TestSignupHandler(t *testing.T) {
 		requestBody          interface{}
 		prepare              func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase)
 		expectedCode         int
-		expectedReason       string
 		expectedResponseBody interface{}
 	}{
 		{
@@ -98,20 +98,19 @@ func TestSignupHandler(t *testing.T) {
 		},
 		{
 			caseName:     "Error occurs during signup when request body is invalid json.",
-			requestBody:  "invalid json",
+			requestBody:  invalidRequestBody,
 			prepare:      func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.BadRequestReason,
-				Message: "code=400, message=Unmarshal type error: expected=signup.SignupRequestBody, got=string, field=, offset=14, internal=json: cannot unmarshal string into Go value of type signup.SignupRequestBody",
+				Message: response.ErrInvalidJSON.Error(),
 			},
 		},
 		{
-			caseName:       "Error occurs during signup when validation failed.",
-			requestBody:    signup.SignupRequestBody{},
-			prepare:        func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
-			expectedCode:   http.StatusBadRequest,
-			expectedReason: response.ValidationFailedReason,
+			caseName:     "Error occurs during signup when validation failed.",
+			requestBody:  signup.SignupRequestBody{},
+			prepare:      func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
+			expectedCode: http.StatusBadRequest,
 		},
 		{
 			caseName:    "Error occurs during signup when user email already exists.",
@@ -177,7 +176,7 @@ func TestSignupHandler(t *testing.T) {
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
-			} else if rec.Code == http.StatusBadRequest && tt.expectedReason == response.ValidationFailedReason {
+			} else if rec.Code == http.StatusBadRequest && tt.requestBody != invalidRequestBody {
 				var resp response.ValidationErrorResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)

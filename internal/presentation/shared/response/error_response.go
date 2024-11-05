@@ -1,10 +1,13 @@
 package response
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
+
+var ErrInvalidJSON = errors.New("request body is invalid json")
 
 type ValidationErrorResponse struct {
 	Reason string            `json:"reason" example:"ErrorReason"`

@@ -74,7 +74,7 @@ type SignupResponseBodyAccount struct {
 func (h *SignupHandler) Run(ctx echo.Context) error {
 	req := new(SignupRequestBody)
 	if err := ctx.Bind(req); err != nil {
-		return response.BadRequest(ctx, err)
+		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}
 
 	if validationErrors := h.validation(req); len(validationErrors) > 0 {

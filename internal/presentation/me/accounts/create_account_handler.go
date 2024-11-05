@@ -53,7 +53,7 @@ type CreateAccountResponseBody struct {
 func (h *CreateAccountHandler) Run(ctx echo.Context) error {
 	req := new(CreateAccountRequestBody)
 	if err := ctx.Bind(&req); err != nil {
-		return response.BadRequest(ctx, err)
+		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}
 
 	if validationErrors := h.validation(req); len(validationErrors) > 0 {

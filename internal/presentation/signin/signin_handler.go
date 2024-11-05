@@ -43,7 +43,7 @@ type SigninResponseBody struct {
 func (h *SigninHandler) Run(ctx echo.Context) error {
 	req := new(SigninRequestBody)
 	if err := ctx.Bind(&req); err != nil {
-		return response.BadRequest(ctx, err)
+		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}
 
 	if validationErrors := h.validation(req); len(validationErrors) > 0 {

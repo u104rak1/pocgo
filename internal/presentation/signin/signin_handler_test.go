@@ -19,7 +19,10 @@ import (
 )
 
 func TestSigninHandler(t *testing.T) {
-	var accessToken = "token"
+	var (
+		accessToken        = "token"
+		invalidRequestBody = "invalid json"
+	)
 
 	var requestBody = signin.SigninRequestBody{
 		Email:    "sato@example.com",
@@ -31,7 +34,6 @@ func TestSigninHandler(t *testing.T) {
 		requestBody          interface{}
 		prepare              func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase)
 		expectedCode         int
-		expectedReason       string
 		expectedResponseBody interface{}
 	}{
 		{
@@ -49,20 +51,19 @@ func TestSigninHandler(t *testing.T) {
 		},
 		{
 			caseName:     "Error occurs during signin when request body is invalid json.",
-			requestBody:  "invalid json",
+			requestBody:  invalidRequestBody,
 			prepare:      func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.BadRequestReason,
-				Message: "code=400, message=Unmarshal type error: expected=signin.SigninRequestBody, got=string, field=, offset=14, internal=json: cannot unmarshal string into Go value of type signin.SigninRequestBody",
+				Message: response.ErrInvalidJSON.Error(),
 			},
 		},
 		{
-			caseName:       "Error occurs during signin when validation failed.",
-			requestBody:    signin.SigninRequestBody{},
-			prepare:        func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {},
-			expectedCode:   http.StatusBadRequest,
-			expectedReason: response.ValidationFailedReason,
+			caseName:     "Error occurs during signin when validation failed.",
+			requestBody:  signin.SigninRequestBody{},
+			prepare:      func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {},
+			expectedCode: http.StatusBadRequest,
 		},
 		{
 			caseName:    "Error occurs during signin when authentication failed.",
@@ -82,8 +83,7 @@ func TestSigninHandler(t *testing.T) {
 			prepare: func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {
 				mockSigninUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, assert.AnError)
 			},
-			expectedCode:   http.StatusInternalServerError,
-			expectedReason: response.UnauthorizedReason,
+			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.InternalServerErrorReason,
 				Message: assert.AnError.Error(),
@@ -118,7 +118,7 @@ func TestSigninHandler(t *testing.T) {
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
-			} else if rec.Code == http.StatusBadRequest && tt.expectedReason == response.ValidationFailedReason {
+			} else if rec.Code == http.StatusBadRequest && tt.requestBody != invalidRequestBody {
 				var resp response.ValidationErrorResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
