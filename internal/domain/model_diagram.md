@@ -30,6 +30,6 @@ classDiagram
   }
 
   User "1" -- "1" Authentication : 認証情報
-  User "1" --> "1..3" Account : 所有口座
+  User "1" --> "0..3" Account : 所有口座
   Account "1" --> "0..*" Transaction : 取引履歴
 ```
