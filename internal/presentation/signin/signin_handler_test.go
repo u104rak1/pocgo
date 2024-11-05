@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -20,10 +19,7 @@ import (
 )
 
 func TestSigninHandler(t *testing.T) {
-	var (
-		accessToken = "token"
-		unknownErr  = errors.New("unknown error")
-	)
+	var accessToken = "token"
 
 	var requestBody = signin.SigninRequestBody{
 		Email:    "sato@example.com",
@@ -84,13 +80,13 @@ func TestSigninHandler(t *testing.T) {
 			caseName:    "Unknown error occurs during signin.",
 			requestBody: requestBody,
 			prepare: func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {
-				mockSigninUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, unknownErr)
+				mockSigninUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, assert.AnError)
 			},
 			expectedCode:   http.StatusInternalServerError,
 			expectedReason: response.UnauthorizedReason,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.InternalServerErrorReason,
-				Message: unknownErr.Error(),
+				Message: assert.AnError.Error(),
 			},
 		},
 	}

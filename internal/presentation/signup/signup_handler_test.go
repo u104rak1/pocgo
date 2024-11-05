@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -37,7 +36,6 @@ func TestSignupHandler(t *testing.T) {
 		accountCurrency  = money.JPY
 		accountUpdatedAt = "2023-10-20T00:00:00Z"
 		accessToken      = "token"
-		unknownErr       = errors.New("unknown error")
 	)
 
 	var requestBody = signup.SignupRequestBody{
@@ -143,12 +141,12 @@ func TestSignupHandler(t *testing.T) {
 			caseName:    "Unknown error occurs during signup.",
 			requestBody: requestBody,
 			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, unknownErr)
+				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.InternalServerErrorReason,
-				Message: unknownErr.Error(),
+				Message: assert.AnError.Error(),
 			},
 		},
 	}

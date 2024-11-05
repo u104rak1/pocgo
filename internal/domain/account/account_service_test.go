@@ -2,7 +2,6 @@ package account_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -13,10 +12,7 @@ import (
 )
 
 func TestCheckLimit(t *testing.T) {
-	var (
-		userID     = ulid.GenerateStaticULID("user")
-		unknownErr = errors.New("unknown error")
-	)
+	var userID = ulid.GenerateStaticULID("user")
 
 	tests := []struct {
 		caseName string
@@ -52,9 +48,9 @@ func TestCheckLimit(t *testing.T) {
 			caseName: "Unknown error occurs in CountByUserID.",
 			userID:   userID,
 			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(0, unknownErr)
+				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(0, assert.AnError)
 			},
-			wantErr: unknownErr,
+			wantErr: assert.AnError,
 		},
 	}
 

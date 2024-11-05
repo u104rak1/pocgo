@@ -3,7 +3,6 @@ package me_test
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -17,14 +16,14 @@ import (
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/presentation/me"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
+	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
 func TestReadMyProfileHandler(t *testing.T) {
 	var (
-		userID     = "01J9R7YPV1FH1V0PPKVSB5C8FW"
-		userName   = "Sato Taro"
-		userEmail  = "sato@example.com"
-		unknownErr = errors.New("unknown error")
+		userID    = ulid.GenerateStaticULID("user")
+		userName  = "Sato Taro"
+		userEmail = "sato@example.com"
 	)
 
 	tests := []struct {
@@ -88,12 +87,12 @@ func TestReadMyProfileHandler(t *testing.T) {
 				return ctx
 			},
 			prepare: func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {
-				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, unknownErr)
+				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ErrorResponse{
 				Reason:  response.InternalServerErrorReason,
-				Message: unknownErr.Error(),
+				Message: assert.AnError.Error(),
 			},
 		},
 	}

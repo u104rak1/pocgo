@@ -2,7 +2,6 @@ package authentication_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -15,10 +14,6 @@ import (
 )
 
 func TestVerifyUniqueness(t *testing.T) {
-	var (
-		unknownErr = errors.New("unknown error")
-	)
-
 	tests := []struct {
 		caseName string
 		userID   string
@@ -45,9 +40,9 @@ func TestVerifyUniqueness(t *testing.T) {
 			caseName: "Unknown Error occurs in ExistsByUserID.",
 			userID:   ulid.GenerateStaticULID("unknown"),
 			setup: func(ctx context.Context, mockAuthRepo *mock.MockIAuthenticationRepository, userID string) {
-				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(false, unknownErr)
+				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(false, assert.AnError)
 			},
-			wantErr: unknownErr,
+			wantErr: assert.AnError,
 		},
 	}
 
@@ -154,10 +149,9 @@ func TestAuthenticate(t *testing.T) {
 	}
 
 	var (
-		userID     = ulid.GenerateStaticULID("user")
-		email      = "sato@examle.com"
-		password   = "password"
-		unknownErr = errors.New("unknown error")
+		userID   = ulid.GenerateStaticULID("user")
+		email    = "sato@examle.com"
+		password = "password"
 	)
 	user, err := userDomain.New(userID, "sato taro", email)
 	assert.NoError(t, err)
@@ -198,10 +192,10 @@ func TestAuthenticate(t *testing.T) {
 			email:    email,
 			password: password,
 			setup: func(ctx context.Context, mocks Mocks) {
-				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(nil, unknownErr)
+				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(nil, assert.AnError)
 			},
 			wantUserID: "",
-			wantErr:    unknownErr,
+			wantErr:    assert.AnError,
 		},
 		{
 			caseName: "Error occurs when authentication is not found by userID.",
@@ -220,10 +214,10 @@ func TestAuthenticate(t *testing.T) {
 			password: password,
 			setup: func(ctx context.Context, mocks Mocks) {
 				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(user, nil)
-				mocks.authRepo.EXPECT().FindByUserID(ctx, userID).Return(nil, unknownErr)
+				mocks.authRepo.EXPECT().FindByUserID(ctx, userID).Return(nil, assert.AnError)
 			},
 			wantUserID: "",
-			wantErr:    unknownErr,
+			wantErr:    assert.AnError,
 		},
 		{
 			caseName: "Error occurs when password is incorrect.",

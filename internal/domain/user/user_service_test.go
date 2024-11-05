@@ -2,7 +2,6 @@ package user_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -13,8 +12,6 @@ import (
 )
 
 func TestVerifyEmailUniqueness(t *testing.T) {
-	var unknownErr = errors.New("unknown error")
-
 	tests := []struct {
 		caseName string
 		email    string
@@ -41,9 +38,9 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 			caseName: "Un known error occurs in ExsitsByEmail.",
 			email:    "error@example.com",
 			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string) {
-				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, unknownErr)
+				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, assert.AnError)
 			},
-			wantErr: unknownErr,
+			wantErr: assert.AnError,
 		},
 	}
 
@@ -67,8 +64,6 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 }
 
 func TestEnsureUserExists(t *testing.T) {
-	var unknownErr = errors.New("unknown error")
-
 	tests := []struct {
 		caseName string
 		id       string
@@ -95,9 +90,9 @@ func TestEnsureUserExists(t *testing.T) {
 			caseName: "Unknown error occurs in ExistsByID.",
 			id:       ulid.GenerateStaticULID("unknown-error-user-id"),
 			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string) {
-				mockUserRepo.EXPECT().ExistsByID(ctx, id).Return(false, unknownErr)
+				mockUserRepo.EXPECT().ExistsByID(ctx, id).Return(false, assert.AnError)
 			},
-			wantErr: unknownErr,
+			wantErr: assert.AnError,
 		},
 	}
 
