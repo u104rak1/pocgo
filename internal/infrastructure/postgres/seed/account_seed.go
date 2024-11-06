@@ -10,49 +10,49 @@ import (
 )
 
 const (
-	johnDoeWorkAccountID      = "01J9R8AJ1Q2YDH1X9836GS9D87"
-	johnDoePrivateAccountID   = "01J9R8AS3G2EA5723HB3E97QZE"
-	janeSmithWorkAccountID    = "01J9R8B042BTZEH5J9H5VR5TPM"
-	janeSmithPrivateAccountID = "01J9R8B83C89Q0JTAAB1YR1NHA"
+	JohnDoeWorkAccountID      = "01J9R8AJ1Q2YDH1X9836GS9D87"
+	JohnDoePrivateAccountID   = "01J9R8AS3G2EA5723HB3E97QZE"
+	JaneSmithWorkAccountID    = "01J9R8B042BTZEH5J9H5VR5TPM"
+	JaneSmithPrivateAccountID = "01J9R8B83C89Q0JTAAB1YR1NHA"
 )
 
 func saveAccount(db *bun.DB) error {
 	passwordHash, _ := password.Encode("1234")
 	data := []model.Account{
 		{
-			ID:           johnDoeWorkAccountID,
-			UserID:       johnDoeID,
+			ID:           JohnDoeWorkAccountID,
+			UserID:       JohnDoeID,
 			Name:         "work",
 			PasswordHash: passwordHash,
 			Balance:      100000,
-			CurrencyID:   jpyID,
+			CurrencyID:   JPYID,
 			UpdatedAt:    timer.Now(),
 		},
 		{
-			ID:           johnDoePrivateAccountID,
-			UserID:       johnDoeID,
+			ID:           JohnDoePrivateAccountID,
+			UserID:       JohnDoeID,
 			Name:         "private",
 			PasswordHash: passwordHash,
 			Balance:      200000,
-			CurrencyID:   jpyID,
+			CurrencyID:   JPYID,
 			UpdatedAt:    timer.Now(),
 		},
 		{
-			ID:           janeSmithWorkAccountID,
-			UserID:       janeSmithID,
+			ID:           JaneSmithWorkAccountID,
+			UserID:       JaneSmithID,
 			Name:         "work",
 			PasswordHash: passwordHash,
 			Balance:      3000.55,
-			CurrencyID:   usdID,
+			CurrencyID:   USDID,
 			UpdatedAt:    timer.Now(),
 		},
 		{
-			ID:           janeSmithPrivateAccountID,
-			UserID:       janeSmithID,
+			ID:           JaneSmithPrivateAccountID,
+			UserID:       JaneSmithID,
 			Name:         "private",
 			PasswordHash: passwordHash,
 			Balance:      4000.55,
-			CurrencyID:   usdID,
+			CurrencyID:   USDID,
 			UpdatedAt:    timer.Now(),
 		},
 	}

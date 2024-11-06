@@ -11,8 +11,8 @@ import (
 func saveAuthentication(db *bun.DB) error {
 	passwordHash, _ := password.Encode("password")
 	data := []model.Authentication{
-		{UserID: johnDoeID, PasswordHash: passwordHash},
-		{UserID: janeSmithID, PasswordHash: passwordHash},
+		{UserID: JohnDoeID, PasswordHash: passwordHash},
+		{UserID: JaneSmithID, PasswordHash: passwordHash},
 	}
 	if _, err := db.NewInsert().Model(&data).Exec(context.Background()); err != nil {
 		return err

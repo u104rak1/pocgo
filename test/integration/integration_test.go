@@ -87,12 +87,26 @@ func ClearDB(t *testing.T, db *bun.DB) {
 	}
 }
 
+// Insert test data into the database.
+// Master data is inserted by default.
+// Please specify a structure or a slice of a structure for the argument models.
 func InsertTestData(t *testing.T, db *bun.DB, models ...interface{}) {
 	seed.InsertMasterData(db)
 	for _, model := range models {
-		_, err := db.NewInsert().Model(model).Exec(context.Background())
-		if err != nil {
-			t.Fatalf("failed to insert test data for model %v: %v", model, err)
+		val := reflect.ValueOf(model)
+		if val.Kind() == reflect.Slice {
+			for i := 0; i < val.Len(); i++ {
+				elem := val.Index(i).Interface()
+				_, err := db.NewInsert().Model(elem).Exec(context.Background())
+				if err != nil {
+					t.Fatalf("failed to insert test data for model %v: %v", elem, err)
+				}
+			}
+		} else {
+			_, err := db.NewInsert().Model(model).Exec(context.Background())
+			if err != nil {
+				t.Fatalf("failed to insert test data for model %v: %v", model, err)
+			}
 		}
 	}
 }
