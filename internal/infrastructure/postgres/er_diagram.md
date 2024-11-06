@@ -34,7 +34,7 @@ erDiagram
         string id PK "通貨ID（ULID）"
         string code "ISO 4217 通貨コード"
     }
-    transaction_type_master {
+    operation_type_master {
         string type PK "取引種別名"
     }
 
@@ -42,6 +42,6 @@ erDiagram
     users ||--|{ authentications : "has one"
     accounts ||--o{ transactions : "has many"
     accounts ||--|{ currency_master : "belongs to"
-    transactions ||--|{ transaction_type_master : "belongs to"
+    transactions ||--|{ operation_type_master : "belongs to"
     transactions ||--|{ currency_master : "belongs to"
 ```

@@ -8,8 +8,8 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func saveTransactionTypeMaster(db *bun.DB) error {
-	data := []model.TransactionTypeMaster{
+func saveOperationTypeMaster(db *bun.DB) error {
+	data := []model.OperationTypeMaster{
 		{Type: transactionDomain.Deposit},
 		{Type: transactionDomain.Withdraw},
 		{Type: transactionDomain.Transfer},

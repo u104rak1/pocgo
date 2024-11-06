@@ -4,7 +4,7 @@ import "github.com/uptrace/bun"
 
 var Models = []interface{}{
 	(*CurrencyMaster)(nil),
-	(*TransactionTypeMaster)(nil),
+	(*OperationTypeMaster)(nil),
 	(*User)(nil),
 	(*Account)(nil),
 	(*Transaction)(nil),
@@ -35,5 +35,5 @@ var ForeignKeys = []ForeignKey{
 	TransactionAccountFK,
 	TransactionReceiverAccountFK,
 	TransactionCurrencyFK,
-	TransactionTypeFK,
+	OperationTypeFK,
 }

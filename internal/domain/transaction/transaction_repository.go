@@ -1,6 +1,8 @@
 package transaction
 
+import "context"
+
 type ITransactionRepository interface {
-	Save(transaction *Transaction) error
-	ListByAccountID(accountID string, limit, offset *int) ([]*Transaction, error)
+	Save(ctx context.Context, transaction *Transaction) error
+	ListByAccountID(ctx context.Context, accountID string, limit, offset *int) ([]*Transaction, error)
 }

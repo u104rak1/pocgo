@@ -10,14 +10,16 @@ import (
 type Transaction struct {
 	id                string
 	accountID         string
-	receiverAccountID string
-	transactionType   string
+	receiverAccountID *string
+	operationType     string
 	transferAmount    money.Money
 	transactionAt     time.Time
 }
 
 func New(
-	id, accountID, receiverAccountID, transactionType string,
+	id, accountID string,
+	receiverAccountID *string,
+	operationType string,
 	amount float64,
 	currency string,
 	transactionAt time.Time,
@@ -30,11 +32,13 @@ func New(
 		return nil, err
 	}
 
-	if err := accountDomain.ValidID(receiverAccountID); err != nil {
-		return nil, err
+	if receiverAccountID != nil {
+		if err := accountDomain.ValidID(*receiverAccountID); err != nil {
+			return nil, err
+		}
 	}
 
-	if err := validTransactionType(transactionType); err != nil {
+	if err := validOperationType(operationType); err != nil {
 		return nil, err
 	}
 
@@ -47,7 +51,7 @@ func New(
 		id:                id,
 		accountID:         accountID,
 		receiverAccountID: receiverAccountID,
-		transactionType:   transactionType,
+		operationType:     operationType,
 		transferAmount:    *transferAmount,
 		transactionAt:     transactionAt,
 	}, nil
@@ -61,12 +65,12 @@ func (t *Transaction) AccountID() string {
 	return t.accountID
 }
 
-func (t *Transaction) ReceiverAccountID() string {
+func (t *Transaction) ReceiverAccountID() *string {
 	return t.receiverAccountID
 }
 
-func (t *Transaction) TransactionType() string {
-	return t.transactionType
+func (t *Transaction) OperationType() string {
+	return t.operationType
 }
 
 func (t *Transaction) TransferAmount() money.Money {

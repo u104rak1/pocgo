@@ -9,7 +9,7 @@ import (
 )
 
 func InsertMasterData(db *bun.DB) {
-	if err := saveTransactionTypeMaster(db); err != nil {
+	if err := saveOperationTypeMaster(db); err != nil {
 		log.Println("Error inserting transaction type master:", err)
 	}
 	if err := saveCurrencyMaster(db); err != nil {

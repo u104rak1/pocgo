@@ -13,21 +13,23 @@ import (
 )
 
 func TestNewTransaction(t *testing.T) {
+
 	var (
 		transactionID     = ulid.GenerateStaticULID("transaction")
 		accountID         = ulid.GenerateStaticULID("account")
-		recieverAccountID = ulid.GenerateStaticULID("accountReceiver")
+		receiverAccountID = ulid.GenerateStaticULID("accountReceiver")
 		amount            = 1000.0
 		currency          = money.JPY
 		transactionAt     = timer.Now()
+		invalidID         = "invalid id"
 	)
 
 	tests := []struct {
 		caseName          string
 		id                string
 		accountID         string
-		receiverAccountID string
-		transactionType   string
+		receiverAccountID *string
+		operationType     string
 		amount            float64
 		currency          string
 		transactionAt     time.Time
@@ -37,8 +39,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Successfully creates a transaction.",
 			id:                transactionID,
 			accountID:         accountID,
-			receiverAccountID: recieverAccountID,
-			transactionType:   transaction.Transfer,
+			receiverAccountID: &receiverAccountID,
+			operationType:     transaction.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -46,10 +48,10 @@ func TestNewTransaction(t *testing.T) {
 		},
 		{
 			caseName:          "Error occurs with invalid ID.",
-			id:                "invalid",
+			id:                invalidID,
 			accountID:         accountID,
-			receiverAccountID: recieverAccountID,
-			transactionType:   transaction.Transfer,
+			receiverAccountID: &receiverAccountID,
+			operationType:     transaction.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -59,8 +61,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Error occurs with invalid AccountID.",
 			id:                transactionID,
 			accountID:         "inavlid",
-			receiverAccountID: recieverAccountID,
-			transactionType:   transaction.Transfer,
+			receiverAccountID: &receiverAccountID,
+			operationType:     transaction.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -70,8 +72,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Error occurs with invalid ReceiverAccountID.",
 			id:                transactionID,
 			accountID:         accountID,
-			receiverAccountID: "inavlid",
-			transactionType:   transaction.Transfer,
+			receiverAccountID: &invalidID,
+			operationType:     transaction.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -81,8 +83,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Successfully creates a transaction with TRANSFER transaction type.",
 			id:                transactionID,
 			accountID:         accountID,
-			receiverAccountID: recieverAccountID,
-			transactionType:   transaction.Transfer,
+			receiverAccountID: &receiverAccountID,
+			operationType:     transaction.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -92,8 +94,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Successfully creates a transaction with DEPOSIT transaction type.",
 			id:                transactionID,
 			accountID:         accountID,
-			receiverAccountID: recieverAccountID,
-			transactionType:   transaction.Deposit,
+			receiverAccountID: nil,
+			operationType:     transaction.Deposit,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -103,8 +105,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Successfully creates a transaction with WITHDRAW transaction type.",
 			id:                transactionID,
 			accountID:         accountID,
-			receiverAccountID: recieverAccountID,
-			transactionType:   transaction.Withdraw,
+			receiverAccountID: nil,
+			operationType:     transaction.Withdraw,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -114,8 +116,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Error occurs with unsupported transaction type.",
 			id:                transactionID,
 			accountID:         accountID,
-			receiverAccountID: recieverAccountID,
-			transactionType:   "UNSUPPORTED",
+			receiverAccountID: &receiverAccountID,
+			operationType:     "UNSUPPORTED",
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -125,8 +127,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Error occurs with invalid amount.",
 			id:                transactionID,
 			accountID:         accountID,
-			receiverAccountID: recieverAccountID,
-			transactionType:   transaction.Transfer,
+			receiverAccountID: &receiverAccountID,
+			operationType:     transaction.Transfer,
 			amount:            -1000,
 			currency:          currency,
 			transactionAt:     transactionAt,
@@ -136,8 +138,8 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Error occurs with unsupported currency.",
 			id:                transactionID,
 			accountID:         accountID,
-			receiverAccountID: recieverAccountID,
-			transactionType:   transaction.Transfer,
+			receiverAccountID: &receiverAccountID,
+			operationType:     transaction.Transfer,
 			amount:            amount,
 			currency:          "EUR",
 			transactionAt:     transactionAt,
@@ -149,7 +151,7 @@ func TestNewTransaction(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			tx, err := transaction.New(
-				tt.id, tt.accountID, tt.receiverAccountID, tt.transactionType, tt.amount, tt.currency, tt.transactionAt,
+				tt.id, tt.accountID, tt.receiverAccountID, tt.operationType, tt.amount, tt.currency, tt.transactionAt,
 			)
 
 			if tt.wantErr != nil {
@@ -161,7 +163,7 @@ func TestNewTransaction(t *testing.T) {
 				assert.Equal(t, tt.id, tx.ID())
 				assert.Equal(t, tt.accountID, tx.AccountID())
 				assert.Equal(t, tt.receiverAccountID, tx.ReceiverAccountID())
-				assert.Equal(t, tt.transactionType, tx.TransactionType())
+				assert.Equal(t, tt.operationType, tx.OperationType())
 				assert.Equal(t, tt.amount, tx.TransferAmount().Amount())
 				assert.Equal(t, tt.currency, tx.TransferAmount().Currency())
 				assert.Equal(t, tt.transactionAt, tx.TransactionAt())

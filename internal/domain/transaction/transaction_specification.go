@@ -24,14 +24,14 @@ func ValidID(id string) error {
 	return nil
 }
 
-func validTransactionType(transactionType string) error {
-	var validTransactionTypes = []string{
+func validOperationType(operationType string) error {
+	var validOperationTypes = []string{
 		Deposit,
 		Withdraw,
 		Transfer,
 	}
-	for _, validType := range validTransactionTypes {
-		if transactionType == validType {
+	for _, validType := range validOperationTypes {
+		if operationType == validType {
 			return nil
 		}
 	}

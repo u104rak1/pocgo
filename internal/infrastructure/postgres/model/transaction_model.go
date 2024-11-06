@@ -11,15 +11,15 @@ type Transaction struct {
 	ID                string    `bun:"id,pk,type:char(26),notnull"`
 	AccountID         string    `bun:"account_id,type:char(26),notnull"`
 	ReceiverAccountID *string   `bun:"receiver_account_id,type:char(26)"`
-	Type              string    `bun:"type,type:varchar(20),notnull"`
+	OperationType     string    `bun:"operation_type,type:varchar(20),notnull"`
 	Amount            float64   `bun:"amount,type:float8,notnull"`
 	CurrencyID        string    `bun:"currency_id,type:char(26),notnull"`
 	TransactionAt     time.Time `bun:"transaction_at,notnull"`
 
-	SenderAccount   *Account               `bun:"rel:belongs-to,join:account_id=id"`
-	ReceiverAccount *Account               `bun:"rel:belongs-to,join:receiver_account_id=id"`
-	Currency        *CurrencyMaster        `bun:"rel:belongs-to,join:currency_id=id"`
-	TransactionType *TransactionTypeMaster `bun:"rel:belongs-to,join:type=type"`
+	SenderAccount       *Account             `bun:"rel:belongs-to,join:account_id=id"`
+	ReceiverAccount     *Account             `bun:"rel:belongs-to,join:receiver_account_id=id"`
+	Currency            *CurrencyMaster      `bun:"rel:belongs-to,join:currency_id=id"`
+	OperationTypeMaster *OperationTypeMaster `bun:"rel:belongs-to,join:operation_type=type"`
 }
 
 var TransactionAccountFK = ForeignKey{
@@ -46,11 +46,11 @@ var TransactionCurrencyFK = ForeignKey{
 	ReferencedColumn: "id",
 }
 
-var TransactionTypeFK = ForeignKey{
+var OperationTypeFK = ForeignKey{
 	Table:            "transactions",
-	ConstraintName:   "fk_transaction_type",
-	Column:           "type",
-	ReferencedTable:  "transaction_type_master",
+	ConstraintName:   "fk_transaction_operation_type",
+	Column:           "operation_type",
+	ReferencedTable:  "operation_type_master",
 	ReferencedColumn: "type",
 }
 
