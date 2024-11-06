@@ -2,53 +2,35 @@ package authentication_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	"github.com/ucho456job/pocgo/internal/application/authentication"
-	appMock "github.com/ucho456job/pocgo/internal/application/mock"
-	userApp "github.com/ucho456job/pocgo/internal/application/user"
+	"github.com/ucho456job/pocgo/internal/config"
 	domainMock "github.com/ucho456job/pocgo/internal/domain/mock"
-	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
-	"github.com/ucho456job/pocgo/pkg/timer"
-	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
 func TestSignupUsecase(t *testing.T) {
 	type Mocks struct {
-		userUC    *appMock.MockICreateUserUsecase
-		accountUC *appMock.MockICreateAccountUsecase
-		authServ  *domainMock.MockIAuthenticationService
+		userRepo *domainMock.MockIUserRepository
+		userServ *domainMock.MockIUserService
+		authRepo *domainMock.MockIAuthenticationRepository
+		authServ *domainMock.MockIAuthenticationService
 	}
 
 	var (
-		userID           = ulid.GenerateStaticULID("user")
-		userName         = "sato taro"
-		userEmail        = "sato@example.com"
-		userPassword     = "password"
-		accountID        = ulid.GenerateStaticULID("account")
-		accountName      = "For work"
-		accountBalance   = 0.0
-		accountPassword  = "1234"
-		accountCurrency  = money.JPY
-		accountUpdatedAt = timer.Now().String()
-		accessToken      = "token"
+		userName     = "sato taro"
+		userEmail    = "sato@example.com"
+		userPassword = "password"
+		accessToken  = "token"
+		jwtSecretKey = []byte(config.NewEnv().JWT_SECRET_KEY)
 	)
 
 	cmd := authentication.SignupCommand{
-		User: userApp.CreateUserCommand{
-			Name:     userName,
-			Email:    userEmail,
-			Password: userPassword,
-		},
-		Account: accountApp.CreateAccountCommand{
-			Name:     accountName,
-			Password: accountPassword,
-			Currency: accountCurrency,
-		},
+		Name:     userName,
+		Email:    userEmail,
+		Password: userPassword,
 	}
 
 	tests := []struct {
@@ -61,41 +43,49 @@ func TestSignupUsecase(t *testing.T) {
 			caseName: "Signup is successfully done.",
 			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userUC.EXPECT().Run(ctx, gomock.Any()).Return(&userApp.CreateUserDTO{
-					ID:    userID,
-					Name:  userName,
-					Email: userEmail,
-				}, nil)
-				mocks.accountUC.EXPECT().Run(ctx, gomock.Any()).Return(&accountApp.CreateAccountDTO{
-					ID:        accountID,
-					UserID:    userID,
-					Name:      accountName,
-					Balance:   accountBalance,
-					Currency:  accountCurrency,
-					UpdatedAt: accountUpdatedAt,
-				}, nil)
-				mocks.authServ.EXPECT().GenerateAccessToken(ctx, userID, gomock.Any()).Return(accessToken, nil)
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
+				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.authServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.authRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.authServ.EXPECT().GenerateAccessToken(ctx, gomock.Any(), jwtSecretKey).Return(accessToken, nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "Error occurs during userCreateDto creation.",
+			caseName: "Error occurs during email uniqueness verification.",
 			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, errors.New("error"))
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "Error occurs during accountCreateDto creation.",
+			caseName: "Error occurs during user save.",
 			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userUC.EXPECT().Run(ctx, gomock.Any()).Return(&userApp.CreateUserDTO{
-					ID:    userID,
-					Name:  userName,
-					Email: userEmail,
-				}, nil)
-				mocks.accountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, errors.New("error"))
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
+				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(assert.AnError)
+			},
+			wantErr: true,
+		},
+		{
+			caseName: "Error occurs during authentication uniqueness verification.",
+			cmd:      cmd,
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
+				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.authServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(assert.AnError)
+			},
+			wantErr: true,
+		},
+		{
+			caseName: "Error occurs during authentication save.",
+			cmd:      cmd,
+			prepare: func(ctx context.Context, mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
+				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.authServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.authRepo.EXPECT().Save(ctx, gomock.Any()).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
@@ -103,20 +93,11 @@ func TestSignupUsecase(t *testing.T) {
 			caseName: "Error occurs during access token generation.",
 			cmd:      cmd,
 			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userUC.EXPECT().Run(ctx, gomock.Any()).Return(&userApp.CreateUserDTO{
-					ID:    userID,
-					Name:  userName,
-					Email: userEmail,
-				}, nil)
-				mocks.accountUC.EXPECT().Run(ctx, gomock.Any()).Return(&accountApp.CreateAccountDTO{
-					ID:        accountID,
-					UserID:    userID,
-					Name:      accountName,
-					Balance:   accountBalance,
-					Currency:  accountCurrency,
-					UpdatedAt: accountUpdatedAt,
-				}, nil)
-				mocks.authServ.EXPECT().GenerateAccessToken(ctx, userID, gomock.Any()).Return("", errors.New("error"))
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
+				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.authServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
+				mocks.authRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+				mocks.authServ.EXPECT().GenerateAccessToken(ctx, gomock.Any(), jwtSecretKey).Return("", assert.AnError)
 			},
 			wantErr: true,
 		},
@@ -129,13 +110,13 @@ func TestSignupUsecase(t *testing.T) {
 			defer ctrl.Finish()
 
 			mocks := Mocks{
-				userUC:    appMock.NewMockICreateUserUsecase(ctrl),
-				accountUC: appMock.NewMockICreateAccountUsecase(ctrl),
-				authServ:  domainMock.NewMockIAuthenticationService(ctrl),
+				userRepo: domainMock.NewMockIUserRepository(ctrl),
+				userServ: domainMock.NewMockIUserService(ctrl),
+				authRepo: domainMock.NewMockIAuthenticationRepository(ctrl),
+				authServ: domainMock.NewMockIAuthenticationService(ctrl),
 			}
-			mockUnitOfWork := &appMock.MockIUnitOfWorkWithResult[authentication.SignupDTO]{}
 
-			uc := authentication.NewSignupUsecase(mocks.userUC, mocks.accountUC, mocks.authServ, mockUnitOfWork)
+			uc := authentication.NewSignupUsecase(mocks.userRepo, mocks.authRepo, mocks.userServ, mocks.authServ)
 			ctx := context.Background()
 			tt.prepare(ctx, mocks)
 
@@ -148,14 +129,8 @@ func TestSignupUsecase(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, dto)
 				assert.NotEmpty(t, dto.User.ID)
-				assert.Equal(t, tt.cmd.User.Name, dto.User.Name)
-				assert.Equal(t, tt.cmd.User.Email, dto.User.Email)
-				assert.NotEmpty(t, dto.Account.ID)
-				assert.Equal(t, dto.User.ID, dto.Account.UserID)
-				assert.Equal(t, tt.cmd.Account.Name, dto.Account.Name)
-				assert.Equal(t, 0.0, dto.Account.Balance)
-				assert.Equal(t, tt.cmd.Account.Currency, dto.Account.Currency)
-				assert.NotEmpty(t, dto.Account.UpdatedAt)
+				assert.Equal(t, tt.cmd.Name, dto.User.Name)
+				assert.Equal(t, tt.cmd.Email, dto.User.Email)
 				assert.Equal(t, accessToken, dto.AccessToken)
 			}
 		})

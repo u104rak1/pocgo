@@ -1,22 +1,9 @@
 {
   "beforeDB": {
-    "accounts": null,
     "authentications": null,
     "users": null
   },
   "afterDB": {
-    "accounts": [
-      {
-        "balance": 0,
-        "currency_id": "ANY",
-        "deleted_at": null,
-        "id": "ANY",
-        "name": "For work123456789012",
-        "password_hash": "ANY",
-        "updated_at": "ANY",
-        "user_id": "ANY"
-      }
-    ],
     "authentications": [
       {
         "deleted_at": null,
@@ -42,16 +29,9 @@
       ]
     },
     "body": {
-      "user": {
-        "name": "Sato Taro12345678901",
-        "email": "sato@example.com",
-        "password": "password123456789012",
-        "account": {
-          "name": "For work123456789012",
-          "password": "1234",
-          "currency": "JPY"
-        }
-      }
+      "name": "Sato Taro12345678901",
+      "email": "sato@example.com",
+      "password": "password123456789012"
     },
     "query": "",
     "cookie": []
@@ -61,13 +41,6 @@
     "body": {
       "accessToken": "ANY",
       "user": {
-        "account": {
-          "balance": 0,
-          "currency": "JPY",
-          "id": "ANY",
-          "name": "For work123456789012",
-          "updatedAt": "ANY"
-        },
         "email": "sato@example.com",
         "id": "ANY",
         "name": "Sato Taro12345678901"

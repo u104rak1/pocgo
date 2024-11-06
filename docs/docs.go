@@ -184,7 +184,7 @@ const docTemplate = `{
         },
         "/api/v1/signup": {
             "post": {
-                "description": "This endpoint creates a new user and account, and issues an access token.",
+                "description": "This endpoint creates a new user and issues an access token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -361,34 +361,6 @@ const docTemplate = `{
         "signup.SignupRequestBody": {
             "type": "object",
             "properties": {
-                "user": {
-                    "$ref": "#/definitions/signup.SignupRequestBodyUser"
-                }
-            }
-        },
-        "signup.SignupRequestBodyAccount": {
-            "type": "object",
-            "properties": {
-                "currency": {
-                    "type": "string",
-                    "example": "JPY"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "For work"
-                },
-                "password": {
-                    "type": "string",
-                    "example": "1234"
-                }
-            }
-        },
-        "signup.SignupRequestBodyUser": {
-            "type": "object",
-            "properties": {
-                "account": {
-                    "$ref": "#/definitions/signup.SignupRequestBodyAccount"
-                },
                 "email": {
                     "type": "string",
                     "example": "sato@example.com"
@@ -415,37 +387,9 @@ const docTemplate = `{
                 }
             }
         },
-        "signup.SignupResponseBodyAccount": {
-            "type": "object",
-            "properties": {
-                "balance": {
-                    "type": "number",
-                    "example": 0
-                },
-                "currency": {
-                    "type": "string",
-                    "example": "JPY"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "01J9R7YPV1FH1V0PPKVSB5C7LE"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "For work"
-                },
-                "updatedAt": {
-                    "type": "string",
-                    "example": "2021-08-01T00:00:00Z"
-                }
-            }
-        },
         "signup.SignupResponseBodyUser": {
             "type": "object",
             "properties": {
-                "account": {
-                    "$ref": "#/definitions/signup.SignupResponseBodyAccount"
-                },
                 "email": {
                     "type": "string",
                     "example": "sato@example.com"

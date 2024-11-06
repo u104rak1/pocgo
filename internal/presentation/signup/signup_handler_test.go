@@ -11,13 +11,10 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	appMock "github.com/ucho456job/pocgo/internal/application/mock"
-	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
 	"github.com/ucho456job/pocgo/internal/presentation/signup"
 	"github.com/ucho456job/pocgo/pkg/ulid"
@@ -29,27 +26,14 @@ func TestSignupHandler(t *testing.T) {
 		userName           = "sato taro"
 		userEmail          = "sato@example.com"
 		userPassword       = "password"
-		accountID          = ulid.GenerateStaticULID("account")
-		accountName        = "For work"
-		accountBalance     = 0.0
-		accountPassword    = "1234"
-		accountCurrency    = money.JPY
-		accountUpdatedAt   = "2023-10-20T00:00:00Z"
 		accessToken        = "token"
 		invalidRequestBody = "invalid json"
 	)
 
 	var requestBody = signup.SignupRequestBody{
-		User: signup.SignupRequestBodyUser{
-			Name:     userName,
-			Email:    userEmail,
-			Password: userPassword,
-			Account: signup.SignupRequestBodyAccount{
-				Name:     accountName,
-				Password: accountPassword,
-				Currency: accountCurrency,
-			},
-		},
+		Name:     userName,
+		Email:    userEmail,
+		Password: userPassword,
 	}
 
 	tests := []struct {
@@ -63,18 +47,15 @@ func TestSignupHandler(t *testing.T) {
 			caseName:    "Successful signup.",
 			requestBody: requestBody,
 			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(&authApp.SignupDTO{
-					User: userApp.CreateUserDTO{
+				mockSignupUC.EXPECT().Run(ctx, authApp.SignupCommand{
+					Name:     userName,
+					Email:    userEmail,
+					Password: userPassword,
+				}).Return(&authApp.SignupDTO{
+					User: authApp.SignupUserDTO{
 						ID:    userID,
 						Name:  userName,
 						Email: userEmail,
-					},
-					Account: accountApp.CreateAccountDTO{
-						ID:        accountID,
-						Name:      accountName,
-						Balance:   accountBalance,
-						Currency:  accountCurrency,
-						UpdatedAt: accountUpdatedAt,
 					},
 					AccessToken: accessToken,
 				}, nil)
@@ -85,13 +66,6 @@ func TestSignupHandler(t *testing.T) {
 					ID:    userID,
 					Name:  userName,
 					Email: userEmail,
-					Account: signup.SignupResponseBodyAccount{
-						ID:        accountID,
-						Name:      accountName,
-						Balance:   accountBalance,
-						Currency:  accountCurrency,
-						UpdatedAt: accountUpdatedAt,
-					},
 				},
 				AccessToken: accessToken,
 			},

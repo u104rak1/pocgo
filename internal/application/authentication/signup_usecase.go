@@ -3,11 +3,10 @@ package authentication
 import (
 	"context"
 
-	accountApp "github.com/ucho456job/pocgo/internal/application/account"
-	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
-	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/config"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
+	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
+	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
 type ISignupUsecase interface {
@@ -15,65 +14,99 @@ type ISignupUsecase interface {
 }
 
 type signupUsecase struct {
-	createUserUC    userApp.ICreateUserUsecase
-	createAccountUC accountApp.ICreateAccountUsecase
-	authServ        authDomain.IAuthenticationService
-	unitOfWork      unitofwork.IUnitOfWorkWithResult[SignupDTO]
+	userRepo userDomain.IUserRepository
+	userServ userDomain.IUserService
+	authRepo authDomain.IAuthenticationRepository
+	authServ authDomain.IAuthenticationService
 }
 
 func NewSignupUsecase(
-	createUserUsecase userApp.ICreateUserUsecase,
-	createAccountUsecase accountApp.ICreateAccountUsecase,
-	authenticationService authDomain.IAuthenticationService,
-	unitOfWork unitofwork.IUnitOfWorkWithResult[SignupDTO],
+	userRepository userDomain.IUserRepository,
+	authRepository authDomain.IAuthenticationRepository,
+	userService userDomain.IUserService,
+	authService authDomain.IAuthenticationService,
 ) ISignupUsecase {
 	return &signupUsecase{
-		createUserUC:    createUserUsecase,
-		createAccountUC: createAccountUsecase,
-		authServ:        authenticationService,
-		unitOfWork:      unitOfWork,
+		userRepo: userRepository,
+		authRepo: authRepository,
+		userServ: userService,
+		authServ: authService,
 	}
 }
 
 type SignupCommand struct {
-	User    userApp.CreateUserCommand
-	Account accountApp.CreateAccountCommand
+	Name     string
+	Email    string
+	Password string
 }
 
 type SignupDTO struct {
-	User        userApp.CreateUserDTO
-	Account     accountApp.CreateAccountDTO
+	User        SignupUserDTO
 	AccessToken string
 }
 
+type SignupUserDTO struct {
+	ID    string
+	Name  string
+	Email string
+}
+
 func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO, error) {
-	dto, err := u.unitOfWork.RunInTx(ctx, func(ctx context.Context) (*SignupDTO, error) {
-		user, err := u.createUserUC.Run(ctx, cmd.User)
-		if err != nil {
-			return nil, err
-		}
+	userID := ulid.New()
+	if err := u.createUser(ctx, userID, cmd); err != nil {
+		return nil, err
+	}
 
-		cmd.Account.UserID = user.ID
-		account, err := u.createAccountUC.Run(ctx, cmd.Account)
-		if err != nil {
-			return nil, err
-		}
-
-		return &SignupDTO{
-			User:    *user,
-			Account: *account,
-		}, nil
-	})
-	if err != nil {
+	if err := u.createAuthentication(ctx, userID, cmd); err != nil {
 		return nil, err
 	}
 
 	env := config.NewEnv()
-	accessToken, err := u.authServ.GenerateAccessToken(ctx, dto.User.ID, []byte(env.JWT_SECRET_KEY))
+	accessToken, err := u.authServ.GenerateAccessToken(ctx, userID, []byte(env.JWT_SECRET_KEY))
 	if err != nil {
 		return nil, err
 	}
-	dto.AccessToken = accessToken
 
-	return dto, nil
+	return &SignupDTO{
+		User: SignupUserDTO{
+			ID:    userID,
+			Name:  cmd.Name,
+			Email: cmd.Email,
+		},
+		AccessToken: accessToken,
+	}, nil
+}
+
+func (u *signupUsecase) createUser(ctx context.Context, userID string, cmd SignupCommand) (err error) {
+	if err = u.userServ.VerifyEmailUniqueness(ctx, cmd.Email); err != nil {
+		return err
+	}
+
+	user, err := userDomain.New(userID, cmd.Name, cmd.Email)
+	if err != nil {
+		return err
+	}
+
+	if err = u.userRepo.Save(ctx, user); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (u *signupUsecase) createAuthentication(ctx context.Context, userID string, cmd SignupCommand) (err error) {
+	if err = u.authServ.VerifyUniqueness(ctx, userID); err != nil {
+		return err
+	}
+
+	authentication, err := authDomain.New(userID, cmd.Password)
+	if err != nil {
+		return err
+	}
+
+	if err = u.authRepo.Save(ctx, authentication); err != nil {
+		return err
+	}
+
+	return nil
 }

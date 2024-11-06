@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
 	"github.com/ucho456job/pocgo/internal/presentation/signup"
 	"github.com/ucho456job/pocgo/pkg/ulid"
@@ -17,9 +16,6 @@ func TestSignup(t *testing.T) {
 		maxLenUserName     = "Sato Taro12345678901"
 		userEmail          = "sato@example.com"
 		maxLenUserPassword = "password123456789012"
-		maxLenAccountName  = "For work123456789012"
-		accountPassword    = "1234"
-		currency           = money.JPY
 	)
 
 	tests := []struct {
@@ -31,16 +27,9 @@ func TestSignup(t *testing.T) {
 		{
 			caseName: "Happy path (201): Signup successfully",
 			requestBody: signup.SignupRequestBody{
-				User: signup.SignupRequestBodyUser{
-					Name:     maxLenUserName,
-					Email:    userEmail,
-					Password: maxLenUserPassword,
-					Account: signup.SignupRequestBodyAccount{
-						Name:     maxLenAccountName,
-						Password: accountPassword,
-						Currency: currency,
-					},
-				},
+				Name:     maxLenUserName,
+				Email:    userEmail,
+				Password: maxLenUserPassword,
 			},
 			prepare: func(t *testing.T, db *bun.DB) {
 				InsertTestData(t, db)
@@ -50,16 +39,9 @@ func TestSignup(t *testing.T) {
 		{
 			caseName: "Sad path (409): email is already used",
 			requestBody: signup.SignupRequestBody{
-				User: signup.SignupRequestBodyUser{
-					Name:     maxLenUserName,
-					Email:    "conflict@example.com",
-					Password: maxLenUserPassword,
-					Account: signup.SignupRequestBodyAccount{
-						Name:     maxLenAccountName,
-						Password: accountPassword,
-						Currency: currency,
-					},
-				},
+				Name:     maxLenUserName,
+				Email:    "conflict@example.com",
+				Password: maxLenUserPassword,
 			},
 			prepare: func(t *testing.T, db *bun.DB) {
 				existingUser := &model.User{
@@ -71,7 +53,7 @@ func TestSignup(t *testing.T) {
 			},
 			wantCode: http.StatusConflict,
 		},
-		// Exclude duplicate  error of authentication because they occur infrequently and are difficult to reproduce.
+		// Exclude duplicate error of authentication because they occur infrequently and are difficult to reproduce.
 	}
 
 	for _, tt := range tests {
@@ -80,7 +62,7 @@ func TestSignup(t *testing.T) {
 			defer AfterAll(t, db)
 
 			tt.prepare(t, db)
-			usedTables := []string{"users", "accounts", "authentications"}
+			usedTables := []string{"users", "authentications"}
 			beforeDBData := GetDBData(t, db, usedTables)
 
 			req, rec := NewJSONRequest(t, http.MethodPost, "/api/v1/signup", tt.requestBody)
@@ -89,7 +71,7 @@ func TestSignup(t *testing.T) {
 
 			afterDBData := GetDBData(t, db, usedTables)
 			result := GenerateResultJSON(t, beforeDBData, afterDBData, req, rec, tt.requestBody)
-			replaceKeys := []string{"id", "userId", "currencyId", "passwordHash", "updatedAt", "accessToken"}
+			replaceKeys := []string{"id", "userId", "passwordHash", "updatedAt", "accessToken"}
 			result = ReplaceDynamicValue(result, replaceKeys)
 
 			gol.Assert(t, t.Name(), result)

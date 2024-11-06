@@ -86,25 +86,6 @@ definitions:
     type: object
   signup.SignupRequestBody:
     properties:
-      user:
-        $ref: '#/definitions/signup.SignupRequestBodyUser'
-    type: object
-  signup.SignupRequestBodyAccount:
-    properties:
-      currency:
-        example: JPY
-        type: string
-      name:
-        example: For work
-        type: string
-      password:
-        example: "1234"
-        type: string
-    type: object
-  signup.SignupRequestBodyUser:
-    properties:
-      account:
-        $ref: '#/definitions/signup.SignupRequestBodyAccount'
       email:
         example: sato@example.com
         type: string
@@ -123,28 +104,8 @@ definitions:
       user:
         $ref: '#/definitions/signup.SignupResponseBodyUser'
     type: object
-  signup.SignupResponseBodyAccount:
-    properties:
-      balance:
-        example: 0
-        type: number
-      currency:
-        example: JPY
-        type: string
-      id:
-        example: 01J9R7YPV1FH1V0PPKVSB5C7LE
-        type: string
-      name:
-        example: For work
-        type: string
-      updatedAt:
-        example: "2021-08-01T00:00:00Z"
-        type: string
-    type: object
   signup.SignupResponseBodyUser:
     properties:
-      account:
-        $ref: '#/definitions/signup.SignupResponseBodyAccount'
       email:
         example: sato@example.com
         type: string
@@ -274,8 +235,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: This endpoint creates a new user and account, and issues an access
-        token.
+      description: This endpoint creates a new user and issues an access token.
       parameters:
       - description: Request Body
         in: body
