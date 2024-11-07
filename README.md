@@ -1,6 +1,5 @@
 # pocgo
 やりたいこと
 datadog
-
-// @Security BearerAuth
-をつけるとアクセストークンを必要になるみたい。
+sendgrid
+idをuser_idとかにする
