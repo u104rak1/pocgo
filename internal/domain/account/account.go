@@ -6,6 +6,7 @@ import (
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
+	"github.com/ucho456job/pocgo/pkg/timer"
 )
 
 type Account struct {
@@ -85,6 +86,10 @@ func (a *Account) Balance() money.Money {
 
 func (a *Account) UpdatedAt() time.Time {
 	return a.updatedAt
+}
+
+func (a *Account) UpdatedAtString() string {
+	return timer.FormatToISO8601(a.updatedAt)
 }
 
 func (a *Account) ChangeName(new string) error {

@@ -5,6 +5,7 @@ import (
 
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
+	"github.com/ucho456job/pocgo/pkg/timer"
 )
 
 type Transaction struct {
@@ -79,4 +80,8 @@ func (t *Transaction) TransferAmount() money.Money {
 
 func (t *Transaction) TransactionAt() time.Time {
 	return t.transactionAt
+}
+
+func (t *Transaction) TransactionAtString() string {
+	return timer.FormatToISO8601(t.transactionAt)
 }

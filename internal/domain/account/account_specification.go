@@ -19,6 +19,7 @@ var (
 	ErrInvalidName           = fmt.Errorf("account name must be between %d and %d characters", NameMinLength, NameMaxLength)
 	ErrPasswordInvalidLength = fmt.Errorf("account password must be %d characters", PasswordLength)
 	ErrNotFound              = errors.New("account not found")
+	ErrRecieverNotFound      = errors.New("reciever account not found")
 	ErrUnmatchedPassword     = errors.New("passwords do not match")
 	ErrLimitReached          = fmt.Errorf("account limit reached, maximum %d accounts", MaxAccountLimit)
 )

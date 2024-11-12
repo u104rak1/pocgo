@@ -20,7 +20,7 @@ func TestNewTransaction(t *testing.T) {
 		receiverAccountID = ulid.GenerateStaticULID("accountReceiver")
 		amount            = 1000.0
 		currency          = money.JPY
-		transactionAt     = timer.Now()
+		transactionAt     = timer.GetFixedDate()
 		invalidID         = "invalid id"
 	)
 
@@ -167,6 +167,7 @@ func TestNewTransaction(t *testing.T) {
 				assert.Equal(t, tt.amount, tx.TransferAmount().Amount())
 				assert.Equal(t, tt.currency, tx.TransferAmount().Currency())
 				assert.Equal(t, tt.transactionAt, tx.TransactionAt())
+				assert.Equal(t, timer.GetFixedDateString(), tx.TransactionAtString())
 			}
 		})
 	}

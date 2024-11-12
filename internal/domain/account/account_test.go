@@ -22,7 +22,7 @@ func TestNew(t *testing.T) {
 		password  = "1234"
 		amount    = 1000.0
 		currency  = "JPY"
-		now       = timer.Now()
+		now       = timer.GetFixedDate()
 	)
 
 	tests := []struct {
@@ -189,6 +189,7 @@ func TestNew(t *testing.T) {
 				assert.Equal(t, tt.amount, acc.Balance().Amount())
 				assert.Equal(t, tt.currency, acc.Balance().Currency())
 				assert.Equal(t, tt.updatedAt, acc.UpdatedAt())
+				assert.Equal(t, timer.GetFixedDateString(), acc.UpdatedAtString())
 			}
 		})
 	}
@@ -202,7 +203,7 @@ func TestReconstruct(t *testing.T) {
 		password  = "1234"
 		amount    = 1000.0
 		currency  = "JPY"
-		now       = timer.Now()
+		now       = timer.GetFixedDate()
 	)
 	t.Run("Successfully reconstructs an account.", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(password)
@@ -216,6 +217,7 @@ func TestReconstruct(t *testing.T) {
 		assert.Equal(t, amount, acc.Balance().Amount())
 		assert.Equal(t, currency, acc.Balance().Currency())
 		assert.Equal(t, now, acc.UpdatedAt())
+		assert.Equal(t, timer.GetFixedDateString(), acc.UpdatedAtString())
 	})
 }
 
