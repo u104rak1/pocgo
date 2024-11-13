@@ -22,13 +22,13 @@ func NewCreateAccountHandler(createAccountUsecase accountApp.ICreateAccountUseca
 	}
 }
 
-type CreateAccountRequestBody struct {
+type CreateAccountRequest struct {
 	Name     string `json:"name" example:"For work"`
 	Password string `json:"password" example:"1234"`
 	Currency string `json:"currency" example:"JPY"`
 }
 
-type CreateAccountResponseBody struct {
+type CreateAccountResponse struct {
 	ID        string  `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C7LE"`
 	Name      string  `json:"name" example:"For work"`
 	Balance   float64 `json:"balance" example:"0"`
@@ -42,8 +42,8 @@ type CreateAccountResponseBody struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body CreateAccountRequestBody true "Request Body"
-// @Success 201 {object} CreateAccountResponseBody
+// @Param request body CreateAccountRequest true "Request Body"
+// @Success 201 {object} CreateAccountResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 404 {object} response.ErrorResponse "Not Found"
@@ -51,8 +51,8 @@ type CreateAccountResponseBody struct {
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /api/v1/me/accounts [post]
 func (h *CreateAccountHandler) Run(ctx echo.Context) error {
-	req := new(CreateAccountRequestBody)
-	if err := ctx.Bind(&req); err != nil {
+	req := new(CreateAccountRequest)
+	if err := ctx.Bind(req); err != nil {
 		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}
 
@@ -82,7 +82,7 @@ func (h *CreateAccountHandler) Run(ctx echo.Context) error {
 		}
 	}
 
-	return ctx.JSON(http.StatusCreated, CreateAccountResponseBody{
+	return ctx.JSON(http.StatusCreated, CreateAccountResponse{
 		ID:        dto.ID,
 		Name:      dto.Name,
 		Balance:   dto.Balance,
@@ -91,7 +91,7 @@ func (h *CreateAccountHandler) Run(ctx echo.Context) error {
 	})
 }
 
-func (h *CreateAccountHandler) validation(req *CreateAccountRequestBody) (validationErrors []response.ValidationError) {
+func (h *CreateAccountHandler) validation(req *CreateAccountRequest) (validationErrors []response.ValidationError) {
 	if err := validation.ValidAccountName(req.Name); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
 			Field:   "name",

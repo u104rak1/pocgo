@@ -47,7 +47,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 				}, nil)
 			},
 			expectedCode: http.StatusOK,
-			expectedResponseBody: me.ReadMyProfileResponseBody{
+			expectedResponseBody: me.ReadMyProfileResponse{
 				ID:    userID,
 				Name:  userName,
 				Email: userEmail,
@@ -118,7 +118,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectedCode, rec.Code)
 			if rec.Code == http.StatusOK {
-				var resp me.ReadMyProfileResponseBody
+				var resp me.ReadMyProfileResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)

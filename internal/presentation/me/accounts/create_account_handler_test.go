@@ -34,7 +34,7 @@ func TestCreateAccountHandler(t *testing.T) {
 		invalidRequestBody = "invalid json"
 	)
 
-	var requestBody = accounts.CreateAccountRequestBody{
+	var requestBody = accounts.CreateAccountRequest{
 		Name:     name,
 		Password: password,
 		Currency: currency,
@@ -66,7 +66,7 @@ func TestCreateAccountHandler(t *testing.T) {
 				}, nil)
 			},
 			expectedCode: http.StatusCreated,
-			expectedResponseBody: accounts.CreateAccountResponseBody{
+			expectedResponseBody: accounts.CreateAccountResponse{
 				ID:        accountID,
 				Name:      name,
 				Balance:   0,
@@ -89,7 +89,7 @@ func TestCreateAccountHandler(t *testing.T) {
 		},
 		{
 			caseName:    "An error occurs during account creation when validation failed.",
-			requestBody: accounts.CreateAccountRequestBody{},
+			requestBody: accounts.CreateAccountRequest{},
 			setupContext: func() context.Context {
 				return context.Background()
 			},
@@ -183,7 +183,7 @@ func TestCreateAccountHandler(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectedCode, rec.Code)
 			if rec.Code == http.StatusCreated {
-				var resp accounts.CreateAccountResponseBody
+				var resp accounts.CreateAccountResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)

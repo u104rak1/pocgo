@@ -1,4 +1,4 @@
-CREATE TABLE "currency_master" ("id" char(26) NOT NULL, "code" varchar(3) NOT NULL, PRIMARY KEY ("id"));
+CREATE TABLE "currency_master" ("id" char(26) NOT NULL, "code" varchar(3) NOT NULL, PRIMARY KEY ("id"), UNIQUE ("code"));
 CREATE TABLE "operation_type_master" ("type" varchar(20) NOT NULL, PRIMARY KEY ("type"));
 CREATE TABLE "users" ("id" char(26) NOT NULL, "name" varchar(20) NOT NULL, "email" VARCHAR NOT NULL, "deleted_at" TIMESTAMPTZ, PRIMARY KEY ("id"));
 CREATE TABLE "accounts" ("id" char(26) NOT NULL, "user_id" char(26) NOT NULL, "name" varchar(20), "password_hash" VARCHAR NOT NULL, "balance" float8 NOT NULL, "currency_id" VARCHAR NOT NULL, "updated_at" TIMESTAMPTZ NOT NULL, "deleted_at" TIMESTAMPTZ, PRIMARY KEY ("id"));

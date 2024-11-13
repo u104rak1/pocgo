@@ -43,7 +43,7 @@ func TestSignin(t *testing.T) {
 	}{
 		{
 			caseName: "Happy path (201): Signin successfully",
-			requestBody: signin.SigninRequestBody{
+			requestBody: signin.SigninRequest{
 				Email:    email,
 				Password: maxLenPassword,
 			},
@@ -52,7 +52,7 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			caseName: "Sad path (401): Authentication fails because email not found",
-			requestBody: signin.SigninRequestBody{
+			requestBody: signin.SigninRequest{
 				Email:    "diff@example.com",
 				Password: maxLenPassword,
 			},
@@ -61,7 +61,7 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			caseName: "Sad path (401): Authentication fails because authentication not found",
-			requestBody: signin.SigninRequestBody{
+			requestBody: signin.SigninRequest{
 				Email:    email,
 				Password: maxLenPassword,
 			},
@@ -77,7 +77,7 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			caseName: "Sad path (401): Authentication fails because password is incorrect",
-			requestBody: signin.SigninRequestBody{
+			requestBody: signin.SigninRequest{
 				Email:    email,
 				Password: "diffPassword",
 			},

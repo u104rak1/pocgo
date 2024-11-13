@@ -1,5 +1,5 @@
 definitions:
-  accounts.CreateAccountRequestBody:
+  accounts.CreateAccountRequest:
     properties:
       currency:
         example: JPY
@@ -11,7 +11,7 @@ definitions:
         example: "1234"
         type: string
     type: object
-  accounts.CreateAccountResponseBody:
+  accounts.CreateAccountResponse:
     properties:
       balance:
         example: 0
@@ -29,7 +29,7 @@ definitions:
         example: "2021-08-01T00:00:00Z"
         type: string
     type: object
-  me.ReadMyProfileResponseBody:
+  me.ReadMyProfileResponse:
     properties:
       email:
         example: sato@example.com
@@ -69,7 +69,7 @@ definitions:
         example: ErrorReason
         type: string
     type: object
-  signin.SigninRequestBody:
+  signin.SigninRequest:
     properties:
       email:
         example: sato@example.com
@@ -78,13 +78,13 @@ definitions:
         example: password
         type: string
     type: object
-  signin.SigninResponseBody:
+  signin.SigninResponse:
     properties:
       accessToken:
         example: eyJhb...
         type: string
     type: object
-  signup.SignupRequestBody:
+  signup.SignupRequest:
     properties:
       email:
         example: sato@example.com
@@ -96,7 +96,7 @@ definitions:
         example: password
         type: string
     type: object
-  signup.SignupResponseBody:
+  signup.SignupResponse:
     properties:
       accessToken:
         example: eyJhb...
@@ -114,6 +114,48 @@ definitions:
         type: string
       name:
         example: Sato Taro
+        type: string
+    type: object
+  transactions.ExecuteTransactionRequest:
+    properties:
+      accountID:
+        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        type: string
+      amount:
+        example: 1000
+        type: number
+      currency:
+        example: JPY
+        type: string
+      operationType:
+        example: deposit
+        type: string
+      recieverAccountId:
+        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        type: string
+    type: object
+  transactions.ExecuteTransactionResponse:
+    properties:
+      accountId:
+        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        type: string
+      amount:
+        example: 1000
+        type: number
+      currency:
+        example: JPY
+        type: string
+      id:
+        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        type: string
+      operationType:
+        example: deposit
+        type: string
+      recieverAccountId:
+        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        type: string
+      transactionAt:
+        example: "2024-03-20T15:00:00Z"
         type: string
     type: object
 info:
@@ -134,7 +176,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/me.ReadMyProfileResponseBody'
+            $ref: '#/definitions/me.ReadMyProfileResponse'
         "401":
           description: Unauthorized
           schema:
@@ -163,14 +205,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/accounts.CreateAccountRequestBody'
+          $ref: '#/definitions/accounts.CreateAccountRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/accounts.CreateAccountResponseBody'
+            $ref: '#/definitions/accounts.CreateAccountResponse'
         "400":
           description: Validation Failed or Bad Request
           schema:
@@ -196,6 +238,60 @@ paths:
       summary: Create Account
       tags:
       - Account API
+  /api/v1/me/accounts/{account_id}/transactions:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint executes a transaction (deposit, withdraw, or transfer)
+        for the specified account.
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: string
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/transactions.ExecuteTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transactions.ExecuteTransactionResponse'
+        "400":
+          description: Validation Failed or Bad Request
+          schema:
+            $ref: '#/definitions/response.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Execute Transaction
+      tags:
+      - Account API
   /api/v1/signin:
     post:
       consumes:
@@ -208,14 +304,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/signin.SigninRequestBody'
+          $ref: '#/definitions/signin.SigninRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/signin.SigninResponseBody'
+            $ref: '#/definitions/signin.SigninResponse'
         "400":
           description: Validation Failed or Bad Request
           schema:
@@ -242,14 +338,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/signup.SignupRequestBody'
+          $ref: '#/definitions/signup.SignupRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/signup.SignupResponseBody'
+            $ref: '#/definitions/signup.SignupResponse'
         "400":
           description: Validation Failed or Bad Request
           schema:

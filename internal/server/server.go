@@ -12,15 +12,18 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 	accountApp "github.com/ucho456job/pocgo/internal/application/account"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
+	transactionApp "github.com/ucho456job/pocgo/internal/application/transaction"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/config"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
+	transactionDomain "github.com/ucho456job/pocgo/internal/domain/transaction"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
 	healthPre "github.com/ucho456job/pocgo/internal/presentation/health"
-	"github.com/ucho456job/pocgo/internal/presentation/me"
-	"github.com/ucho456job/pocgo/internal/presentation/me/accounts"
+	mePre "github.com/ucho456job/pocgo/internal/presentation/me"
+	accountsPre "github.com/ucho456job/pocgo/internal/presentation/me/accounts"
+	transactionsPre "github.com/ucho456job/pocgo/internal/presentation/me/accounts/transactions"
 	signinPre "github.com/ucho456job/pocgo/internal/presentation/signin"
 	signupPre "github.com/ucho456job/pocgo/internal/presentation/signup"
 	myMiddleware "github.com/ucho456job/pocgo/internal/server/middleware"
@@ -46,11 +49,13 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	userRepo := repository.NewUserRepository(db)
 	authRepo := repository.NewAuthenticationRepository(db)
 	accountRepo := repository.NewAccountRepository(db)
+	transactionRepo := repository.NewTransactionRepository(db)
 
 	/** Domain Service */
 	userServ := userDomain.NewService(userRepo)
 	authServ := authDomain.NewService(authRepo, userRepo)
 	accountServ := accountDomain.NewService(accountRepo)
+	transactionServ := transactionDomain.NewService(accountRepo, transactionRepo)
 
 	/** Middleware */
 	e.Use(echoMiddleware.RequestID())
@@ -60,19 +65,22 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 
 	/** Unit of Work */
 	unitOfWork := repository.NewUnitOfWork(db)
+	transactionUOW := repository.NewUnitOfWorkWithResult[transactionDomain.Transaction](db)
 
 	/** Usecase */
 	readUserUC := userApp.NewReadUserUsecase(userRepo)
 	createAccountUC := accountApp.NewCreateAccountUsecase(accountRepo, accountServ, userServ, unitOfWork)
 	signupUC := authApp.NewSignupUsecase(userRepo, authRepo, userServ, authServ)
 	signinUC := authApp.NewSigninUsecase(authServ)
+	execTransactionUC := transactionApp.NewExecuteTransactionUsecase(accountRepo, transactionServ, transactionUOW)
 
 	/** Handler */
 	healthHandler := healthPre.NewHealthHandler(db)
 	signupHandler := signupPre.NewSignupHandler(signupUC)
 	signinHandler := signinPre.NewSigninHandler(signinUC)
-	readMyProfHandler := me.NewReadMyProfileHandler(readUserUC)
-	createAccountHandler := accounts.NewCreateAccountHandler(createAccountUC)
+	readMyProfHandler := mePre.NewReadMyProfileHandler(readUserUC)
+	createAccountHandler := accountsPre.NewCreateAccountHandler(createAccountUC)
+	execTransactionHandler := transactionsPre.NewExecuteTransactionHandler(execTransactionUC)
 
 	/** Health Endpoint */
 	e.GET("/", healthHandler.Run)
@@ -88,6 +96,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 
 	/** Account Endpoint */
 	v1.POST("/me/accounts", createAccountHandler.Run, authMiddleware)
+	v1.POST("/me/accounts/:account_id/transactions", execTransactionHandler.Run, authMiddleware)
 
 	/** Swagger */
 	e.GET("/swagger/*", echoSwagger.WrapHandler)

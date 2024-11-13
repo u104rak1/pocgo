@@ -26,7 +26,7 @@ func TestSignup(t *testing.T) {
 	}{
 		{
 			caseName: "Happy path (201): Signup successfully",
-			requestBody: signup.SignupRequestBody{
+			requestBody: signup.SignupRequest{
 				Name:     maxLenUserName,
 				Email:    userEmail,
 				Password: maxLenUserPassword,
@@ -38,7 +38,7 @@ func TestSignup(t *testing.T) {
 		},
 		{
 			caseName: "Sad path (409): email is already used",
-			requestBody: signup.SignupRequestBody{
+			requestBody: signup.SignupRequest{
 				Name:     maxLenUserName,
 				Email:    "conflict@example.com",
 				Password: maxLenUserPassword,

@@ -24,7 +24,7 @@ func TestSigninHandler(t *testing.T) {
 		invalidRequestBody = "invalid json"
 	)
 
-	var requestBody = signin.SigninRequestBody{
+	var requestBody = signin.SigninRequest{
 		Email:    "sato@example.com",
 		Password: "password",
 	}
@@ -45,7 +45,7 @@ func TestSigninHandler(t *testing.T) {
 				}, nil)
 			},
 			expectedCode: http.StatusCreated,
-			expectedResponseBody: signin.SigninResponseBody{
+			expectedResponseBody: signin.SigninResponse{
 				AccessToken: accessToken,
 			},
 		},
@@ -61,7 +61,7 @@ func TestSigninHandler(t *testing.T) {
 		},
 		{
 			caseName:     "Error occurs during signin when validation failed.",
-			requestBody:  signin.SigninRequestBody{},
+			requestBody:  signin.SigninRequest{},
 			prepare:      func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {},
 			expectedCode: http.StatusBadRequest,
 		},
@@ -114,7 +114,7 @@ func TestSigninHandler(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectedCode, rec.Code)
 			if rec.Code == http.StatusCreated {
-				var resp signin.SigninResponseBody
+				var resp signin.SigninResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)

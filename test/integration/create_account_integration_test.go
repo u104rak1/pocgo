@@ -35,7 +35,7 @@ func TestCreateAccount(t *testing.T) {
 	}{
 		{
 			caseName: "Happy path (201): Create account successfully",
-			requestBody: accounts.CreateAccountRequestBody{
+			requestBody: accounts.CreateAccountRequest{
 				Name:     name,
 				Password: password,
 				Currency: currency,
@@ -52,7 +52,7 @@ func TestCreateAccount(t *testing.T) {
 		},
 		{
 			caseName: "Sad path (404): User not found",
-			requestBody: accounts.CreateAccountRequestBody{
+			requestBody: accounts.CreateAccountRequest{
 				Name:     name,
 				Password: password,
 				Currency: currency,
@@ -64,7 +64,7 @@ func TestCreateAccount(t *testing.T) {
 		},
 		{
 			caseName: "Sad path (409): Account limit has already been reached",
-			requestBody: accounts.CreateAccountRequestBody{
+			requestBody: accounts.CreateAccountRequest{
 				Name:     name,
 				Password: password,
 				Currency: currency,

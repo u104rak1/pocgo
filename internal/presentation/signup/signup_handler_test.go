@@ -30,7 +30,7 @@ func TestSignupHandler(t *testing.T) {
 		invalidRequestBody = "invalid json"
 	)
 
-	var requestBody = signup.SignupRequestBody{
+	var requestBody = signup.SignupRequest{
 		Name:     userName,
 		Email:    userEmail,
 		Password: userPassword,
@@ -61,7 +61,7 @@ func TestSignupHandler(t *testing.T) {
 				}, nil)
 			},
 			expectedCode: http.StatusCreated,
-			expectedResponseBody: signup.SignupResponseBody{
+			expectedResponseBody: signup.SignupResponse{
 				User: signup.SignupResponseBodyUser{
 					ID:    userID,
 					Name:  userName,
@@ -82,7 +82,7 @@ func TestSignupHandler(t *testing.T) {
 		},
 		{
 			caseName:     "Error occurs during signup when validation failed.",
-			requestBody:  signup.SignupRequestBody{},
+			requestBody:  signup.SignupRequest{},
 			prepare:      func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
 			expectedCode: http.StatusBadRequest,
 		},
@@ -146,7 +146,7 @@ func TestSignupHandler(t *testing.T) {
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectedCode, rec.Code)
 			if rec.Code == http.StatusCreated {
-				var resp signup.SignupResponseBody
+				var resp signup.SignupResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)

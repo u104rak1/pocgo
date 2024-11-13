@@ -20,7 +20,7 @@ func NewReadMyProfileHandler(userReadUsecase userApp.IReadUserUsecase) *ReadMyPr
 	}
 }
 
-type ReadMyProfileResponseBody struct {
+type ReadMyProfileResponse struct {
 	ID    string `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
 	Name  string `json:"name" example:"Sato Taro"`
 	Email string `json:"email" example:"sato@example.com"`
@@ -32,7 +32,7 @@ type ReadMyProfileResponseBody struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Success 200 {object} ReadMyProfileResponseBody
+// @Success 200 {object} ReadMyProfileResponse
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 404 {object} response.ErrorResponse "Not Found"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
@@ -55,7 +55,7 @@ func (h *ReadMyProfileHandler) Run(ctx echo.Context) error {
 		}
 	}
 
-	return ctx.JSON(http.StatusOK, ReadMyProfileResponseBody{
+	return ctx.JSON(http.StatusOK, ReadMyProfileResponse{
 		ID:    dto.ID,
 		Name:  dto.Name,
 		Email: dto.Email,

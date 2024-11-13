@@ -20,12 +20,12 @@ func NewSigninHandler(signinUsecase authApp.ISigninUsecase) *SigninHandler {
 	}
 }
 
-type SigninRequestBody struct {
+type SigninRequest struct {
 	Email    string `json:"email" example:"sato@example.com"`
 	Password string `json:"password" example:"password"`
 }
 
-type SigninResponseBody struct {
+type SigninResponse struct {
 	AccessToken string `json:"accessToken" example:"eyJhb..."`
 }
 
@@ -34,15 +34,15 @@ type SigninResponseBody struct {
 // @Tags Authentication API
 // @Accept json
 // @Produce json
-// @Param request body SigninRequestBody true "Request Body"
-// @Success 201 {object} SigninResponseBody
+// @Param request body SigninRequest true "Request Body"
+// @Success 201 {object} SigninResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /api/v1/signin [post]
 func (h *SigninHandler) Run(ctx echo.Context) error {
-	req := new(SigninRequestBody)
-	if err := ctx.Bind(&req); err != nil {
+	req := new(SigninRequest)
+	if err := ctx.Bind(req); err != nil {
 		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}
 
@@ -63,12 +63,12 @@ func (h *SigninHandler) Run(ctx echo.Context) error {
 		}
 	}
 
-	return ctx.JSON(http.StatusCreated, SigninResponseBody{
+	return ctx.JSON(http.StatusCreated, SigninResponse{
 		AccessToken: dto.AccessToken,
 	})
 }
 
-func (h *SigninHandler) validation(req *SigninRequestBody) (validationErrors []response.ValidationError) {
+func (h *SigninHandler) validation(req *SigninRequest) (validationErrors []response.ValidationError) {
 	if err := validation.ValidUserEmail(req.Email); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
 			Field:   "email",

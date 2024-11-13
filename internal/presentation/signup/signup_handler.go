@@ -21,13 +21,13 @@ func NewSignupHandler(signupUsecase authApp.ISignupUsecase) *SignupHandler {
 	}
 }
 
-type SignupRequestBody struct {
+type SignupRequest struct {
 	Name     string `json:"name" example:"Sato Taro"`
 	Email    string `json:"email" example:"sato@example.com"`
 	Password string `json:"password" example:"password"`
 }
 
-type SignupResponseBody struct {
+type SignupResponse struct {
 	User        SignupResponseBodyUser `json:"user"`
 	AccessToken string                 `json:"accessToken" example:"eyJhb..."`
 }
@@ -43,14 +43,14 @@ type SignupResponseBodyUser struct {
 // @Tags Authentication API
 // @Accept json
 // @Produce json
-// @Param body body SignupRequestBody true "Request Body"
-// @Success 201 {object} SignupResponseBody
+// @Param body body SignupRequest true "Request Body"
+// @Success 201 {object} SignupResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 409 {object} response.ErrorResponse "Conflict"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
 // @Router /api/v1/signup [post]
 func (h *SignupHandler) Run(ctx echo.Context) error {
-	req := new(SignupRequestBody)
+	req := new(SignupRequest)
 	if err := ctx.Bind(req); err != nil {
 		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}
@@ -74,7 +74,7 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 		}
 	}
 
-	return ctx.JSON(http.StatusCreated, SignupResponseBody{
+	return ctx.JSON(http.StatusCreated, SignupResponse{
 		User: SignupResponseBodyUser{
 			ID:    dto.User.ID,
 			Name:  dto.User.Name,
@@ -84,7 +84,7 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 	})
 }
 
-func (h *SignupHandler) validation(req *SignupRequestBody) (validationErrors []response.ValidationError) {
+func (h *SignupHandler) validation(req *SignupRequest) (validationErrors []response.ValidationError) {
 	if err := validation.ValidUserName(req.Name); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
 			Field:   "name",

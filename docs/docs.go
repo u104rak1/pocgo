@@ -37,7 +37,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/me.ReadMyProfileResponseBody"
+                            "$ref": "#/definitions/me.ReadMyProfileResponse"
                         }
                     },
                     "401": {
@@ -86,7 +86,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/accounts.CreateAccountRequestBody"
+                            "$ref": "#/definitions/accounts.CreateAccountRequest"
                         }
                     }
                 ],
@@ -94,7 +94,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/accounts.CreateAccountResponseBody"
+                            "$ref": "#/definitions/accounts.CreateAccountResponse"
                         }
                     },
                     "400": {
@@ -105,6 +105,88 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/me/accounts/{account_id}/transactions": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "This endpoint executes a transaction (deposit, withdraw, or transfer) for the specified account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Account API"
+                ],
+                "summary": "Execute Transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account ID",
+                        "name": "account_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/transactions.ExecuteTransactionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/transactions.ExecuteTransactionResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation Failed or Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -150,7 +232,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/signin.SigninRequestBody"
+                            "$ref": "#/definitions/signin.SigninRequest"
                         }
                     }
                 ],
@@ -158,7 +240,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/signin.SigninResponseBody"
+                            "$ref": "#/definitions/signin.SigninResponse"
                         }
                     },
                     "400": {
@@ -202,7 +284,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/signup.SignupRequestBody"
+                            "$ref": "#/definitions/signup.SignupRequest"
                         }
                     }
                 ],
@@ -210,7 +292,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/signup.SignupResponseBody"
+                            "$ref": "#/definitions/signup.SignupResponse"
                         }
                     },
                     "400": {
@@ -236,7 +318,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "accounts.CreateAccountRequestBody": {
+        "accounts.CreateAccountRequest": {
             "type": "object",
             "properties": {
                 "currency": {
@@ -253,7 +335,7 @@ const docTemplate = `{
                 }
             }
         },
-        "accounts.CreateAccountResponseBody": {
+        "accounts.CreateAccountResponse": {
             "type": "object",
             "properties": {
                 "balance": {
@@ -278,7 +360,7 @@ const docTemplate = `{
                 }
             }
         },
-        "me.ReadMyProfileResponseBody": {
+        "me.ReadMyProfileResponse": {
             "type": "object",
             "properties": {
                 "email": {
@@ -336,7 +418,7 @@ const docTemplate = `{
                 }
             }
         },
-        "signin.SigninRequestBody": {
+        "signin.SigninRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -349,7 +431,7 @@ const docTemplate = `{
                 }
             }
         },
-        "signin.SigninResponseBody": {
+        "signin.SigninResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -358,7 +440,7 @@ const docTemplate = `{
                 }
             }
         },
-        "signup.SignupRequestBody": {
+        "signup.SignupRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -375,7 +457,7 @@ const docTemplate = `{
                 }
             }
         },
-        "signup.SignupResponseBody": {
+        "signup.SignupResponse": {
             "type": "object",
             "properties": {
                 "accessToken": {
@@ -401,6 +483,64 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "Sato Taro"
+                }
+            }
+        },
+        "transactions.ExecuteTransactionRequest": {
+            "type": "object",
+            "properties": {
+                "accountID": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                },
+                "amount": {
+                    "type": "number",
+                    "example": 1000
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "JPY"
+                },
+                "operationType": {
+                    "type": "string",
+                    "example": "deposit"
+                },
+                "recieverAccountId": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                }
+            }
+        },
+        "transactions.ExecuteTransactionResponse": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                },
+                "amount": {
+                    "type": "number",
+                    "example": 1000
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "JPY"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                },
+                "operationType": {
+                    "type": "string",
+                    "example": "deposit"
+                },
+                "recieverAccountId": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                },
+                "transactionAt": {
+                    "type": "string",
+                    "example": "2024-03-20T15:00:00Z"
                 }
             }
         }
