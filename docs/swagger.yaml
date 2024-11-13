@@ -116,11 +116,8 @@ definitions:
         example: Sato Taro
         type: string
     type: object
-  transactions.ExecuteTransactionRequest:
+  transactions.ExecuteTransactionRequestBody:
     properties:
-      accountID:
-        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
-        type: string
       amount:
         example: 1000
         type: number
@@ -128,10 +125,13 @@ definitions:
         example: JPY
         type: string
       operationType:
-        example: deposit
+        example: DEPOSIT
+        type: string
+      password:
+        example: "1234"
         type: string
       recieverAccountId:
-        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        example: 01J9R8AJ1Q2YDH1X9836GS9D87
         type: string
     type: object
   transactions.ExecuteTransactionResponse:
@@ -146,13 +146,13 @@ definitions:
         example: JPY
         type: string
       id:
-        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        example: 01J9R8AJ1Q2YDH1X9836GS9E89
         type: string
       operationType:
-        example: deposit
+        example: DEPOSIT
         type: string
       recieverAccountId:
-        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        example: 01J9R8AJ1Q2YDH1X9836GS9D87
         type: string
       transactionAt:
         example: "2024-03-20T15:00:00Z"
@@ -255,7 +255,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/transactions.ExecuteTransactionRequest'
+          $ref: '#/definitions/transactions.ExecuteTransactionRequestBody'
       produces:
       - application/json
       responses:
@@ -279,10 +279,6 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -291,7 +287,7 @@ paths:
       - BearerAuth: []
       summary: Execute Transaction
       tags:
-      - Account API
+      - Transaction API
   /api/v1/signin:
     post:
       consumes:

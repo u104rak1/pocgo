@@ -59,14 +59,12 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 
 func (r *accountRepository) FindByID(ctx context.Context, id string) (*accountDomain.Account, error) {
 	accountModel := &model.Account{}
-	var currencyCode string
 
 	if err := r.execDB(ctx).NewSelect().
 		Model(accountModel).
-		ColumnExpr("account.*, currency_master.code AS currency_code").
-		Join("JOIN currency_master ON currency_master.id = account.currency_id").
+		Relation("Currency").
 		Where("account.id = ?", id).
-		Scan(ctx, &currencyCode); err != nil {
+		Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, accountDomain.ErrNotFound
 		}
@@ -79,7 +77,7 @@ func (r *accountRepository) FindByID(ctx context.Context, id string) (*accountDo
 		accountModel.Name,
 		accountModel.PasswordHash,
 		accountModel.Balance,
-		currencyCode,
+		accountModel.Currency.Code,
 		accountModel.UpdatedAt,
 	)
 }

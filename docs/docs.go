@@ -145,7 +145,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Account API"
+                    "Transaction API"
                 ],
                 "summary": "Execute Transaction",
                 "parameters": [
@@ -162,7 +162,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/transactions.ExecuteTransactionRequest"
+                            "$ref": "#/definitions/transactions.ExecuteTransactionRequestBody"
                         }
                     }
                 ],
@@ -193,12 +193,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "409": {
-                        "description": "Conflict",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -486,13 +480,9 @@ const docTemplate = `{
                 }
             }
         },
-        "transactions.ExecuteTransactionRequest": {
+        "transactions.ExecuteTransactionRequestBody": {
             "type": "object",
             "properties": {
-                "accountID": {
-                    "type": "string",
-                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
-                },
                 "amount": {
                     "type": "number",
                     "example": 1000
@@ -503,11 +493,15 @@ const docTemplate = `{
                 },
                 "operationType": {
                     "type": "string",
-                    "example": "deposit"
+                    "example": "DEPOSIT"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "1234"
                 },
                 "recieverAccountId": {
                     "type": "string",
-                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                    "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
                 }
             }
         },
@@ -528,15 +522,15 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "string",
-                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                    "example": "01J9R8AJ1Q2YDH1X9836GS9E89"
                 },
                 "operationType": {
                     "type": "string",
-                    "example": "deposit"
+                    "example": "DEPOSIT"
                 },
                 "recieverAccountId": {
                     "type": "string",
-                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                    "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
                 },
                 "transactionAt": {
                     "type": "string",

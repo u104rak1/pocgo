@@ -32,6 +32,7 @@ func NewExecuteTransactionUsecase(
 
 type ExecuteTransactionCommand struct {
 	AccountID         string
+	Password          string
 	OperationType     string
 	Amount            float64
 	Currency          string
@@ -51,6 +52,10 @@ type ExecuteTransactionDTO struct {
 func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransactionCommand) (*ExecuteTransactionDTO, error) {
 	account, err := u.accountRepo.FindByID(ctx, cmd.AccountID)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := account.ComparePassword(cmd.Password); err != nil {
 		return nil, err
 	}
 
