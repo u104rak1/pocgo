@@ -10,7 +10,7 @@ import (
 var ErrInvalidJSON = errors.New("request body is invalid json")
 
 type ValidationErrorResponse struct {
-	Reason string            `json:"reason" example:"ErrorReason"`
+	Reason string            `json:"reason" example:"error reason"`
 	Errors []ValidationError `json:"errors"`
 }
 
@@ -19,7 +19,7 @@ type ValidationError struct {
 	Message string `json:"message" example:"error message"`
 }
 
-var ValidationFailedReason = "ValidationFailed"
+var ValidationFailedReason = "validation failed"
 
 func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) error {
 	return ctx.JSON(http.StatusBadRequest, ValidationErrorResponse{
