@@ -31,7 +31,7 @@ migrate_reset: ## Revert all migrations
 drop_tables: ## Drop all tables
 	@go run ./cmd/postgres/main.go drop tables
 
-seed: ## Seed data input
+seed: ## Insert seed data after dropping all tables and running all migrations
 	make drop_tables
 	make migrate_up
 	@go run ./cmd/postgres/main.go insert seed

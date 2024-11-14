@@ -129,18 +129,18 @@ func (h *ExecuteTransactionHandler) validation(req *ExecuteTransactionRequest) (
 		})
 	}
 
-	if err := validation.ValidCurrency(req.Currency); err == nil {
+	if err := validation.ValidCurrency(req.Currency); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "currency",
+			Message: err.Error(),
+		})
+	} else {
 		if err := validation.ValidAmount(req.Currency, req.Amount); err != nil {
 			validationErrors = append(validationErrors, response.ValidationError{
 				Field:   "amount",
 				Message: err.Error(),
 			})
 		}
-	} else {
-		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "currency",
-			Message: err.Error(),
-		})
 	}
 
 	if req.RecieverAccountID != nil {
