@@ -8,9 +8,10 @@ const (
 )
 
 var (
+	ErrInvalidMoney        = errors.New("invalid money")
 	ErrNegativeAmount      = errors.New("amount cannot be negative")
-	ErrInvalidUSDPrecision = errors.New("USD amount must have two decimal places")
-	ErrInvalidJPYPrecision = errors.New("JPY amount must have no decimal places")
+	ErrInvalidUSDPrecision = errors.New("amount in USD cannot have more than 2 decimal places")
+	ErrInvalidJPYPrecision = errors.New("amount in JPY must not have decimal places")
 	ErrUnsupportedCurrency = errors.New("unsupported currency")
 	ErrDifferentCurrency   = errors.New("cannot add different currencies")
 	ErrInsufficientBalance = errors.New("insufficient balance")

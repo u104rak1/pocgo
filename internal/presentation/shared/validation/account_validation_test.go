@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
 )
 
@@ -94,48 +93,6 @@ func TestValidAccountPassword(t *testing.T) {
 			} else {
 				assert.Error(t, err)
 				assert.Equal(t, tt.wantErr, err.Error())
-			}
-		})
-	}
-}
-
-func TestValidAccountCurrency(t *testing.T) {
-	tests := []struct {
-		name    string
-		input   string
-		wantErr string
-	}{
-		{
-			"An empty currency is invalid.",
-			"",
-			"cannot be blank",
-		},
-		{
-			"An unsupported currency is invalid.",
-			"EUR",
-			"must be a valid value",
-		},
-		{
-			"A valid currency (JPY) is accepted.",
-			money.JPY,
-			"",
-		},
-		{
-			"A valid currency (USD) is accepted.",
-			money.USD,
-			"",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			err := validation.ValidAccountCurrency(tt.input)
-			if tt.wantErr == "" {
-				assert.NoError(t, err)
-			} else {
-				assert.Error(t, err)
-				assert.Equal(t, err.Error(), tt.wantErr)
 			}
 		})
 	}

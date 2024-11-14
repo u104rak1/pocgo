@@ -3,11 +3,14 @@ package ulid
 import (
 	"crypto/md5"
 	"encoding/binary"
+	"errors"
 	"math/rand"
 	"time"
 
 	"github.com/oklog/ulid/v2"
 )
+
+var ErrInvalidULID = errors.New("invalid ulid")
 
 func New() string {
 	return ulid.Make().String()

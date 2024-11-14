@@ -104,7 +104,7 @@ func (h *CreateAccountHandler) validation(req *CreateAccountRequest) (validation
 			Message: err.Error(),
 		})
 	}
-	if err := validation.ValidAccountCurrency(req.Currency); err != nil {
+	if err := validation.ValidCurrency(req.Currency); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
 			Field:   "currency",
 			Message: err.Error(),

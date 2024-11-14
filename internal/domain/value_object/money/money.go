@@ -25,13 +25,13 @@ func New(amount float64, currency string) (*Money, error) {
 		}
 		amount = math.Round(amount)
 		return &Money{amount: amount, currency: currency}, nil
-
-	// defailt currency is USD
-	default:
+	case USD:
 		if math.Round(amount*100) != amount*100 {
 			return nil, ErrInvalidUSDPrecision
 		}
 		return &Money{amount: amount, currency: currency}, nil
+	default:
+		return nil, ErrInvalidMoney
 	}
 }
 
