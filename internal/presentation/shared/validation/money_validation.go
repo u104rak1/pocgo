@@ -7,7 +7,27 @@ import (
 	moneyVO "github.com/ucho456job/pocgo/internal/domain/value_object/money"
 )
 
-func ValidJPY(amount float64) error {
+type MoneyValidation struct {
+	Field   string
+	Message string
+}
+
+func ValidCurrency(currency string) error {
+	return v.Validate(currency, v.Required, v.In(moneyVO.JPY, moneyVO.USD))
+}
+
+func ValidAmount(currency string, amount float64) error {
+	switch currency {
+	case moneyVO.JPY:
+		return validJPY(amount)
+	case moneyVO.USD:
+		return validUSD(amount)
+	default:
+		return moneyVO.ErrUnsupportedCurrency
+	}
+}
+
+func validJPY(amount float64) error {
 	if err := v.Validate(amount, v.Min(0.0)); err != nil {
 		return err
 	}
@@ -17,7 +37,7 @@ func ValidJPY(amount float64) error {
 	return nil
 }
 
-func ValidUSD(amount float64) error {
+func validUSD(amount float64) error {
 	if err := v.Validate(amount, v.Min(0.0)); err != nil {
 		return err
 	}
@@ -25,8 +45,4 @@ func ValidUSD(amount float64) error {
 		return moneyVO.ErrInvalidUSDPrecision
 	}
 	return nil
-}
-
-func ValidCurrency(currency string) error {
-	return v.Validate(currency, v.Required, v.In(moneyVO.JPY, moneyVO.USD))
 }

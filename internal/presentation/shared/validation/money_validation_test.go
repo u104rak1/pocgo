@@ -8,85 +8,73 @@ import (
 	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
 )
 
-func TestValidJPY(t *testing.T) {
+func TestValidAmount(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   float64
-		wantErr string
+		caseName string
+		currency string
+		amount   float64
+		wantErr  string
 	}{
 		{
-			"A negative amount is invalid.",
-			-1.0,
-			"must be no less than 0",
+			caseName: "A negative JPY is invalid.",
+			currency: moneyVO.JPY,
+			amount:   -1.0,
+			wantErr:  "must be no less than 0",
 		},
 		{
-			"Zero is valid.",
-			0.0,
-			"",
+			caseName: "0 JPY is valid.",
+			currency: moneyVO.JPY,
+			amount:   0.0,
+			wantErr:  "",
 		},
 		{
-			"A positive amount is valid.",
-			1.0,
-			"",
+			caseName: "A positive JPY is valid.",
+			currency: moneyVO.JPY,
+			amount:   1.0,
+			wantErr:  "",
 		},
 		{
-			"A JPY amount with invalid precision is invalid.",
-			100.5,
-			moneyVO.ErrInvalidJPYPrecision.Error(),
+			caseName: "A JPY amount with invalid precision is invalid.",
+			currency: moneyVO.JPY,
+			amount:   100.5,
+			wantErr:  moneyVO.ErrInvalidJPYPrecision.Error(),
+		},
+		{
+			caseName: "A negative USD is invalid.",
+			currency: moneyVO.USD,
+			amount:   -1.0,
+			wantErr:  "must be no less than 0",
+		},
+		{
+			caseName: "0 USD is valid.",
+			currency: moneyVO.USD,
+			amount:   0.0,
+			wantErr:  "",
+		},
+		{
+			caseName: "A positive USD is valid.",
+			currency: moneyVO.USD,
+			amount:   1.0,
+			wantErr:  "",
+		},
+		{
+			caseName: "A USD is allowed up to 2 decimal places.",
+			currency: moneyVO.USD,
+			amount:   100.12,
+			wantErr:  "",
+		},
+		{
+			caseName: "A USD is not allowed more than 2 decimal places.",
+			currency: moneyVO.USD,
+			amount:   100.123,
+			wantErr:  moneyVO.ErrInvalidUSDPrecision.Error(),
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			err := validation.ValidJPY(tt.input)
-			if tt.wantErr == "" {
-				assert.NoError(t, err)
-			} else {
-				assert.Error(t, err)
-				assert.Equal(t, tt.wantErr, err.Error())
-			}
-		})
-	}
-}
-
-func TestValidUSD(t *testing.T) {
-	tests := []struct {
-		name    string
-		input   float64
-		wantErr string
-	}{
-		{
-			"A negative amount is invalid.",
-			-1.0,
-			"must be no less than 0",
-		},
-		{
-			"Zero is valid.",
-			0.0,
-			"",
-		},
-		{
-			"A positive amount is valid.",
-			1.0,
-			"",
-		},
-		{
-			"USD is allowed up to 2 decimal places.",
-			100.12,
-			"",
-		},
-		{
-			"USD is not allowed more than 2 decimal places.",
-			100.123,
-			moneyVO.ErrInvalidUSDPrecision.Error(),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			err := validation.ValidUSD(tt.input)
+			err := validation.ValidAmount(tt.currency, tt.amount)
 			if tt.wantErr == "" {
 				assert.NoError(t, err)
 			} else {
@@ -99,34 +87,34 @@ func TestValidUSD(t *testing.T) {
 
 func TestValidCurrency(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   string
-		wantErr string
+		caseName string
+		input    string
+		wantErr  string
 	}{
 		{
-			"An empty currency is invalid.",
-			"",
-			"cannot be blank",
+			caseName: "An empty currency is invalid.",
+			input:    "",
+			wantErr:  "cannot be blank",
 		},
 		{
-			"An unsupported currency is invalid.",
-			"EUR",
-			"must be a valid value",
+			caseName: "An unsupported currency is invalid.",
+			input:    "EUR",
+			wantErr:  "must be a valid value",
 		},
 		{
-			"A valid currency (JPY) is accepted.",
-			moneyVO.JPY,
-			"",
+			caseName: "A valid currency (JPY) is accepted.",
+			input:    moneyVO.JPY,
+			wantErr:  "",
 		},
 		{
-			"A valid currency (USD) is accepted.",
-			moneyVO.USD,
-			"",
+			caseName: "A valid currency (USD) is accepted.",
+			input:    moneyVO.USD,
+			wantErr:  "",
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidCurrency(tt.input)
 			if tt.wantErr == "" {

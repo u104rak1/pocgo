@@ -10,39 +10,39 @@ import (
 
 func TestValidTransactionOperationType(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   string
-		wantErr string
+		caseName string
+		input    string
+		wantErr  string
 	}{
 		{
-			"An empty operation type is invalid",
-			"",
-			"cannot be blank",
+			caseName: "An empty operation type is invalid",
+			input:    "",
+			wantErr:  "cannot be blank",
 		},
 		{
-			"An unsupported operation type is invalid",
-			"invalid-type",
-			"must be a valid value",
+			caseName: "An unsupported operation type is invalid",
+			input:    "invalid-type",
+			wantErr:  "must be a valid value",
 		},
 		{
-			"A valid operation type (Deposit) is accepted",
-			transaction.Deposit,
-			"",
+			caseName: "A valid operation type (Deposit) is accepted",
+			input:    transaction.Deposit,
+			wantErr:  "",
 		},
 		{
-			"A valid operation type (Withdraw) is accepted",
-			transaction.Withdraw,
-			"",
+			caseName: "A valid operation type (Withdraw) is accepted",
+			input:    transaction.Withdraw,
+			wantErr:  "",
 		},
 		{
-			"A valid operation type (Transfer) is accepted",
-			transaction.Transfer,
-			"",
+			caseName: "A valid operation type (Transfer) is accepted",
+			input:    transaction.Transfer,
+			wantErr:  "",
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidTransactionOperationType(tt.input)
 			if tt.wantErr == "" {

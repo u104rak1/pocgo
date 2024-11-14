@@ -10,39 +10,39 @@ import (
 
 func TestInvalidULID(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   string
-		wantErr string
+		caseName string
+		input    string
+		wantErr  string
 	}{
 		{
-			"Valid ULID",
-			"01FZ7TYX2X5JYZR9DYZXQSTB4H",
-			"",
+			caseName: "Valid ULID",
+			input:    "01FZ7TYX2X5JYZR9DYZXQSTB4H",
+			wantErr:  "",
 		},
 		{
-			"Empty string is invalid",
-			"",
-			ulidUtil.ErrInvalidULID.Error(),
+			caseName: "Empty string is invalid",
+			input:    "",
+			wantErr:  ulidUtil.ErrInvalidULID.Error(),
 		},
 		{
-			"Invalid ULID format",
-			"invalid-ulid",
-			ulidUtil.ErrInvalidULID.Error(),
+			caseName: "Invalid ULID format",
+			input:    "invalid-ulid",
+			wantErr:  ulidUtil.ErrInvalidULID.Error(),
 		},
 		{
-			"Too short ULID (25 characters)",
-			"01FZ7TYX2X5JYZR9DYZXQSTB4",
-			ulidUtil.ErrInvalidULID.Error(),
+			caseName: "Too short ULID (25 characters)",
+			input:    "01FZ7TYX2X5JYZR9DYZXQSTB4",
+			wantErr:  ulidUtil.ErrInvalidULID.Error(),
 		},
 		{
-			"Too long ULID (27 characters)",
-			"01FZ7TYX2X5JYZR9DYZXQSTB4H1",
-			ulidUtil.ErrInvalidULID.Error(),
+			caseName: "Too long ULID (27 characters)",
+			input:    "01FZ7TYX2X5JYZR9DYZXQSTB4H1",
+			wantErr:  ulidUtil.ErrInvalidULID.Error(),
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidULID(tt.input)
 			if tt.wantErr == "" {

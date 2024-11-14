@@ -12,39 +12,39 @@ import (
 
 func TestValidUserName(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   string
-		wantErr string
+		caseName string
+		input    string
+		wantErr  string
 	}{
 		{
-			"An empty name is invalid.",
-			"",
-			"cannot be blank",
+			caseName: "An empty name is invalid.",
+			input:    "",
+			wantErr:  "cannot be blank",
 		},
 		{
-			"A name less than 2-characters are invalid.",
-			strings.Repeat("a", userDomain.NameMinLength-1),
-			"the length must be between 3 and 20",
+			caseName: "A name less than 2-characters are invalid.",
+			input:    strings.Repeat("a", userDomain.NameMinLength-1),
+			wantErr:  "the length must be between 3 and 20",
 		},
 		{
-			"Valid name must be a minimum 3-characters.",
-			strings.Repeat("a", userDomain.NameMinLength),
-			"",
+			caseName: "Valid name must be a minimum 3-characters.",
+			input:    strings.Repeat("a", userDomain.NameMinLength),
+			wantErr:  "",
 		},
 		{
-			"Valid name must be a maximum of 20-characters.",
-			strings.Repeat("a", userDomain.NameMaxLength),
-			"",
+			caseName: "Valid name must be a maximum of 20-characters.",
+			input:    strings.Repeat("a", userDomain.NameMaxLength),
+			wantErr:  "",
 		},
 		{
-			"A name longer than 21-characters are invalid.",
-			strings.Repeat("a", userDomain.NameMaxLength+1),
-			"the length must be between 3 and 20",
+			caseName: "A name longer than 21-characters are invalid.",
+			input:    strings.Repeat("a", userDomain.NameMaxLength+1),
+			wantErr:  "the length must be between 3 and 20",
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidUserName(tt.input)
 			if tt.wantErr == "" {
@@ -59,29 +59,29 @@ func TestValidUserName(t *testing.T) {
 
 func TestValidUserEmail(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   string
-		wantErr string
+		caseName string
+		input    string
+		wantErr  string
 	}{
 		{
-			"An empty email is invalid.",
-			"",
-			"cannot be blank",
+			caseName: "An empty email is invalid.",
+			input:    "",
+			wantErr:  "cannot be blank",
 		},
 		{
-			"An invalid email format is invalid.",
-			"invalid",
-			"the email format is invalid",
+			caseName: "An invalid email format is invalid.",
+			input:    "invalid",
+			wantErr:  "the email format is invalid",
 		},
 		{
-			"A valid email format is valid.",
-			"test@example.com",
-			"",
+			caseName: "A valid email format is valid.",
+			input:    "test@example.com",
+			wantErr:  "",
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidUserEmail(tt.input)
 			if tt.wantErr == "" {
@@ -96,39 +96,39 @@ func TestValidUserEmail(t *testing.T) {
 
 func TestValidUserPassword(t *testing.T) {
 	tests := []struct {
-		name    string
-		input   string
-		wantErr string
+		caseName string
+		input    string
+		wantErr  string
 	}{
 		{
-			"An empty password is invalid.",
-			"",
-			"cannot be blank",
+			caseName: "An empty password is invalid.",
+			input:    "",
+			wantErr:  "cannot be blank",
 		},
 		{
-			"A password less than 7-characters are invalid.",
-			strings.Repeat("a", authDomain.PasswordMinLength-1),
-			"the length must be between 8 and 20",
+			caseName: "A password less than 7-characters are invalid.",
+			input:    strings.Repeat("a", authDomain.PasswordMinLength-1),
+			wantErr:  "the length must be between 8 and 20",
 		},
 		{
-			"Valid password must be a minimum 8-characters.",
-			strings.Repeat("a", authDomain.PasswordMinLength),
-			"",
+			caseName: "Valid password must be a minimum 8-characters.",
+			input:    strings.Repeat("a", authDomain.PasswordMinLength),
+			wantErr:  "",
 		},
 		{
-			"Valid password must be a maximum of 20-characters.",
-			strings.Repeat("a", authDomain.PasswordMaxLength),
-			"",
+			caseName: "Valid password must be a maximum of 20-characters.",
+			input:    strings.Repeat("a", authDomain.PasswordMaxLength),
+			wantErr:  "",
 		},
 		{
-			"A password longer than 21-characters are invalid.",
-			strings.Repeat("a", authDomain.PasswordMaxLength+1),
-			"the length must be between 8 and 20",
+			caseName: "A password longer than 21-characters are invalid.",
+			input:    strings.Repeat("a", authDomain.PasswordMaxLength+1),
+			wantErr:  "the length must be between 8 and 20",
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidUserPassword(tt.input)
 			if tt.wantErr == "" {

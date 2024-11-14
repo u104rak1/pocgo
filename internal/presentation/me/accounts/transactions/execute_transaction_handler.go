@@ -6,8 +6,9 @@ import (
 	"github.com/labstack/echo/v4"
 	transactionApp "github.com/ucho456job/pocgo/internal/application/transaction"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	moneyDomain "github.com/ucho456job/pocgo/internal/domain/value_object/money"
+	moneyVO "github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
+	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
 )
 
 type ExecuteTransactionHandler struct {
@@ -68,9 +69,9 @@ func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}
 
-	// if validationErrors := h.validation(req); len(validationErrors) > 0 {
-	// 	return response.ValidationFailed(ctx, validationErrors)
-	// }
+	if validationErrors := h.validation(req); len(validationErrors) > 0 {
+		return response.ValidationFailed(ctx, validationErrors)
+	}
 
 	dto, err := h.execTransactionUC.Run(ctx.Request().Context(), transactionApp.ExecuteTransactionCommand{
 		AccountID:         req.AccountID,
@@ -82,9 +83,9 @@ func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 	})
 	if err != nil {
 		switch err {
-		case moneyDomain.ErrDifferentCurrency:
+		case moneyVO.ErrDifferentCurrency:
 			return response.BadRequest(ctx, err)
-		case moneyDomain.ErrInsufficientBalance,
+		case moneyVO.ErrInsufficientBalance,
 			accountDomain.ErrUnmatchedPassword:
 			return response.Forbidden(ctx, err)
 		case accountDomain.ErrNotFound,
@@ -106,31 +107,50 @@ func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 	})
 }
 
-// func (h *ExecuteTransactionHandler) validation(req *ExecuteTransactionRequestBody) (validationErrors []response.ValidationError) {
-// 	if err := validation.ValidTransactionOperationType(req.OperationType); err != nil {
-// 		validationErrors = append(validationErrors, response.ValidationError{
-// 			Field:   "operation_type",
-// 			Message: err.Error(),
-// 		})
-// 	}
-// 	if err := validation.ValidTransactionAmount(req.Amount); err != nil {
-// 		validationErrors = append(validationErrors, response.ValidationError{
-// 			Field:   "amount",
-// 			Message: err.Error(),
-// 		})
-// 	}
-// 	if req.OperationType == "transfer" {
-// 		if req.RecieverAccountID == nil {
-// 			validationErrors = append(validationErrors, response.ValidationError{
-// 				Field:   "target_account_id",
-// 				Message: "target account id is required for transfer operation",
-// 			})
-// 		} else if err := validation.ValidAccountID(*req.RecieverAccountID); err != nil {
-// 			validationErrors = append(validationErrors, response.ValidationError{
-// 				Field:   "target_account_id",
-// 				Message: err.Error(),
-// 			})
-// 		}
-// 	}
-// 	return validationErrors
-// }
+func (h *ExecuteTransactionHandler) validation(req *ExecuteTransactionRequest) (validationErrors []response.ValidationError) {
+	if err := validation.ValidULID(req.AccountID); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "account_id",
+			Message: err.Error(),
+		})
+	}
+
+	if err := validation.ValidAccountPassword(req.Password); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "password",
+			Message: err.Error(),
+		})
+	}
+
+	if err := validation.ValidTransactionOperationType(req.OperationType); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "operationType",
+			Message: err.Error(),
+		})
+	}
+
+	if err := validation.ValidCurrency(req.Currency); err == nil {
+		if err := validation.ValidAmount(req.Currency, req.Amount); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "amount",
+				Message: err.Error(),
+			})
+		}
+	} else {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "currency",
+			Message: err.Error(),
+		})
+	}
+
+	if req.RecieverAccountID != nil {
+		if err := validation.ValidULID(*req.RecieverAccountID); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "recieverAccountId",
+				Message: err.Error(),
+			})
+		}
+	}
+
+	return validationErrors
+}
