@@ -1,5 +1,5 @@
 definitions:
-  accounts.CreateAccountRequest:
+  accounts.CreateAccountRequestBody:
     properties:
       currency:
         example: JPY
@@ -66,7 +66,7 @@ definitions:
           $ref: '#/definitions/response.ValidationError'
         type: array
       reason:
-        example: ErrorReason
+        example: error reason
         type: string
     type: object
   signin.SigninRequest:
@@ -130,7 +130,7 @@ definitions:
       password:
         example: "1234"
         type: string
-      recieverAccountId:
+      receiverAccountId:
         example: 01J9R8AJ1Q2YDH1X9836GS9D87
         type: string
     type: object
@@ -151,7 +151,41 @@ definitions:
       operationType:
         example: DEPOSIT
         type: string
-      recieverAccountId:
+      receiverAccountId:
+        example: 01J9R8AJ1Q2YDH1X9836GS9D87
+        type: string
+      transactionAt:
+        example: "2024-03-20T15:00:00Z"
+        type: string
+    type: object
+  transactions.ListTransactionsResponse:
+    properties:
+      total:
+        example: 3
+        type: integer
+      transactions:
+        items:
+          $ref: '#/definitions/transactions.ListTransactionsTransaction'
+        type: array
+    type: object
+  transactions.ListTransactionsTransaction:
+    properties:
+      accountId:
+        example: 01J9R7YPV1FH1V0PPKVSB5C8FW
+        type: string
+      amount:
+        example: 1000
+        type: number
+      currency:
+        example: JPY
+        type: string
+      id:
+        example: 01J9R8AJ1Q2YDH1X9836GS9E89
+        type: string
+      operationType:
+        example: DEPOSIT
+        type: string
+      receiverAccountId:
         example: 01J9R8AJ1Q2YDH1X9836GS9D87
         type: string
       transactionAt:
@@ -205,7 +239,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/accounts.CreateAccountRequest'
+          $ref: '#/definitions/accounts.CreateAccountRequestBody'
       produces:
       - application/json
       responses:
@@ -239,6 +273,73 @@ paths:
       tags:
       - Account API
   /api/v1/me/accounts/{account_id}/transactions:
+    get:
+      consumes:
+      - application/json
+      description: This endpoint retrieves the transaction history of the specified
+        account.
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: string
+      - description: From
+        in: query
+        name: from
+        type: string
+      - description: To
+        in: query
+        name: to
+        type: string
+      - description: Operation Types
+        in: query
+        name: operationTypes
+        type: string
+      - description: DESC or ASC
+        in: query
+        name: sort
+        type: string
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transactions.ListTransactionsResponse'
+        "400":
+          description: Validation Failed or Bad Request
+          schema:
+            $ref: '#/definitions/response.ValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List Transactions
+      tags:
+      - Transaction API
     post:
       consumes:
       - application/json

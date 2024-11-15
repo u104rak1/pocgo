@@ -11,7 +11,8 @@ import (
 type ITransactionService interface {
 	Deposit(ctx context.Context, account *accountDomain.Account, amount float64, currency string) (*Transaction, error)
 	Withdraw(ctx context.Context, account *accountDomain.Account, amount float64, currency string) (*Transaction, error)
-	Transfer(ctx context.Context, senderAccount *accountDomain.Account, recieverAccount *accountDomain.Account, amount float64, currency string) (*Transaction, error)
+	Transfer(ctx context.Context, senderAccount *accountDomain.Account, receiverAccount *accountDomain.Account, amount float64, currency string) (*Transaction, error)
+	ListWithTotal(ctx context.Context, params ListTransactionsParams) (transactions []*Transaction, total int, err error)
 }
 
 type transactionService struct {
@@ -83,31 +84,31 @@ func (s *transactionService) Withdraw(
 func (s *transactionService) Transfer(
 	ctx context.Context,
 	senderAccount *accountDomain.Account,
-	recieverAccount *accountDomain.Account,
+	receiverAccount *accountDomain.Account,
 	amount float64,
 	currency string,
 ) (*Transaction, error) {
 	if err := senderAccount.Withdraw(amount, currency); err != nil {
 		return nil, err
 	}
-	if err := recieverAccount.Deposit(amount, currency); err != nil {
+	if err := receiverAccount.Deposit(amount, currency); err != nil {
 		return nil, err
 	}
 
 	updatedAt := timer.Now()
 	senderAccount.ChangeUpdatedAt(updatedAt)
-	recieverAccount.ChangeUpdatedAt(updatedAt)
+	receiverAccount.ChangeUpdatedAt(updatedAt)
 
 	if err := s.accountRepo.Save(ctx, senderAccount); err != nil {
 		return nil, err
 	}
-	if err := s.accountRepo.Save(ctx, recieverAccount); err != nil {
+	if err := s.accountRepo.Save(ctx, receiverAccount); err != nil {
 		return nil, err
 	}
 
 	transactionID := ulid.New()
-	recieverAccountID := recieverAccount.ID()
-	transaction, err := New(transactionID, senderAccount.ID(), &recieverAccountID, Transfer, amount, currency, updatedAt)
+	receiverAccountID := receiverAccount.ID()
+	transaction, err := New(transactionID, senderAccount.ID(), &receiverAccountID, Transfer, amount, currency, updatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -115,4 +116,21 @@ func (s *transactionService) Transfer(
 		return nil, err
 	}
 	return transaction, nil
+}
+
+func (s *transactionService) ListWithTotal(ctx context.Context, params ListTransactionsParams) (transactions []*Transaction, total int, err error) {
+	if params.Sort == nil {
+		sort := "DESC"
+		params.Sort = &sort
+	}
+	if params.Limit == nil {
+		limit := ListTransactionsLimit
+		params.Limit = &limit
+	}
+	if params.Page == nil {
+		page := 1
+		params.Page = &page
+	}
+
+	return s.transactionRepo.ListWithTotalByAccountID(ctx, params)
 }

@@ -22,10 +22,14 @@ func NewCreateAccountHandler(createAccountUsecase accountApp.ICreateAccountUseca
 	}
 }
 
-type CreateAccountRequest struct {
+type CreateAccountRequestBody struct {
 	Name     string `json:"name" example:"For work"`
 	Password string `json:"password" example:"1234"`
 	Currency string `json:"currency" example:"JPY"`
+}
+
+type CreateAccountRequest struct {
+	CreateAccountRequestBody
 }
 
 type CreateAccountResponse struct {
@@ -42,7 +46,7 @@ type CreateAccountResponse struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body CreateAccountRequest true "Request Body"
+// @Param request body CreateAccountRequestBody true "Request Body"
 // @Success 201 {object} CreateAccountResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"

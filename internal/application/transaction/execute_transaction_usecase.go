@@ -9,7 +9,7 @@ import (
 )
 
 type IExecuteTransactionUsecase interface {
-	Run(ctx context.Context, cmd ExecuteTransactionCommand) (*ExecuteTransactionDTO, error)
+	Run(ctx context.Context, cmd ExecuteTransactionCommand) (*TransactionDTO, error)
 }
 
 type executeTransactionUsecase struct {
@@ -31,27 +31,18 @@ func NewExecuteTransactionUsecase(
 }
 
 type ExecuteTransactionCommand struct {
+	UserID            string
 	AccountID         string
 	Password          string
 	OperationType     string
 	Amount            float64
 	Currency          string
-	RecieverAccountID *string
+	ReceiverAccountID *string
 }
 
-type ExecuteTransactionDTO struct {
-	ID                string
-	AccountID         string
-	RecieverAccountID *string
-	OperationType     string
-	Amount            float64
-	Currency          string
-	TransactionAt     string
-}
-
-func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransactionCommand) (*ExecuteTransactionDTO, error) {
+func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransactionCommand) (*TransactionDTO, error) {
 	account, err := u.accountRepo.FindByID(ctx, cmd.AccountID)
-	if err != nil {
+	if err != nil || account.UserID() != cmd.UserID {
 		return nil, err
 	}
 
@@ -77,24 +68,24 @@ func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransact
 		}
 	case transactionDomain.Transfer:
 		transaction, err = u.unitOfWork.RunInTx(ctx, func(ctx context.Context) (*transactionDomain.Transaction, error) {
-			recieverAccount, err := u.accountRepo.FindByID(ctx, *cmd.RecieverAccountID)
+			receiverAccount, err := u.accountRepo.FindByID(ctx, *cmd.ReceiverAccountID)
 			if err != nil {
 				if err == accountDomain.ErrNotFound {
-					return nil, accountDomain.ErrRecieverNotFound
+					return nil, accountDomain.ErrReceiverNotFound
 				}
 				return nil, err
 			}
-			return u.transactionServ.Transfer(ctx, account, recieverAccount, cmd.Amount, cmd.Currency)
+			return u.transactionServ.Transfer(ctx, account, receiverAccount, cmd.Amount, cmd.Currency)
 		})
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return &ExecuteTransactionDTO{
+	return &TransactionDTO{
 		ID:                transaction.ID(),
 		AccountID:         transaction.AccountID(),
-		RecieverAccountID: transaction.ReceiverAccountID(),
+		ReceiverAccountID: transaction.ReceiverAccountID(),
 		OperationType:     transaction.OperationType(),
 		Amount:            transaction.TransferAmount().Amount(),
 		Currency:          transaction.TransferAmount().Currency(),

@@ -6,15 +6,20 @@ import (
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 
-var (
-	ErrInvalidID       = errors.New("transaction id must be a valid ULID")
-	ErrUnsupportedType = errors.New("unsupported transaction type")
-)
-
+// Operation types
 const (
 	Deposit  = "DEPOSIT"
 	Withdraw = "WITHDRAW"
 	Transfer = "TRANSFER"
+)
+
+const (
+	ListTransactionsLimit = 100
+)
+
+var (
+	ErrInvalidID       = errors.New("transaction id must be a valid ULID")
+	ErrUnsupportedType = errors.New("unsupported transaction type")
 )
 
 func ValidID(id string) error {

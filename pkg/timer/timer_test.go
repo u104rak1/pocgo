@@ -41,3 +41,25 @@ func TestGetFixedDateString(t *testing.T) {
 		assert.Equal(t, expected, fixedDateString)
 	})
 }
+
+func TestParseYYYYMMDD(t *testing.T) {
+	t.Run("Successfully parses a valid YYYYMMDD date string.", func(t *testing.T) {
+		dateStr := "20240101"
+		expected := time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
+		parsedDate, err := timer.ParseYYYYMMDD(dateStr)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, parsedDate)
+	})
+
+	t.Run("Fails to parse an invalid YYYYMMDD date string.", func(t *testing.T) {
+		invalidDateStr := "2024-01-01"
+		_, err := timer.ParseYYYYMMDD(invalidDateStr)
+		assert.Error(t, err)
+	})
+
+	t.Run("Fails to parse a malformed date string.", func(t *testing.T) {
+		malformedDateStr := "invalid-date"
+		_, err := timer.ParseYYYYMMDD(malformedDateStr)
+		assert.Error(t, err)
+	})
+}

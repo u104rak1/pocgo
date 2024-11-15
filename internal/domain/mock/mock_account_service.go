@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	account "github.com/ucho456job/pocgo/internal/domain/account"
 )
 
 // MockIAccountService is a mock of IAccountService interface.
@@ -46,4 +47,19 @@ func (m *MockIAccountService) CheckLimit(ctx context.Context, userID string) err
 func (mr *MockIAccountServiceMockRecorder) CheckLimit(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckLimit", reflect.TypeOf((*MockIAccountService)(nil).CheckLimit), ctx, userID)
+}
+
+// GetAndAuthorize mocks base method.
+func (m *MockIAccountService) GetAndAuthorize(ctx context.Context, accountID, userID string, password *string) (*account.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAndAuthorize", ctx, accountID, userID, password)
+	ret0, _ := ret[0].(*account.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAndAuthorize indicates an expected call of GetAndAuthorize.
+func (mr *MockIAccountServiceMockRecorder) GetAndAuthorize(ctx, accountID, userID, password interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAndAuthorize", reflect.TypeOf((*MockIAccountService)(nil).GetAndAuthorize), ctx, accountID, userID, password)
 }

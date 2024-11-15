@@ -78,7 +78,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/accounts.CreateAccountRequest"
+                            "$ref": "#/definitions/accounts.CreateAccountRequestBody"
                         }
                     }
                 ],
@@ -123,6 +123,107 @@
             }
         },
         "/api/v1/me/accounts/{account_id}/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "This endpoint retrieves the transaction history of the specified account.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction API"
+                ],
+                "summary": "List Transactions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Account ID",
+                        "name": "account_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "From",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "To",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Operation Types",
+                        "name": "operationTypes",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "DESC or ASC",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/transactions.ListTransactionsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation Failed or Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -304,7 +405,7 @@
         }
     },
     "definitions": {
-        "accounts.CreateAccountRequest": {
+        "accounts.CreateAccountRequestBody": {
             "type": "object",
             "properties": {
                 "currency": {
@@ -400,7 +501,7 @@
                 },
                 "reason": {
                     "type": "string",
-                    "example": "ErrorReason"
+                    "example": "error reason"
                 }
             }
         },
@@ -491,7 +592,7 @@
                     "type": "string",
                     "example": "1234"
                 },
-                "recieverAccountId": {
+                "receiverAccountId": {
                     "type": "string",
                     "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
                 }
@@ -520,7 +621,55 @@
                     "type": "string",
                     "example": "DEPOSIT"
                 },
-                "recieverAccountId": {
+                "receiverAccountId": {
+                    "type": "string",
+                    "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
+                },
+                "transactionAt": {
+                    "type": "string",
+                    "example": "2024-03-20T15:00:00Z"
+                }
+            }
+        },
+        "transactions.ListTransactionsResponse": {
+            "type": "object",
+            "properties": {
+                "total": {
+                    "type": "integer",
+                    "example": 3
+                },
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/transactions.ListTransactionsTransaction"
+                    }
+                }
+            }
+        },
+        "transactions.ListTransactionsTransaction": {
+            "type": "object",
+            "properties": {
+                "accountId": {
+                    "type": "string",
+                    "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
+                },
+                "amount": {
+                    "type": "number",
+                    "example": 1000
+                },
+                "currency": {
+                    "type": "string",
+                    "example": "JPY"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "01J9R8AJ1Q2YDH1X9836GS9E89"
+                },
+                "operationType": {
+                    "type": "string",
+                    "example": "DEPOSIT"
+                },
+                "receiverAccountId": {
                     "type": "string",
                     "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
                 },

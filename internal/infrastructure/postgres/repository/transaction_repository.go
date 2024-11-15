@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	transactionDomain "github.com/ucho456job/pocgo/internal/domain/transaction"
 	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
@@ -43,26 +44,32 @@ func (r *transactionRepository) Save(ctx context.Context, transaction *transacti
 	return err
 }
 
-func (r *transactionRepository) ListByAccountID(ctx context.Context, accountID string, limit, offset *int) ([]*transactionDomain.Transaction, error) {
-	var transactionModels []model.Transaction
-	query := r.execDB(ctx).NewSelect().
-		Model(&transactionModels).
-		Relation("Currency").
-		Where("account_id = ?", accountID).
-		Order("transaction_at DESC")
-
-	if limit != nil {
-		query.Limit(*limit)
-	}
-	if offset != nil {
-		query.Offset(*offset)
+func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, params transactionDomain.ListTransactionsParams) (transactions []*transactionDomain.Transaction, total int, err error) {
+	totalCountQuery := r.getSelectQuery(ctx, params)
+	total, err = totalCountQuery.Count(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to count total transactions: %w", err)
 	}
 
-	if err := query.Scan(ctx); err != nil {
-		return nil, err
+	var transactionModels = []model.Transaction{}
+	getQuery := r.getSelectQuery(ctx, params)
+	if *params.Sort == "ASC" {
+		getQuery.Order("transaction_at ASC")
+	} else {
+		getQuery.Order("transaction_at DESC")
+	}
+	if params.Limit != nil {
+		getQuery.Limit(*params.Limit)
+	}
+	if params.Page != nil && params.Limit != nil {
+		getQuery.Offset((*params.Page - 1) * *params.Limit)
 	}
 
-	transactions := make([]*transactionDomain.Transaction, len(transactionModels))
+	if err := getQuery.Scan(ctx); err != nil {
+		return nil, 0, fmt.Errorf("failed to retrieve transactions: %w", err)
+	}
+
+	transactions = make([]*transactionDomain.Transaction, len(transactionModels))
 	for i, model := range transactionModels {
 		transaction, err := transactionDomain.New(
 			model.ID,
@@ -74,10 +81,31 @@ func (r *transactionRepository) ListByAccountID(ctx context.Context, accountID s
 			model.TransactionAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		transactions[i] = transaction
 	}
 
-	return transactions, nil
+	return transactions, total, nil
+}
+
+func (r *transactionRepository) getSelectQuery(ctx context.Context, params transactionDomain.ListTransactionsParams) *bun.SelectQuery {
+	query := r.execDB(ctx).NewSelect().
+		Model((*model.Transaction)(nil)).
+		Relation("Currency").
+		Where("account_id = ?", params.AccountID)
+
+	if params.From != nil {
+		query.Where("transaction_at >= ?", *params.From)
+	}
+
+	if params.To != nil {
+		query.Where("transaction_at <= ?", *params.To)
+	}
+
+	if len(params.OperationTypes) > 0 {
+		query.Where("operation_type IN (?)", bun.In(params.OperationTypes))
+	}
+
+	return query
 }

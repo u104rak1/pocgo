@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	transactionApp "github.com/ucho456job/pocgo/internal/application/transaction"
+	"github.com/ucho456job/pocgo/internal/config"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	moneyVO "github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
@@ -21,7 +22,7 @@ func NewExecuteTransactionHandler(executeTransactionUsecase transactionApp.IExec
 	}
 }
 
-type ExecuteTransactionRequestParams struct {
+type ExecuteTransactionParams struct {
 	AccountID string `param:"account_id" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
 }
 
@@ -30,18 +31,18 @@ type ExecuteTransactionRequestBody struct {
 	OperationType     string  `json:"operationType" example:"DEPOSIT"`
 	Amount            float64 `json:"amount" example:"1000"`
 	Currency          string  `json:"currency" example:"JPY"`
-	RecieverAccountID *string `json:"recieverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
+	ReceiverAccountID *string `json:"receiverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
 }
 
 type ExecuteTransactionRequest struct {
-	ExecuteTransactionRequestParams
+	ExecuteTransactionParams
 	ExecuteTransactionRequestBody
 }
 
 type ExecuteTransactionResponse struct {
 	ID                string  `json:"id" example:"01J9R8AJ1Q2YDH1X9836GS9E89"`
 	AccountID         string  `json:"accountId" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
-	RecieverAccountID *string `json:"recieverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
+	ReceiverAccountID *string `json:"receiverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
 	OperationType     string  `json:"operationType" example:"DEPOSIT"`
 	Amount            float64 `json:"amount" example:"1000"`
 	Currency          string  `json:"currency" example:"JPY"`
@@ -73,13 +74,19 @@ func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 		return response.ValidationFailed(ctx, validationErrors)
 	}
 
+	userID, ok := ctx.Request().Context().Value(config.CtxUserIDKey()).(string)
+	if !ok {
+		return response.Unauthorized(ctx, config.ErrUserIDMissing)
+	}
+
 	dto, err := h.execTransactionUC.Run(ctx.Request().Context(), transactionApp.ExecuteTransactionCommand{
+		UserID:            userID,
 		AccountID:         req.AccountID,
 		Password:          req.Password,
 		OperationType:     req.OperationType,
 		Amount:            req.Amount,
 		Currency:          req.Currency,
-		RecieverAccountID: req.RecieverAccountID,
+		ReceiverAccountID: req.ReceiverAccountID,
 	})
 	if err != nil {
 		switch err {
@@ -89,7 +96,7 @@ func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 			accountDomain.ErrUnmatchedPassword:
 			return response.Forbidden(ctx, err)
 		case accountDomain.ErrNotFound,
-			accountDomain.ErrRecieverNotFound:
+			accountDomain.ErrReceiverNotFound:
 			return response.NotFound(ctx, err)
 		default:
 			return response.InternalServerError(ctx, err)
@@ -99,7 +106,7 @@ func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, ExecuteTransactionResponse{
 		ID:                dto.ID,
 		AccountID:         dto.AccountID,
-		RecieverAccountID: dto.RecieverAccountID,
+		ReceiverAccountID: dto.ReceiverAccountID,
 		OperationType:     dto.OperationType,
 		Amount:            dto.Amount,
 		Currency:          dto.Currency,
@@ -143,10 +150,10 @@ func (h *ExecuteTransactionHandler) validation(req *ExecuteTransactionRequest) (
 		}
 	}
 
-	if req.RecieverAccountID != nil {
-		if err := validation.ValidULID(*req.RecieverAccountID); err != nil {
+	if req.ReceiverAccountID != nil {
+		if err := validation.ValidULID(*req.ReceiverAccountID); err != nil {
 			validationErrors = append(validationErrors, response.ValidationError{
-				Field:   "recieverAccountId",
+				Field:   "receiverAccountId",
 				Message: err.Error(),
 			})
 		}

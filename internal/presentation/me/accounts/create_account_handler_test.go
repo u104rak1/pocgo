@@ -34,7 +34,7 @@ func TestCreateAccountHandler(t *testing.T) {
 		invalidRequestBody = "invalid json"
 	)
 
-	var requestBody = accounts.CreateAccountRequest{
+	var requestBody = accounts.CreateAccountRequestBody{
 		Name:     name,
 		Password: password,
 		Currency: currency,
