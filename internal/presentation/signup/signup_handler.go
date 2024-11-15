@@ -43,7 +43,7 @@ type SignupResponseBodyUser struct {
 // @Tags Authentication API
 // @Accept json
 // @Produce json
-// @Param body body SignupRequest true "Request Body"
+// @Param body body SignupRequest true "Request Body<br />name: The name of the user. Must be 3-20 characters long.<br />email: The email address of the user, used for login.<br />password: The password associated with the email address, required for login. Must be 8-20 characters long."
 // @Success 201 {object} SignupResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 409 {object} response.ErrorResponse "Conflict"

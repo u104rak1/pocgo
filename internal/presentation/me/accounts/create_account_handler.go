@@ -46,7 +46,7 @@ type CreateAccountResponse struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body CreateAccountRequestBody true "Request Body"
+// @Param request body CreateAccountRequestBody true "Request Body<br />name: The name of the account. Must be 3-20 characters long.<br />password: A 4-digit password for securing the account.<br />currency: The currency for the account. Supported values are JPY or USD."
 // @Success 201 {object} CreateAccountResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"

@@ -42,7 +42,7 @@ type ListTransactionsRequest struct {
 }
 
 type ListTransactionsResponse struct {
-	Total        int                           `json:"total" example:"3"`
+	Total        int                           `json:"total" example:"1"`
 	Transactions []ListTransactionsTransaction `json:"transactions"`
 }
 
@@ -62,13 +62,13 @@ type ListTransactionsTransaction struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param account_id path string true "Account ID"
-// @Param from query string false "From"
-// @Param to query string false "To"
-// @Param operationTypes query string false "Operation Types"
-// @Param sort query string false "DESC or ASC"
-// @Param limit query int false "Limit"
-// @Param page query int false "Page"
+// @Param account_id path string true "Account ID to be operated."
+// @Param from query string false "The start date for filtering transactions (format: YYYYMMDD)."
+// @Param to query string false "The end date for filtering transactions (format: YYYYMMDD)."
+// @Param operationTypes query string false "Comma-separated transaction types to filter by. Valid values are DEPOSIT, WITHDRAW, and TRANSFER. If not specified, all transaction types are included."
+// @Param sort query string false "The sorting order of transactions based on transactionAt. Valid values are ASC or DESC. Defaults to DESC."
+// @Param limit query int false "The maximum number of transaction histories per page. Can be specified between 1 and 100."
+// @Param page query int false "The page number for paginated results."
 // @Success 200 {object} ListTransactionsResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"

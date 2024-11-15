@@ -55,8 +55,8 @@ type ExecuteTransactionResponse struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param account_id path string true "Account ID"
-// @Param request body ExecuteTransactionRequestBody true "Request Body"
+// @Param account_id path string true "Account ID to be operated."
+// @Param request body ExecuteTransactionRequestBody true "Request Body<br />password: The account password.<br />operationType: Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or TRANSFER.<br />amount: The transaction amount.<br />currency: The currency of the transaction. Supported values are JPY and USD.<br />receiverAccountID: Required for TRANSFER operations. Represents the recipient account ID."
 // @Success 200 {object} ExecuteTransactionResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"

@@ -161,7 +161,7 @@ definitions:
   transactions.ListTransactionsResponse:
     properties:
       total:
-        example: 3
+        example: 1
         type: integer
       transactions:
         items:
@@ -234,7 +234,9 @@ paths:
       - application/json
       description: This endpoint creates a new account.
       parameters:
-      - description: Request Body
+      - description: 'Request Body<br />name: The name of the account. Must be 3-20
+          characters long.<br />password: A 4-digit password for securing the account.<br
+          />currency: The currency for the account. Supported values are JPY or USD.'
         in: body
         name: request
         required: true
@@ -279,32 +281,36 @@ paths:
       description: This endpoint retrieves the transaction history of the specified
         account.
       parameters:
-      - description: Account ID
+      - description: Account ID to be operated.
         in: path
         name: account_id
         required: true
         type: string
-      - description: From
+      - description: 'The start date for filtering transactions (format: YYYYMMDD).'
         in: query
         name: from
         type: string
-      - description: To
+      - description: 'The end date for filtering transactions (format: YYYYMMDD).'
         in: query
         name: to
         type: string
-      - description: Operation Types
+      - description: Comma-separated transaction types to filter by. Valid values
+          are DEPOSIT, WITHDRAW, and TRANSFER. If not specified, all transaction types
+          are included.
         in: query
         name: operationTypes
         type: string
-      - description: DESC or ASC
+      - description: The sorting order of transactions based on transactionAt. Valid
+          values are ASC or DESC. Defaults to DESC.
         in: query
         name: sort
         type: string
-      - description: Limit
+      - description: The maximum number of transaction histories per page. Can be
+          specified between 1 and 100.
         in: query
         name: limit
         type: integer
-      - description: Page
+      - description: The page number for paginated results.
         in: query
         name: page
         type: integer
@@ -346,12 +352,16 @@ paths:
       description: This endpoint executes a transaction (deposit, withdraw, or transfer)
         for the specified account.
       parameters:
-      - description: Account ID
+      - description: Account ID to be operated.
         in: path
         name: account_id
         required: true
         type: string
-      - description: Request Body
+      - description: 'Request Body<br />password: The account password.<br />operationType:
+          Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or
+          TRANSFER.<br />amount: The transaction amount.<br />currency: The currency
+          of the transaction. Supported values are JPY and USD.<br />receiverAccountID:
+          Required for TRANSFER operations. Represents the recipient account ID.'
         in: body
         name: request
         required: true
@@ -396,7 +406,9 @@ paths:
       description: This endpoint authenticates the user using their email and password,
         and issues an access token.
       parameters:
-      - description: Request Body
+      - description: 'Request Body<br />email: The email address of the user, used
+          for login.<br />password: The password associated with the email address,
+          required for login. Must be 8-20 characters long.'
         in: body
         name: request
         required: true
@@ -430,7 +442,10 @@ paths:
       - application/json
       description: This endpoint creates a new user and issues an access token.
       parameters:
-      - description: Request Body
+      - description: 'Request Body<br />name: The name of the user. Must be 3-20 characters
+          long.<br />email: The email address of the user, used for login.<br />password:
+          The password associated with the email address, required for login. Must
+          be 8-20 characters long.'
         in: body
         name: body
         required: true

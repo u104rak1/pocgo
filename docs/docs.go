@@ -81,7 +81,7 @@ const docTemplate = `{
                 "summary": "Create Account",
                 "parameters": [
                     {
-                        "description": "Request Body",
+                        "description": "Request Body\u003cbr /\u003ename: The name of the account. Must be 3-20 characters long.\u003cbr /\u003epassword: A 4-digit password for securing the account.\u003cbr /\u003ecurrency: The currency for the account. Supported values are JPY or USD.",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -151,44 +151,44 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID",
+                        "description": "Account ID to be operated.",
                         "name": "account_id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "From",
+                        "description": "The start date for filtering transactions (format: YYYYMMDD).",
                         "name": "from",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "To",
+                        "description": "The end date for filtering transactions (format: YYYYMMDD).",
                         "name": "to",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Operation Types",
+                        "description": "Comma-separated transaction types to filter by. Valid values are DEPOSIT, WITHDRAW, and TRANSFER. If not specified, all transaction types are included.",
                         "name": "operationTypes",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "DESC or ASC",
+                        "description": "The sorting order of transactions based on transactionAt. Valid values are ASC or DESC. Defaults to DESC.",
                         "name": "sort",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Limit",
+                        "description": "The maximum number of transaction histories per page. Can be specified between 1 and 100.",
                         "name": "limit",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Page",
+                        "description": "The page number for paginated results.",
                         "name": "page",
                         "in": "query"
                     }
@@ -252,13 +252,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID",
+                        "description": "Account ID to be operated.",
                         "name": "account_id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Request Body",
+                        "description": "Request Body\u003cbr /\u003epassword: The account password.\u003cbr /\u003eoperationType: Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or TRANSFER.\u003cbr /\u003eamount: The transaction amount.\u003cbr /\u003ecurrency: The currency of the transaction. Supported values are JPY and USD.\u003cbr /\u003ereceiverAccountID: Required for TRANSFER operations. Represents the recipient account ID.",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -322,7 +322,7 @@ const docTemplate = `{
                 "summary": "Signin",
                 "parameters": [
                     {
-                        "description": "Request Body",
+                        "description": "Request Body\u003cbr /\u003eemail: The email address of the user, used for login.\u003cbr /\u003epassword: The password associated with the email address, required for login. Must be 8-20 characters long.",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -374,7 +374,7 @@ const docTemplate = `{
                 "summary": "Signup",
                 "parameters": [
                     {
-                        "description": "Request Body",
+                        "description": "Request Body\u003cbr /\u003ename: The name of the user. Must be 3-20 characters long.\u003cbr /\u003eemail: The email address of the user, used for login.\u003cbr /\u003epassword: The password associated with the email address, required for login. Must be 8-20 characters long.",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -644,7 +644,7 @@ const docTemplate = `{
             "properties": {
                 "total": {
                     "type": "integer",
-                    "example": 3
+                    "example": 1
                 },
                 "transactions": {
                     "type": "array",
