@@ -98,19 +98,19 @@ func (h *CreateAccountHandler) Run(ctx echo.Context) error {
 func (h *CreateAccountHandler) validation(req *CreateAccountRequest) (validationErrors []response.ValidationError) {
 	if err := validation.ValidAccountName(req.Name); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "name",
+			Field:   "body.name",
 			Message: err.Error(),
 		})
 	}
 	if err := validation.ValidAccountPassword(req.Password); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "password",
+			Field:   "body.password",
 			Message: err.Error(),
 		})
 	}
 	if err := validation.ValidCurrency(req.Currency); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "currency",
+			Field:   "body.currency",
 			Message: err.Error(),
 		})
 	}

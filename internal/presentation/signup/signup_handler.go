@@ -87,19 +87,19 @@ func (h *SignupHandler) Run(ctx echo.Context) error {
 func (h *SignupHandler) validation(req *SignupRequest) (validationErrors []response.ValidationError) {
 	if err := validation.ValidUserName(req.Name); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "name",
+			Field:   "body.name",
 			Message: err.Error(),
 		})
 	}
 	if err := validation.ValidUserEmail(req.Email); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "email",
+			Field:   "body.email",
 			Message: err.Error(),
 		})
 	}
 	if err := validation.ValidUserPassword(req.Password); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "password",
+			Field:   "body.password",
 			Message: err.Error(),
 		})
 	}

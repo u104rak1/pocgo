@@ -71,13 +71,13 @@ func (h *SigninHandler) Run(ctx echo.Context) error {
 func (h *SigninHandler) validation(req *SigninRequest) (validationErrors []response.ValidationError) {
 	if err := validation.ValidUserEmail(req.Email); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "email",
+			Field:   "body.email",
 			Message: err.Error(),
 		})
 	}
 	if err := validation.ValidUserPassword(req.Password); err != nil {
 		validationErrors = append(validationErrors, response.ValidationError{
-			Field:   "password",
+			Field:   "body.password",
 			Message: err.Error(),
 		})
 	}

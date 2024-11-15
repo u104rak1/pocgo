@@ -1,6 +1,7 @@
 package transactions
 
 import (
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -8,6 +9,7 @@ import (
 	"github.com/ucho456job/pocgo/internal/config"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
+	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
 	"github.com/ucho456job/pocgo/pkg/timer"
 )
 
@@ -26,12 +28,12 @@ type ListTransactionsParams struct {
 }
 
 type ListTransactionsQuery struct {
-	From           *string  `query:"from" example:"2024-01-01"`
-	To             *string  `query:"to" example:"2024-12-31"`
-	OperationTypes []string `query:"operationTypes" example:"DEPOSIT,WITHDRAW,TRANSFER"`
-	Sort           *string  `query:"sort" example:"DESC"`
-	Limit          *int     `query:"limit" example:"10"`
-	Page           *int     `query:"page" example:"1"`
+	From           *string `query:"from" example:"20240101"`
+	To             *string `query:"to" example:"20241231"`
+	OperationTypes *string `query:"operation_types" example:"DEPOSIT,WITHDRAW,TRANSFER"`
+	Sort           *string `query:"sort" example:"DESC"`
+	Limit          *int    `query:"limit" example:"10"`
+	Page           *int    `query:"page" example:"1"`
 }
 
 type ListTransactionsRequest struct {
@@ -80,13 +82,18 @@ func (h *ListTransactionsHandler) Run(ctx echo.Context) error {
 		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}
 
-	// if validationErrors := h.validation(req); len(validationErrors) > 0 {
-	// 	return response.ValidationFailed(ctx, validationErrors)
-	// }
+	if validationErrors := h.validation(req); len(validationErrors) > 0 {
+		return response.ValidationFailed(ctx, validationErrors)
+	}
 
 	userID, ok := ctx.Request().Context().Value(config.CtxUserIDKey()).(string)
 	if !ok {
 		return response.Unauthorized(ctx, config.ErrUserIDMissing)
+	}
+
+	operationTypes := []string{}
+	if req.OperationTypes != nil {
+		operationTypes = strings.Split(*req.OperationTypes, ",")
 	}
 
 	var from, to *time.Time
@@ -110,7 +117,7 @@ func (h *ListTransactionsHandler) Run(ctx echo.Context) error {
 		AccountID:      req.AccountID,
 		From:           from,
 		To:             to,
-		OperationTypes: req.OperationTypes,
+		OperationTypes: operationTypes,
 		Sort:           req.Sort,
 		Limit:          req.Limit,
 		Page:           req.Page,
@@ -143,4 +150,62 @@ func (h *ListTransactionsHandler) Run(ctx echo.Context) error {
 		Total:        dto.Total,
 		Transactions: transactions,
 	})
+}
+
+func (h *ListTransactionsHandler) validation(req *ListTransactionsRequest) (validationErrors []response.ValidationError) {
+	if err := validation.ValidULID(req.AccountID); err != nil {
+		validationErrors = append(validationErrors, response.ValidationError{
+			Field:   "param.account_id",
+			Message: err.Error(),
+		})
+	}
+	if req.From != nil {
+		if err := validation.ValidYYYYMMDD(*req.From); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "query.from",
+				Message: err.Error(),
+			})
+		}
+	}
+	if req.To != nil {
+		if err := validation.ValidYYYYMMDD(*req.To); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "query.to",
+				Message: err.Error(),
+			})
+		}
+	}
+	if req.OperationTypes != nil {
+		if err := validation.ValidTransactionOperationTypes(*req.OperationTypes); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "query.operation_types",
+				Message: err.Error(),
+			})
+		}
+	}
+	if req.Sort != nil {
+		if err := validation.ValidSort(*req.Sort); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "query.sort",
+				Message: err.Error(),
+			})
+		}
+	}
+	if req.Limit != nil {
+		if err := validation.ValidListTransactionsLimit(*req.Limit); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "query.limit",
+				Message: err.Error(),
+			})
+		}
+	}
+	if req.Page != nil {
+		if err := validation.ValidPage(*req.Page); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "query.page",
+				Message: err.Error(),
+			})
+		}
+	}
+	return validationErrors
 }
