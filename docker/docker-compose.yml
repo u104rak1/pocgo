@@ -4,7 +4,7 @@ services:
     container_name: POCGO_DB
     image: postgres:15-alpine
     ports:
-      - '5432:5432'
+      - '55432:5432'
     environment:
       POSTGRES_USER: local_user
       POSTGRES_PASSWORD: password

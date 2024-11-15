@@ -45,14 +45,18 @@ func (r *transactionRepository) Save(ctx context.Context, transaction *transacti
 }
 
 func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, params transactionDomain.ListTransactionsParams) (transactions []*transactionDomain.Transaction, total int, err error) {
-	totalCountQuery := r.getSelectQuery(ctx, params)
+	totalCountQuery := r.execDB(ctx).NewSelect().Model(&model.Transaction{})
+	r.buildListQuery(totalCountQuery, params)
+
 	total, err = totalCountQuery.Count(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to count total transactions: %w", err)
 	}
 
 	var transactionModels = []model.Transaction{}
-	getQuery := r.getSelectQuery(ctx, params)
+	getQuery := r.execDB(ctx).NewSelect().Model(&transactionModels)
+	r.buildListQuery(getQuery, params)
+
 	if *params.Sort == "ASC" {
 		getQuery.Order("transaction_at ASC")
 	} else {
@@ -70,15 +74,15 @@ func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, pa
 	}
 
 	transactions = make([]*transactionDomain.Transaction, len(transactionModels))
-	for i, model := range transactionModels {
+	for i, m := range transactionModels {
 		transaction, err := transactionDomain.New(
-			model.ID,
-			model.AccountID,
-			model.ReceiverAccountID,
-			model.OperationType,
-			model.Amount,
-			model.Currency.Code,
-			model.TransactionAt,
+			m.ID,
+			m.AccountID,
+			m.ReceiverAccountID,
+			m.OperationType,
+			m.Amount,
+			m.Currency.Code,
+			m.TransactionAt,
 		)
 		if err != nil {
 			return nil, 0, err
@@ -89,11 +93,8 @@ func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, pa
 	return transactions, total, nil
 }
 
-func (r *transactionRepository) getSelectQuery(ctx context.Context, params transactionDomain.ListTransactionsParams) *bun.SelectQuery {
-	query := r.execDB(ctx).NewSelect().
-		Model((*model.Transaction)(nil)).
-		Relation("Currency").
-		Where("account_id = ?", params.AccountID)
+func (r *transactionRepository) buildListQuery(query *bun.SelectQuery, params transactionDomain.ListTransactionsParams) {
+	query.Relation("Currency").Where("account_id = ?", params.AccountID)
 
 	if params.From != nil {
 		query.Where("transaction_at >= ?", *params.From)
@@ -106,6 +107,4 @@ func (r *transactionRepository) getSelectQuery(ctx context.Context, params trans
 	if len(params.OperationTypes) > 0 {
 		query.Where("operation_type IN (?)", bun.In(params.OperationTypes))
 	}
-
-	return query
 }

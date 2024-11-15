@@ -7,12 +7,12 @@ import (
 )
 
 type Env struct {
-	APP_PORT          string `env:"APP_PORT" envDefault:"8080"`
+	APP_PORT          string `env:"APP_PORT" envDefault:"58080"`
 	POSTGRES_HOST     string `env:"POSTGRES_HOST" envDefault:"localhost"`
 	POSTGRES_DBNAME   string `env:"POSTGRES_DBNAME" envDefault:"POCGO_LOCAL_DB"`
 	POSTGRES_USER     string `env:"POSTGRES_USER" envDefault:"local_user"`
 	POSTGRES_PASSWORD string `env:"POSTGRES_PASSWORD" envDefault:"password"`
-	POSTGRES_PORT     string `env:"POSTGRES_PORT" envDefault:"5432"`
+	POSTGRES_PORT     string `env:"POSTGRES_PORT" envDefault:"55432"`
 	POSTGRES_SSLMODE  string `env:"POSTGRES_SSLMODE" envDefault:"disable"`
 	JWT_SECRET_KEY    string `env:"JWT_SECRET_KEY" envDefault:"jwt_secret_key"`
 }

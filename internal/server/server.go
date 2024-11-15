@@ -73,6 +73,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	signupUC := authApp.NewSignupUsecase(userRepo, authRepo, userServ, authServ)
 	signinUC := authApp.NewSigninUsecase(authServ)
 	execTransactionUC := transactionApp.NewExecuteTransactionUsecase(accountRepo, transactionServ, transactionUOW)
+	listTransactionsUC := transactionApp.NewListTransactionsUsecase(accountServ, transactionServ)
 
 	/** Handler */
 	healthHandler := healthPre.NewHealthHandler(db)
@@ -81,6 +82,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	readMyProfHandler := mePre.NewReadMyProfileHandler(readUserUC)
 	createAccountHandler := accountsPre.NewCreateAccountHandler(createAccountUC)
 	execTransactionHandler := transactionsPre.NewExecuteTransactionHandler(execTransactionUC)
+	listTransactionsHandler := transactionsPre.NewListTransactionsHandler(listTransactionsUC)
 
 	/** Health Endpoint */
 	e.GET("/", healthHandler.Run)
@@ -96,7 +98,10 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 
 	/** Account Endpoint */
 	v1.POST("/me/accounts", createAccountHandler.Run, authMiddleware)
+
+	/** Transaction Endpoint */
 	v1.POST("/me/accounts/:account_id/transactions", execTransactionHandler.Run, authMiddleware)
+	v1.GET("/me/accounts/:account_id/transactions", listTransactionsHandler.Run, authMiddleware)
 
 	/** Swagger */
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
