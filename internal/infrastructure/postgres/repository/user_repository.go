@@ -55,19 +55,11 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*userDo
 }
 
 func (r *userRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
-	exists, err := r.execDB(ctx).NewSelect().Model((*model.User)(nil)).Where("id = ?", id).Exists(ctx)
-	if err != nil {
-		return false, err
-	}
-	return exists, nil
+	return r.execDB(ctx).NewSelect().Model((*model.User)(nil)).Where("id = ?", id).Exists(ctx)
 }
 
 func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
-	exists, err := r.execDB(ctx).NewSelect().Model((*model.User)(nil)).Where("email = ?", email).Exists(ctx)
-	if err != nil {
-		return false, err
-	}
-	return exists, nil
+	return r.execDB(ctx).NewSelect().Model((*model.User)(nil)).Where("email = ?", email).Exists(ctx)
 }
 
 func (r *userRepository) Delete(ctx context.Context, id string) error {
