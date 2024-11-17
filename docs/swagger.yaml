@@ -2,30 +2,38 @@ definitions:
   accounts.CreateAccountRequestBody:
     properties:
       currency:
+        description: The currency for the account. Supported values are JPY or USD.
         example: JPY
         type: string
       name:
+        description: The name of the account. Must be 3-20 characters long.
         example: For work
         type: string
       password:
+        description: A 4-digit password for securing the account.
         example: "1234"
         type: string
     type: object
   accounts.CreateAccountResponse:
     properties:
       balance:
+        description: The current balance of the account.
         example: 0
         type: number
       currency:
+        description: The currency for the account.
         example: JPY
         type: string
       id:
+        description: The ID of the account.
         example: 01J9R7YPV1FH1V0PPKVSB5C7LE
         type: string
       name:
+        description: The name of the account.
         example: For work
         type: string
       updatedAt:
+        description: The date and time the account was last updated.
         example: "2021-08-01T00:00:00Z"
         type: string
     type: object
@@ -72,9 +80,12 @@ definitions:
   signin.SigninRequest:
     properties:
       email:
+        description: The email address of the user, used for login.
         example: sato@example.com
         type: string
       password:
+        description: The password associated with the email address, required for
+          login. Must be 8-20 characters long.
         example: password
         type: string
     type: object
@@ -87,12 +98,16 @@ definitions:
   signup.SignupRequest:
     properties:
       email:
+        description: The email address of the user, used for login.
         example: sato@example.com
         type: string
       name:
+        description: The name of the user. Must be 3-20 characters long.
         example: Sato Taro
         type: string
       password:
+        description: The password associated with the email address, required for
+          login. Must be 8-20 characters long.
         example: password
         type: string
     type: object
@@ -119,18 +134,26 @@ definitions:
   transactions.ExecuteTransactionRequestBody:
     properties:
       amount:
+        description: The transaction amount.
         example: 1000
         type: number
       currency:
+        description: The currency of the transaction. Supported values are JPY and
+          USD.
         example: JPY
         type: string
       operationType:
+        description: Specifies the type of transaction. Valid values are DEPOSIT,
+          WITHDRAW, or TRANSFER.
         example: DEPOSIT
         type: string
       password:
+        description: The account password.
         example: "1234"
         type: string
       receiverAccountId:
+        description: Required for TRANSFER operations. Represents the recipient account
+          ID.
         example: 01J9R8AJ1Q2YDH1X9836GS9D87
         type: string
     type: object
@@ -234,9 +257,7 @@ paths:
       - application/json
       description: This endpoint creates a new account.
       parameters:
-      - description: 'Request Body<br />name: The name of the account. Must be 3-20
-          characters long.<br />password: A 4-digit password for securing the account.<br
-          />currency: The currency for the account. Supported values are JPY or USD.'
+      - description: Request Body
         in: body
         name: request
         required: true
@@ -357,11 +378,7 @@ paths:
         name: account_id
         required: true
         type: string
-      - description: 'Request Body<br />password: The account password.<br />operationType:
-          Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or
-          TRANSFER.<br />amount: The transaction amount.<br />currency: The currency
-          of the transaction. Supported values are JPY and USD.<br />receiverAccountID:
-          Required for TRANSFER operations. Represents the recipient account ID.'
+      - description: Request Body
         in: body
         name: request
         required: true
@@ -406,9 +423,7 @@ paths:
       description: This endpoint authenticates the user using their email and password,
         and issues an access token.
       parameters:
-      - description: 'Request Body<br />email: The email address of the user, used
-          for login.<br />password: The password associated with the email address,
-          required for login. Must be 8-20 characters long.'
+      - description: Request Body
         in: body
         name: request
         required: true
@@ -442,10 +457,7 @@ paths:
       - application/json
       description: This endpoint creates a new user and issues an access token.
       parameters:
-      - description: 'Request Body<br />name: The name of the user. Must be 3-20 characters
-          long.<br />email: The email address of the user, used for login.<br />password:
-          The password associated with the email address, required for login. Must
-          be 8-20 characters long.'
+      - description: Request Body
         in: body
         name: body
         required: true

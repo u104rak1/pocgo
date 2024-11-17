@@ -23,8 +23,13 @@ func NewCreateAccountHandler(createAccountUsecase accountApp.ICreateAccountUseca
 }
 
 type CreateAccountRequestBody struct {
-	Name     string `json:"name" example:"For work"`
+	// The name of the account. Must be 3-20 characters long.
+	Name string `json:"name" example:"For work"`
+
+	// A 4-digit password for securing the account.
 	Password string `json:"password" example:"1234"`
+
+	// The currency for the account. Supported values are JPY or USD.
 	Currency string `json:"currency" example:"JPY"`
 }
 
@@ -33,11 +38,20 @@ type CreateAccountRequest struct {
 }
 
 type CreateAccountResponse struct {
-	ID        string  `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C7LE"`
-	Name      string  `json:"name" example:"For work"`
-	Balance   float64 `json:"balance" example:"0"`
-	Currency  string  `json:"currency" example:"JPY"`
-	UpdatedAt string  `json:"updatedAt" example:"2021-08-01T00:00:00Z"`
+	// The ID of the account.
+	ID string `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C7LE"`
+
+	// The name of the account.
+	Name string `json:"name" example:"For work"`
+
+	// The current balance of the account.
+	Balance float64 `json:"balance" example:"0"`
+
+	// The currency for the account.
+	Currency string `json:"currency" example:"JPY"`
+
+	// The date and time the account was last updated.
+	UpdatedAt string `json:"updatedAt" example:"2021-08-01T00:00:00Z"`
 }
 
 // @Summary Create Account
@@ -46,7 +60,7 @@ type CreateAccountResponse struct {
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param request body CreateAccountRequestBody true "Request Body<br />name: The name of the account. Must be 3-20 characters long.<br />password: A 4-digit password for securing the account.<br />currency: The currency for the account. Supported values are JPY or USD."
+// @Param request body CreateAccountRequestBody true "Request Body"
 // @Success 201 {object} CreateAccountResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"

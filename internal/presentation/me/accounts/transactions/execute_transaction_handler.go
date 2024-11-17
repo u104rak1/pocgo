@@ -7,6 +7,7 @@ import (
 	transactionApp "github.com/ucho456job/pocgo/internal/application/transaction"
 	"github.com/ucho456job/pocgo/internal/config"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
+	transactionDomain "github.com/ucho456job/pocgo/internal/domain/transaction"
 	moneyVO "github.com/ucho456job/pocgo/internal/domain/value_object/money"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
 	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
@@ -27,10 +28,19 @@ type ExecuteTransactionParams struct {
 }
 
 type ExecuteTransactionRequestBody struct {
-	Password          string  `json:"password" example:"1234"`
-	OperationType     string  `json:"operationType" example:"DEPOSIT"`
-	Amount            float64 `json:"amount" example:"1000"`
-	Currency          string  `json:"currency" example:"JPY"`
+	// The account password.
+	Password string `json:"password" example:"1234"`
+
+	// Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or TRANSFER.
+	OperationType string `json:"operationType" example:"DEPOSIT"`
+
+	// The transaction amount.
+	Amount float64 `json:"amount" example:"1000"`
+
+	// The currency of the transaction. Supported values are JPY and USD.
+	Currency string `json:"currency" example:"JPY"`
+
+	// Required for TRANSFER operations. Represents the recipient account ID.
 	ReceiverAccountID *string `json:"receiverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
 }
 
@@ -56,7 +66,7 @@ type ExecuteTransactionResponse struct {
 // @Accept json
 // @Produce json
 // @Param account_id path string true "Account ID to be operated."
-// @Param request body ExecuteTransactionRequestBody true "Request Body<br />password: The account password.<br />operationType: Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or TRANSFER.<br />amount: The transaction amount.<br />currency: The currency of the transaction. Supported values are JPY and USD.<br />receiverAccountID: Required for TRANSFER operations. Represents the recipient account ID."
+// @Param request body ExecuteTransactionRequestBody true "Request Body"
 // @Success 200 {object} ExecuteTransactionResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
@@ -155,6 +165,21 @@ func (h *ExecuteTransactionHandler) validation(req *ExecuteTransactionRequest) (
 			validationErrors = append(validationErrors, response.ValidationError{
 				Field:   "receiverAccountId",
 				Message: err.Error(),
+			})
+		}
+	}
+
+	if req.OperationType == transactionDomain.Transfer {
+		if req.AccountID == *req.ReceiverAccountID {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "receiverAccountId",
+				Message: "receiverAccountId must be different from account_id",
+			})
+		}
+		if req.ReceiverAccountID == nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "receiverAccountId",
+				Message: "receiverAccountId is required for transfer operation",
 			})
 		}
 	}

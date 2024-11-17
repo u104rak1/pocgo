@@ -73,7 +73,7 @@
                 "summary": "Create Account",
                 "parameters": [
                     {
-                        "description": "Request Body\u003cbr /\u003ename: The name of the account. Must be 3-20 characters long.\u003cbr /\u003epassword: A 4-digit password for securing the account.\u003cbr /\u003ecurrency: The currency for the account. Supported values are JPY or USD.",
+                        "description": "Request Body",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -250,7 +250,7 @@
                         "required": true
                     },
                     {
-                        "description": "Request Body\u003cbr /\u003epassword: The account password.\u003cbr /\u003eoperationType: Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or TRANSFER.\u003cbr /\u003eamount: The transaction amount.\u003cbr /\u003ecurrency: The currency of the transaction. Supported values are JPY and USD.\u003cbr /\u003ereceiverAccountID: Required for TRANSFER operations. Represents the recipient account ID.",
+                        "description": "Request Body",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -314,7 +314,7 @@
                 "summary": "Signin",
                 "parameters": [
                     {
-                        "description": "Request Body\u003cbr /\u003eemail: The email address of the user, used for login.\u003cbr /\u003epassword: The password associated with the email address, required for login. Must be 8-20 characters long.",
+                        "description": "Request Body",
                         "name": "request",
                         "in": "body",
                         "required": true,
@@ -366,7 +366,7 @@
                 "summary": "Signup",
                 "parameters": [
                     {
-                        "description": "Request Body\u003cbr /\u003ename: The name of the user. Must be 3-20 characters long.\u003cbr /\u003eemail: The email address of the user, used for login.\u003cbr /\u003epassword: The password associated with the email address, required for login. Must be 8-20 characters long.",
+                        "description": "Request Body",
                         "name": "body",
                         "in": "body",
                         "required": true,
@@ -409,14 +409,17 @@
             "type": "object",
             "properties": {
                 "currency": {
+                    "description": "The currency for the account. Supported values are JPY or USD.",
                     "type": "string",
                     "example": "JPY"
                 },
                 "name": {
+                    "description": "The name of the account. Must be 3-20 characters long.",
                     "type": "string",
                     "example": "For work"
                 },
                 "password": {
+                    "description": "A 4-digit password for securing the account.",
                     "type": "string",
                     "example": "1234"
                 }
@@ -426,22 +429,27 @@
             "type": "object",
             "properties": {
                 "balance": {
+                    "description": "The current balance of the account.",
                     "type": "number",
                     "example": 0
                 },
                 "currency": {
+                    "description": "The currency for the account.",
                     "type": "string",
                     "example": "JPY"
                 },
                 "id": {
+                    "description": "The ID of the account.",
                     "type": "string",
                     "example": "01J9R7YPV1FH1V0PPKVSB5C7LE"
                 },
                 "name": {
+                    "description": "The name of the account.",
                     "type": "string",
                     "example": "For work"
                 },
                 "updatedAt": {
+                    "description": "The date and time the account was last updated.",
                     "type": "string",
                     "example": "2021-08-01T00:00:00Z"
                 }
@@ -509,10 +517,12 @@
             "type": "object",
             "properties": {
                 "email": {
+                    "description": "The email address of the user, used for login.",
                     "type": "string",
                     "example": "sato@example.com"
                 },
                 "password": {
+                    "description": "The password associated with the email address, required for login. Must be 8-20 characters long.",
                     "type": "string",
                     "example": "password"
                 }
@@ -531,14 +541,17 @@
             "type": "object",
             "properties": {
                 "email": {
+                    "description": "The email address of the user, used for login.",
                     "type": "string",
                     "example": "sato@example.com"
                 },
                 "name": {
+                    "description": "The name of the user. Must be 3-20 characters long.",
                     "type": "string",
                     "example": "Sato Taro"
                 },
                 "password": {
+                    "description": "The password associated with the email address, required for login. Must be 8-20 characters long.",
                     "type": "string",
                     "example": "password"
                 }
@@ -577,22 +590,27 @@
             "type": "object",
             "properties": {
                 "amount": {
+                    "description": "The transaction amount.",
                     "type": "number",
                     "example": 1000
                 },
                 "currency": {
+                    "description": "The currency of the transaction. Supported values are JPY and USD.",
                     "type": "string",
                     "example": "JPY"
                 },
                 "operationType": {
+                    "description": "Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or TRANSFER.",
                     "type": "string",
                     "example": "DEPOSIT"
                 },
                 "password": {
+                    "description": "The account password.",
                     "type": "string",
                     "example": "1234"
                 },
                 "receiverAccountId": {
+                    "description": "Required for TRANSFER operations. Represents the recipient account ID.",
                     "type": "string",
                     "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
                 }

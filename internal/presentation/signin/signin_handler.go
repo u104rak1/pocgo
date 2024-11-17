@@ -21,7 +21,10 @@ func NewSigninHandler(signinUsecase authApp.ISigninUsecase) *SigninHandler {
 }
 
 type SigninRequest struct {
-	Email    string `json:"email" example:"sato@example.com"`
+	// The email address of the user, used for login.
+	Email string `json:"email" example:"sato@example.com"`
+
+	// The password associated with the email address, required for login. Must be 8-20 characters long.
 	Password string `json:"password" example:"password"`
 }
 
@@ -34,7 +37,7 @@ type SigninResponse struct {
 // @Tags Authentication API
 // @Accept json
 // @Produce json
-// @Param request body SigninRequest true "Request Body<br />email: The email address of the user, used for login.<br />password: The password associated with the email address, required for login. Must be 8-20 characters long."
+// @Param request body SigninRequest true "Request Body"
 // @Success 201 {object} SigninResponse
 // @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ErrorResponse "Unauthorized"
