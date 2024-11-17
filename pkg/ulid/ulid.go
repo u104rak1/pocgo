@@ -21,6 +21,7 @@ func IsValid(s string) bool {
 	return err == nil
 }
 
+// Generates a fixed ulid based on the argument string. The same arguments always produce the same ulid.
 func GenerateStaticULID(seed string) string {
 	hash := md5.Sum([]byte(seed))
 	seedInt := binary.BigEndian.Uint64(hash[:8])
