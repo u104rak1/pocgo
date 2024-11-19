@@ -25,7 +25,7 @@ func TestSetLoggerMiddleware(t *testing.T) {
 		expectedMsg    string
 	}{
 		{
-			name: "正常なリクエスト",
+			name: "Output INFO level log when normal case.",
 			path: "/200",
 			handler: func(ctx echo.Context) error {
 				return ctx.JSON(http.StatusOK, map[string]string{"message": "Success"})
@@ -35,7 +35,7 @@ func TestSetLoggerMiddleware(t *testing.T) {
 			expectedMsg:    "request received",
 		},
 		{
-			name: "クライアントエラー",
+			name: "Output WARN level log when a validation error occurs.",
 			path: "/400",
 			handler: func(ctx echo.Context) error {
 				return response.BadRequest(ctx, assert.AnError)
@@ -44,21 +44,30 @@ func TestSetLoggerMiddleware(t *testing.T) {
 			expectedLevel:  "WARN",
 			expectedMsg:    assert.AnError.Error(),
 		},
-		// {
-		// 	name: "サーバーエラー",
-		// 	path: "/500",
-		// 	handler: func(ctx echo.Context) error {
-		// 		return response.InternalServerError(ctx, assert.AnError)
-		// 	},
-		// 	expectedStatus: http.StatusInternalServerError,
-		// 	expectedLevel:  "ERROR",
-		// 	expectedMsg:    assert.AnError.Error(),
-		// },
+		{
+			name: "Output WARN level log when an client error occurs.",
+			path: "/400",
+			handler: func(ctx echo.Context) error {
+				return response.BadRequest(ctx, assert.AnError)
+			},
+			expectedStatus: http.StatusBadRequest,
+			expectedLevel:  "WARN",
+			expectedMsg:    assert.AnError.Error(),
+		},
+		{
+			name: "Output ERROR level log when a server error occurs.",
+			path: "/500",
+			handler: func(ctx echo.Context) error {
+				return response.InternalServerError(ctx, assert.AnError)
+			},
+			expectedStatus: http.StatusInternalServerError,
+			expectedLevel:  "ERROR",
+			expectedMsg:    assert.AnError.Error(),
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Set up a buffer to capture log output
 			buf := new(bytes.Buffer)
 			log.SetOutput(buf)
 
@@ -78,11 +87,13 @@ func TestSetLoggerMiddleware(t *testing.T) {
 
 			assert.Equal(t, tt.expectedLevel, logEntry["level"])
 			assert.Equal(t, tt.expectedMsg, logEntry["msg"])
-			assert.Equal(t, tt.path, logEntry["uri"])
 			assert.Equal(t, "GET", logEntry["method"])
+			assert.Equal(t, tt.path, logEntry["uri"])
 			assert.Equal(t, tt.expectedStatus, int(logEntry["status"].(float64)))
-			assert.Contains(t, logEntry, "latency")
+			assert.Contains(t, logEntry, "user_agent")
+			assert.Contains(t, logEntry, "client_ip")
 			assert.Contains(t, logEntry, "request_id")
+			assert.Contains(t, logEntry, "latency")
 		})
 	}
 }
