@@ -30,7 +30,7 @@ func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) erro
 	})
 }
 
-// バリデーションエラーのスライスを文字列にフォーマットします。Loggerで使用しています。
+// Format a slice of validation errors into a string. Using this function in logger.
 func FormatValidationErrors(errors []ValidationError) string {
 	if len(errors) == 0 {
 		return "no validation errors"
