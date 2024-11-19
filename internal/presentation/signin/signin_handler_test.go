@@ -14,8 +14,8 @@ import (
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	appMock "github.com/ucho456job/pocgo/internal/application/mock"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
 	"github.com/ucho456job/pocgo/internal/presentation/signin"
+	"github.com/ucho456job/pocgo/internal/server/response"
 )
 
 func TestSigninHandler(t *testing.T) {

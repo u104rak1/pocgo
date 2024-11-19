@@ -6,8 +6,8 @@ import (
 	"github.com/labstack/echo/v4"
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
+	"github.com/ucho456job/pocgo/internal/presentation/validation"
+	"github.com/ucho456job/pocgo/internal/server/response"
 )
 
 type SigninHandler struct {

@@ -8,8 +8,8 @@ import (
 	"github.com/ucho456job/pocgo/internal/config"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
+	"github.com/ucho456job/pocgo/internal/presentation/validation"
+	"github.com/ucho456job/pocgo/internal/server/response"
 )
 
 type CreateAccountHandler struct {

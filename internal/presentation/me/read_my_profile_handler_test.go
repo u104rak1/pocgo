@@ -15,7 +15,7 @@ import (
 	"github.com/ucho456job/pocgo/internal/config"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/presentation/me"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
+	"github.com/ucho456job/pocgo/internal/server/response"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 

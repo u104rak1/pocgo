@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
+	"github.com/ucho456job/pocgo/internal/presentation/validation"
 	ulidUtil "github.com/ucho456job/pocgo/pkg/ulid"
 )
 

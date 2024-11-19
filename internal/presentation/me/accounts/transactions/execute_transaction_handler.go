@@ -9,8 +9,8 @@ import (
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
 	transactionDomain "github.com/ucho456job/pocgo/internal/domain/transaction"
 	moneyVO "github.com/ucho456job/pocgo/internal/domain/value_object/money"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
+	"github.com/ucho456job/pocgo/internal/presentation/validation"
+	"github.com/ucho456job/pocgo/internal/server/response"
 )
 
 type ExecuteTransactionHandler struct {

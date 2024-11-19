@@ -2,7 +2,9 @@ package response
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -22,10 +24,22 @@ type ValidationError struct {
 var ValidationFailedReason = "validation failed"
 
 func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) error {
-	return ctx.JSON(http.StatusBadRequest, ValidationErrorResponse{
+	return echo.NewHTTPError(http.StatusBadRequest, ValidationErrorResponse{
 		Reason: ValidationFailedReason,
 		Errors: validationErrors,
 	})
+}
+
+// バリデーションエラーのスライスを文字列にフォーマットします。Loggerで使用しています。
+func FormatValidationErrors(errors []ValidationError) string {
+	if len(errors) == 0 {
+		return "no validation errors"
+	}
+	var messages []string
+	for _, err := range errors {
+		messages = append(messages, fmt.Sprintf("%s: %s", err.Field, err.Message))
+	}
+	return strings.Join(messages, ", ")
 }
 
 type ErrorResponse struct {
@@ -43,42 +57,42 @@ var (
 )
 
 func BadRequest(ctx echo.Context, err error) error {
-	return ctx.JSON(http.StatusBadRequest, ErrorResponse{
+	return echo.NewHTTPError(http.StatusBadRequest, ErrorResponse{
 		Reason:  BadRequestReason,
 		Message: err.Error(),
 	})
 }
 
 func Unauthorized(ctx echo.Context, err error) error {
-	return ctx.JSON(http.StatusUnauthorized, ErrorResponse{
+	return echo.NewHTTPError(http.StatusUnauthorized, ErrorResponse{
 		Reason:  UnauthorizedReason,
 		Message: err.Error(),
 	})
 }
 
 func Forbidden(ctx echo.Context, err error) error {
-	return ctx.JSON(http.StatusForbidden, ErrorResponse{
+	return echo.NewHTTPError(http.StatusForbidden, ErrorResponse{
 		Reason:  ForbiddenReason,
 		Message: err.Error(),
 	})
 }
 
 func NotFound(ctx echo.Context, err error) error {
-	return ctx.JSON(http.StatusNotFound, ErrorResponse{
+	return echo.NewHTTPError(http.StatusNotFound, ErrorResponse{
 		Reason:  NotFoundReason,
 		Message: err.Error(),
 	})
 }
 
 func Conflict(ctx echo.Context, err error) error {
-	return ctx.JSON(http.StatusConflict, ErrorResponse{
+	return echo.NewHTTPError(http.StatusConflict, ErrorResponse{
 		Reason:  ConflictReason,
 		Message: err.Error(),
 	})
 }
 
 func InternalServerError(ctx echo.Context, err error) error {
-	return ctx.JSON(http.StatusInternalServerError, ErrorResponse{
+	return echo.NewHTTPError(http.StatusInternalServerError, ErrorResponse{
 		Reason:  InternalServerErrorReason,
 		Message: err.Error(),
 	})

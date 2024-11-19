@@ -8,8 +8,8 @@ import (
 	transactionApp "github.com/ucho456job/pocgo/internal/application/transaction"
 	"github.com/ucho456job/pocgo/internal/config"
 	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
+	"github.com/ucho456job/pocgo/internal/presentation/validation"
+	"github.com/ucho456job/pocgo/internal/server/response"
 	"github.com/ucho456job/pocgo/pkg/timer"
 )
 

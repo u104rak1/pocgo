@@ -15,8 +15,8 @@ import (
 	appMock "github.com/ucho456job/pocgo/internal/application/mock"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
 	"github.com/ucho456job/pocgo/internal/presentation/signup"
+	"github.com/ucho456job/pocgo/internal/server/response"
 	"github.com/ucho456job/pocgo/pkg/ulid"
 )
 

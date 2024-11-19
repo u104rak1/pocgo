@@ -1,11 +1,13 @@
 package middleware
 
 import (
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/ucho456job/pocgo/internal/server/response"
 	"golang.org/x/exp/slog"
 )
 
@@ -34,7 +36,18 @@ func SetLoggerMiddleware(e *echo.Echo) {
 
 			var msg string
 			if v.Error != nil {
-				msg = v.Error.Error()
+				if httpError, ok := v.Error.(*echo.HTTPError); ok {
+					switch m := httpError.Message.(type) {
+					case response.ErrorResponse:
+						msg = m.Message
+					case response.ValidationErrorResponse:
+						msg = response.FormatValidationErrors(m.Errors)
+					default:
+						msg = fmt.Sprintf("%v", m)
+					}
+				} else {
+					msg = v.Error.Error()
+				}
 			} else {
 				msg = "request received"
 			}

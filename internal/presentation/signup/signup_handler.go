@@ -7,8 +7,8 @@ import (
 	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
 	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/response"
-	"github.com/ucho456job/pocgo/internal/presentation/shared/validation"
+	"github.com/ucho456job/pocgo/internal/presentation/validation"
+	"github.com/ucho456job/pocgo/internal/server/response"
 )
 
 type SignupHandler struct {
