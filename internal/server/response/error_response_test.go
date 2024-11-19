@@ -2,7 +2,6 @@ package response_test
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -40,68 +39,61 @@ func TestErrorResponses(t *testing.T) {
 	tests := []struct {
 		caseName           string
 		function           func(ctx echo.Context, err error) error
-		errMessage         string
 		expectedStatusCode int
 		expectedResponse   response.ErrorResponse
 	}{
 		{
 			caseName:           "BadRequest",
 			function:           response.BadRequest,
-			errMessage:         "bad request error",
 			expectedStatusCode: http.StatusBadRequest,
 			expectedResponse: response.ErrorResponse{
 				Reason:  response.BadRequestReason,
-				Message: "bad request error",
+				Message: assert.AnError.Error(),
 			},
 		},
 		{
 			caseName:           "Unauthorized",
 			function:           response.Unauthorized,
-			errMessage:         "unauthorized access",
 			expectedStatusCode: http.StatusUnauthorized,
 			expectedResponse: response.ErrorResponse{
 				Reason:  response.UnauthorizedReason,
-				Message: "unauthorized access",
+				Message: assert.AnError.Error(),
 			},
 		},
 		{
 			caseName:           "Forbidden",
 			function:           response.Forbidden,
-			errMessage:         "forbidden action",
 			expectedStatusCode: http.StatusForbidden,
 			expectedResponse: response.ErrorResponse{
 				Reason:  response.ForbiddenReason,
-				Message: "forbidden action",
+				Message: assert.AnError.Error(),
 			},
 		},
 		{
 			caseName:           "NotFound",
 			function:           response.NotFound,
-			errMessage:         "not found",
 			expectedStatusCode: http.StatusNotFound,
 			expectedResponse: response.ErrorResponse{
 				Reason:  response.NotFoundReason,
-				Message: "not found",
+				Message: assert.AnError.Error(),
 			},
 		},
 		{
 			caseName:           "Conflict",
 			function:           response.Conflict,
-			errMessage:         "conflict error",
 			expectedStatusCode: http.StatusConflict,
 			expectedResponse: response.ErrorResponse{
 				Reason:  response.ConflictReason,
-				Message: "conflict error",
+				Message: assert.AnError.Error(),
 			},
 		},
 		{
 			caseName:           "InternalServerError",
 			function:           response.InternalServerError,
-			errMessage:         "internal server error",
 			expectedStatusCode: http.StatusInternalServerError,
 			expectedResponse: response.ErrorResponse{
 				Reason:  response.InternalServerErrorReason,
-				Message: "internal server error",
+				Message: assert.AnError.Error(),
 			},
 		},
 	}
@@ -112,7 +104,7 @@ func TestErrorResponses(t *testing.T) {
 			rec := httptest.NewRecorder()
 			ctx := e.NewContext(req, rec)
 
-			err := tt.function(ctx, errors.New(tt.errMessage))
+			err := tt.function(ctx, assert.AnError)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectedStatusCode, rec.Code)
 
