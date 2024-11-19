@@ -1,7 +1,6 @@
 package response_test
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,12 +22,12 @@ func TestValidationFailed(t *testing.T) {
 	}
 
 	err := response.ValidationFailed(ctx, validationErrors)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusBadRequest, rec.Code)
+	he, ok := err.(*echo.HTTPError)
+	assert.True(t, ok)
+	assert.Equal(t, http.StatusBadRequest, he.Code)
 
-	var resp response.ValidationErrorResponse
-	err = json.Unmarshal(rec.Body.Bytes(), &resp)
-	assert.NoError(t, err)
+	resp, ok := he.Message.(response.ValidationErrorResponse)
+	assert.True(t, ok)
 	assert.Equal(t, response.ValidationFailedReason, resp.Reason)
 	assert.Equal(t, validationErrors, resp.Errors)
 }
@@ -105,12 +104,12 @@ func TestErrorResponses(t *testing.T) {
 			ctx := e.NewContext(req, rec)
 
 			err := tt.function(ctx, assert.AnError)
-			assert.NoError(t, err)
-			assert.Equal(t, tt.expectedStatusCode, rec.Code)
+			he, ok := err.(*echo.HTTPError)
+			assert.True(t, ok)
+			assert.Equal(t, tt.expectedStatusCode, he.Code)
 
-			var resp response.ErrorResponse
-			err = json.Unmarshal(rec.Body.Bytes(), &resp)
-			assert.NoError(t, err)
+			resp, ok := he.Message.(response.ErrorResponse)
+			assert.True(t, ok)
 			assert.Equal(t, tt.expectedResponse, resp)
 		})
 	}
