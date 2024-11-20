@@ -50,9 +50,9 @@ type SignupResponseBodyUser struct {
 // @Produce json
 // @Param body body SignupRequest true "Request Body"
 // @Success 201 {object} SignupResponse
-// @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
-// @Failure 409 {object} response.ErrorResponse "Conflict"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 400 {object} response.ValidationProblemDetail "Validation Failed or Bad Request"
+// @Failure 409 {object} response.ProblemDetail "Conflict"
+// @Failure 500 {object} response.ProblemDetail "Internal Server Error"
 // @Router /api/v1/signup [post]
 func (h *SignupHandler) Run(ctx echo.Context) error {
 	req := new(SignupRequest)

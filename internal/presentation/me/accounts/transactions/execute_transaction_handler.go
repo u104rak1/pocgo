@@ -68,11 +68,11 @@ type ExecuteTransactionResponse struct {
 // @Param account_id path string true "Account ID to be operated."
 // @Param request body ExecuteTransactionRequestBody true "Request Body"
 // @Success 200 {object} ExecuteTransactionResponse
-// @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
-// @Failure 401 {object} response.ErrorResponse "Unauthorized"
-// @Failure 403 {object} response.ErrorResponse "Forbidden"
-// @Failure 404 {object} response.ErrorResponse "Not Found"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 400 {object} response.ValidationProblemDetail "Validation Failed or Bad Request"
+// @Failure 401 {object} response.ProblemDetail "Unauthorized"
+// @Failure 403 {object} response.ProblemDetail "Forbidden"
+// @Failure 404 {object} response.ProblemDetail "Not Found"
+// @Failure 500 {object} response.ProblemDetail "Internal Server Error"
 // @Router /api/v1/me/accounts/{account_id}/transactions [post]
 func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 	req := new(ExecuteTransactionRequest)

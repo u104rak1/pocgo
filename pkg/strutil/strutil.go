@@ -15,3 +15,9 @@ func ToSnakeFromCamel(s string) string {
 	}
 	return strings.ToLower(result.String())
 }
+
+// Converts a string with spaces to a kebab case string. Front and rear spaces are trimmed.
+func ToKebabFromSpace(s string) string {
+	trimmed := strings.TrimSpace(s)
+	return strings.ReplaceAll(trimmed, " ", "-")
+}

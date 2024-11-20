@@ -60,7 +60,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 			},
 			prepare:      func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {},
 			expectedCode: http.StatusUnauthorized,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.UnauthorizedReason,
 				Message: config.ErrUserIDMissing.Error(),
 			},
@@ -75,7 +75,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, userDomain.ErrNotFound)
 			},
 			expectedCode: http.StatusNotFound,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.NotFoundReason,
 				Message: userDomain.ErrNotFound.Error(),
 			},
@@ -90,7 +90,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.InternalServerErrorReason,
 				Message: assert.AnError.Error(),
 			},
@@ -123,7 +123,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
 			} else {
-				var resp response.ErrorResponse
+				var resp response.ProblemDetail
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)

@@ -38,9 +38,9 @@ func SetLoggerMiddleware(e *echo.Echo) {
 			if v.Error != nil {
 				if httpError, ok := v.Error.(*echo.HTTPError); ok {
 					switch m := httpError.Message.(type) {
-					case response.ErrorResponse:
-						msg = m.Message
-					case response.ValidationErrorResponse:
+					case response.ProblemDetail:
+						msg = m.Detail
+					case response.ValidationProblemDetail:
 						msg = response.FormatValidationErrors(m.Errors)
 					default:
 						msg = fmt.Sprintf("%v", m)

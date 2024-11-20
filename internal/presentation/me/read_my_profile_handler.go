@@ -33,9 +33,9 @@ type ReadMyProfileResponse struct {
 // @Accept json
 // @Produce json
 // @Success 200 {object} ReadMyProfileResponse
-// @Failure 401 {object} response.ErrorResponse "Unauthorized"
-// @Failure 404 {object} response.ErrorResponse "Not Found"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 401 {object} response.ProblemDetail "Unauthorized"
+// @Failure 404 {object} response.ProblemDetail "Not Found"
+// @Failure 500 {object} response.ProblemDetail "Internal Server Error"
 // @Router /api/v1/me [get]
 func (h *ReadMyProfileHandler) Run(ctx echo.Context) error {
 	userID, ok := ctx.Request().Context().Value(config.CtxUserIDKey()).(string)

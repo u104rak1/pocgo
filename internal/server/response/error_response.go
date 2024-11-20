@@ -7,12 +7,21 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/ucho456job/pocgo/pkg/strutil"
 )
 
-var ErrInvalidJSON = errors.New("request body is invalid json")
+var ErrInvalidJSON = errors.New("request body is invalid JSON")
 
-type ValidationErrorResponse struct {
-	Reason string            `json:"reason" example:"error reason"`
+type ProblemDetail struct {
+	Type     string `json:"type" example:"https://example.com/probs/error-title"`
+	Title    string `json:"title" example:"Error title"`
+	Status   int    `json:"status" example:"400"`
+	Detail   string `json:"detail" example:"Error detail message"`
+	Instance string `json:"instance" example:"/path/to/resource"`
+}
+
+type ValidationProblemDetail struct {
+	ProblemDetail
 	Errors []ValidationError `json:"errors"`
 }
 
@@ -21,16 +30,90 @@ type ValidationError struct {
 	Message string `json:"message" example:"error message"`
 }
 
-var ValidationFailedReason = "validation failed"
-
-func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) error {
-	return echo.NewHTTPError(http.StatusBadRequest, ValidationErrorResponse{
-		Reason: ValidationFailedReason,
-		Errors: validationErrors,
-	})
+func NewProblemDetail(status int, title, detail, instance string) ProblemDetail {
+	return ProblemDetail{
+		Type:     fmt.Sprintf("https://example.com/probs/%s", strings.ToLower(strutil.ToKebabFromSpace(http.StatusText(status)))),
+		Title:    title,
+		Status:   status,
+		Detail:   detail,
+		Instance: instance,
+	}
 }
 
-// Format a slice of validation errors into a string. Using this function in logger.
+func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) error {
+	problem := ValidationProblemDetail{
+		ProblemDetail: NewProblemDetail(
+			http.StatusBadRequest,
+			"Validation Failed",
+			"one or more validation errors occurred",
+			ctx.Request().URL.Path,
+		),
+		Errors: validationErrors,
+	}
+	return echo.NewHTTPError(http.StatusBadRequest, problem)
+}
+
+func BadRequest(ctx echo.Context, err error) error {
+	problem := NewProblemDetail(
+		http.StatusBadRequest,
+		"Bad Request",
+		err.Error(),
+		ctx.Request().URL.Path,
+	)
+	return echo.NewHTTPError(http.StatusBadRequest, problem)
+}
+
+func Unauthorized(ctx echo.Context, err error) error {
+	problem := NewProblemDetail(
+		http.StatusUnauthorized,
+		"Unauthorized",
+		err.Error(),
+		ctx.Request().URL.Path,
+	)
+	return echo.NewHTTPError(http.StatusUnauthorized, problem)
+}
+
+func Forbidden(ctx echo.Context, err error) error {
+	problem := NewProblemDetail(
+		http.StatusForbidden,
+		"Forbidden",
+		err.Error(),
+		ctx.Request().URL.Path,
+	)
+	return echo.NewHTTPError(http.StatusForbidden, problem)
+}
+
+func NotFound(ctx echo.Context, err error) error {
+	problem := NewProblemDetail(
+		http.StatusNotFound,
+		"Not Found",
+		err.Error(),
+		ctx.Request().URL.Path,
+	)
+	return echo.NewHTTPError(http.StatusNotFound, problem)
+}
+
+func Conflict(ctx echo.Context, err error) error {
+	problem := NewProblemDetail(
+		http.StatusConflict,
+		"Conflict",
+		err.Error(),
+		ctx.Request().URL.Path,
+	)
+	return echo.NewHTTPError(http.StatusConflict, problem)
+}
+
+func InternalServerError(ctx echo.Context, err error) error {
+	problem := NewProblemDetail(
+		http.StatusInternalServerError,
+		"Internal Server Error",
+		err.Error(),
+		ctx.Request().URL.Path,
+	)
+	return echo.NewHTTPError(http.StatusInternalServerError, problem)
+}
+
+// Format validation errors into a single string.
 func FormatValidationErrors(errors []ValidationError) string {
 	if len(errors) == 0 {
 		return "no validation errors"
@@ -40,60 +123,4 @@ func FormatValidationErrors(errors []ValidationError) string {
 		messages = append(messages, fmt.Sprintf("%s: %s", err.Field, err.Message))
 	}
 	return strings.Join(messages, ", ")
-}
-
-type ErrorResponse struct {
-	Reason  string `json:"reason" example:"error reason"`
-	Message string `json:"message" example:"error message"`
-}
-
-var (
-	BadRequestReason          = "bad request"
-	UnauthorizedReason        = "unauthorized"
-	ForbiddenReason           = "forbidden"
-	NotFoundReason            = "not found"
-	ConflictReason            = "conflict"
-	InternalServerErrorReason = "internal server error"
-)
-
-func BadRequest(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusBadRequest, ErrorResponse{
-		Reason:  BadRequestReason,
-		Message: err.Error(),
-	})
-}
-
-func Unauthorized(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusUnauthorized, ErrorResponse{
-		Reason:  UnauthorizedReason,
-		Message: err.Error(),
-	})
-}
-
-func Forbidden(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusForbidden, ErrorResponse{
-		Reason:  ForbiddenReason,
-		Message: err.Error(),
-	})
-}
-
-func NotFound(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusNotFound, ErrorResponse{
-		Reason:  NotFoundReason,
-		Message: err.Error(),
-	})
-}
-
-func Conflict(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusConflict, ErrorResponse{
-		Reason:  ConflictReason,
-		Message: err.Error(),
-	})
-}
-
-func InternalServerError(ctx echo.Context, err error) error {
-	return echo.NewHTTPError(http.StatusInternalServerError, ErrorResponse{
-		Reason:  InternalServerErrorReason,
-		Message: err.Error(),
-	})
 }

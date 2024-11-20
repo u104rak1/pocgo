@@ -39,9 +39,9 @@ type SigninResponse struct {
 // @Produce json
 // @Param request body SigninRequest true "Request Body"
 // @Success 201 {object} SigninResponse
-// @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
-// @Failure 401 {object} response.ErrorResponse "Unauthorized"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 400 {object} response.ValidationProblemDetail "Validation Failed or Bad Request"
+// @Failure 401 {object} response.ProblemDetail "Unauthorized"
+// @Failure 500 {object} response.ProblemDetail "Internal Server Error"
 // @Router /api/v1/signin [post]
 func (h *SigninHandler) Run(ctx echo.Context) error {
 	req := new(SigninRequest)

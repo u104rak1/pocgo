@@ -62,11 +62,11 @@ type CreateAccountResponse struct {
 // @Produce json
 // @Param request body CreateAccountRequestBody true "Request Body"
 // @Success 201 {object} CreateAccountResponse
-// @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
-// @Failure 401 {object} response.ErrorResponse "Unauthorized"
-// @Failure 404 {object} response.ErrorResponse "Not Found"
-// @Failure 409 {object} response.ErrorResponse "Conflict"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 400 {object} response.ValidationProblemDetail "Validation Failed or Bad Request"
+// @Failure 401 {object} response.ProblemDetail "Unauthorized"
+// @Failure 404 {object} response.ProblemDetail "Not Found"
+// @Failure 409 {object} response.ProblemDetail "Conflict"
+// @Failure 500 {object} response.ProblemDetail "Internal Server Error"
 // @Router /api/v1/me/accounts [post]
 func (h *CreateAccountHandler) Run(ctx echo.Context) error {
 	req := new(CreateAccountRequest)

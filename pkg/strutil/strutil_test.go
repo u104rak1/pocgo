@@ -47,3 +47,49 @@ func TestToSnakeFromCamel(t *testing.T) {
 		})
 	}
 }
+
+func TestToKebabFromSpace(t *testing.T) {
+	tests := []struct {
+		caseName string
+		input    string
+		expected string
+	}{
+		{
+			caseName: "Converts spaces to kebab-case.",
+			input:    "hello world",
+			expected: "hello-world",
+		},
+		{
+			caseName: "Handles multiple spaces.",
+			input:    "go is awesome",
+			expected: "go-is-awesome",
+		},
+		{
+			caseName: "Handles leading and trailing spaces.",
+			input:    "  leading and trailing  ",
+			expected: "leading-and-trailing",
+		},
+		{
+			caseName: "Handles empty string.",
+			input:    "",
+			expected: "",
+		},
+		{
+			caseName: "Handles no spaces.",
+			input:    "kebabcase",
+			expected: "kebabcase",
+		},
+		{
+			caseName: "Handles special characters.",
+			input:    "hello @world!",
+			expected: "hello-@world!",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.caseName, func(t *testing.T) {
+			result := strutil.ToKebabFromSpace(tt.input)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}

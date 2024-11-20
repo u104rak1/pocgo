@@ -49,13 +49,22 @@ definitions:
         example: Sato Taro
         type: string
     type: object
-  response.ErrorResponse:
+  response.ProblemDetail:
     properties:
-      message:
-        example: error message
+      detail:
+        example: Error detail message
         type: string
-      reason:
-        example: error reason
+      instance:
+        example: /path/to/resource
+        type: string
+      status:
+        example: 400
+        type: integer
+      title:
+        example: Error title
+        type: string
+      type:
+        example: https://example.com/probs/error-title
         type: string
     type: object
   response.ValidationError:
@@ -67,14 +76,26 @@ definitions:
         example: error message
         type: string
     type: object
-  response.ValidationErrorResponse:
+  response.ValidationProblemDetail:
     properties:
+      detail:
+        example: Error detail message
+        type: string
       errors:
         items:
           $ref: '#/definitions/response.ValidationError'
         type: array
-      reason:
-        example: error reason
+      instance:
+        example: /path/to/resource
+        type: string
+      status:
+        example: 400
+        type: integer
+      title:
+        example: Error title
+        type: string
+      type:
+        example: https://example.com/probs/error-title
         type: string
     type: object
   signin.SigninRequest:
@@ -237,15 +258,15 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
       security:
       - BearerAuth: []
       summary: Read My Profile
@@ -273,23 +294,23 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ValidationErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
       security:
       - BearerAuth: []
       summary: Create Account
@@ -345,23 +366,23 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ValidationErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
       security:
       - BearerAuth: []
       summary: List Transactions
@@ -394,23 +415,23 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ValidationErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
       security:
       - BearerAuth: []
       summary: Execute Transaction
@@ -439,15 +460,15 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ValidationErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
       summary: Signin
       tags:
       - Authentication API
@@ -473,15 +494,15 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ValidationErrorResponse'
+            $ref: '#/definitions/response.ValidationProblemDetail'
         "409":
           description: Conflict
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            $ref: '#/definitions/response.ProblemDetail'
       summary: Signup
       tags:
       - Authentication API

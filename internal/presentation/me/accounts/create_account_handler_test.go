@@ -82,7 +82,7 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 			prepare:      func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
 			expectedCode: http.StatusBadRequest,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.BadRequestReason,
 				Message: response.ErrInvalidJSON.Error(),
 			},
@@ -104,7 +104,7 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 			prepare:      func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
 			expectedCode: http.StatusUnauthorized,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.UnauthorizedReason,
 				Message: config.ErrUserIDMissing.Error(),
 			},
@@ -120,7 +120,7 @@ func TestCreateAccountHandler(t *testing.T) {
 				mockCreateAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, userDomain.ErrNotFound)
 			},
 			expectedCode: http.StatusNotFound,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.NotFoundReason,
 				Message: userDomain.ErrNotFound.Error(),
 			},
@@ -136,7 +136,7 @@ func TestCreateAccountHandler(t *testing.T) {
 				mockCreateAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, accountDomain.ErrLimitReached)
 			},
 			expectedCode: http.StatusConflict,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.ConflictReason,
 				Message: accountDomain.ErrLimitReached.Error(),
 			},
@@ -152,7 +152,7 @@ func TestCreateAccountHandler(t *testing.T) {
 				mockCreateAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.InternalServerErrorReason,
 				Message: assert.AnError.Error(),
 			},
@@ -188,13 +188,13 @@ func TestCreateAccountHandler(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
 			} else if rec.Code == http.StatusBadRequest && tt.requestBody != invalidRequestBody {
-				var resp response.ValidationErrorResponse
+				var resp response.ProblemDetail
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, response.ValidationFailedReason, resp.Reason)
 				assert.NotEmpty(t, resp.Errors)
 			} else {
-				var resp response.ErrorResponse
+				var resp response.ProblemDetail
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)

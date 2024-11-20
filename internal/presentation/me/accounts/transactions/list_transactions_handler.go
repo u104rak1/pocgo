@@ -70,11 +70,11 @@ type ListTransactionsTransaction struct {
 // @Param limit query int false "The maximum number of transaction histories per page. Can be specified between 1 and 100."
 // @Param page query int false "The page number for paginated results."
 // @Success 200 {object} ListTransactionsResponse
-// @Failure 400 {object} response.ValidationErrorResponse "Validation Failed or Bad Request"
-// @Failure 401 {object} response.ErrorResponse "Unauthorized"
-// @Failure 403 {object} response.ErrorResponse "Forbidden"
-// @Failure 404 {object} response.ErrorResponse "Not Found"
-// @Failure 500 {object} response.ErrorResponse "Internal Server Error"
+// @Failure 400 {object} response.ValidationProblemDetail "Validation Failed or Bad Request"
+// @Failure 401 {object} response.ProblemDetail "Unauthorized"
+// @Failure 403 {object} response.ProblemDetail "Forbidden"
+// @Failure 404 {object} response.ProblemDetail "Not Found"
+// @Failure 500 {object} response.ProblemDetail "Internal Server Error"
 // @Router /api/v1/me/accounts/{account_id}/transactions [get]
 func (h *ListTransactionsHandler) Run(ctx echo.Context) error {
 	req := new(ListTransactionsRequest)

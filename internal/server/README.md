@@ -1,2 +1,3 @@
 AccessTokenからuserIDを取得するmiddlewareでは例外的にdomainサービスのコードを利用している。domainサービスのコードは本来ユースケース層が使うべき。
 server.goはユニットテストは書いてない。integrationテストが機能していれば十分であり、冗長になる為。
+RFC7807

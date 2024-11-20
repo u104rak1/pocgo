@@ -75,7 +75,7 @@ func TestSignupHandler(t *testing.T) {
 			requestBody:  invalidRequestBody,
 			prepare:      func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
 			expectedCode: http.StatusBadRequest,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.BadRequestReason,
 				Message: response.ErrInvalidJSON.Error(),
 			},
@@ -93,7 +93,7 @@ func TestSignupHandler(t *testing.T) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, userDomain.ErrEmailAlreadyExists)
 			},
 			expectedCode: http.StatusConflict,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.ConflictReason,
 				Message: userDomain.ErrEmailAlreadyExists.Error(),
 			},
@@ -105,7 +105,7 @@ func TestSignupHandler(t *testing.T) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, authDomain.ErrAlreadyExists)
 			},
 			expectedCode: http.StatusConflict,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.ConflictReason,
 				Message: authDomain.ErrAlreadyExists.Error(),
 			},
@@ -117,7 +117,7 @@ func TestSignupHandler(t *testing.T) {
 				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
-			expectedResponseBody: response.ErrorResponse{
+			expectedResponseBody: response.ProblemDetail{
 				Reason:  response.InternalServerErrorReason,
 				Message: assert.AnError.Error(),
 			},
@@ -151,13 +151,13 @@ func TestSignupHandler(t *testing.T) {
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
 			} else if rec.Code == http.StatusBadRequest && tt.requestBody != invalidRequestBody {
-				var resp response.ValidationErrorResponse
+				var resp response.ProblemDetail
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, response.ValidationFailedReason, resp.Reason)
 				assert.NotEmpty(t, resp.Errors)
 			} else {
-				var resp response.ErrorResponse
+				var resp response.ProblemDetail
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
