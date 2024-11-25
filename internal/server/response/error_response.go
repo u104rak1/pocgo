@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ucho456job/pocgo/pkg/strutil"
 )
 
 var ErrInvalidJSON = errors.New("request body is invalid JSON")
@@ -30,9 +29,9 @@ type ValidationError struct {
 	Message string `json:"message" example:"error message"`
 }
 
-func NewProblemDetail(status int, title, detail, instance string) ProblemDetail {
+func NewProblemDetail(status int, title, detail, instance, typeURL string) ProblemDetail {
 	return ProblemDetail{
-		Type:     fmt.Sprintf("https://example.com/probs/%s", strings.ToLower(strutil.ToKebabFromSpace(http.StatusText(status)))),
+		Type:     typeURL,
 		Title:    title,
 		Status:   status,
 		Detail:   detail,
@@ -40,13 +39,40 @@ func NewProblemDetail(status int, title, detail, instance string) ProblemDetail 
 	}
 }
 
+const (
+	problemURL = "https://example.com/probs/"
+
+	TitleValidationFailed   = "Validation Failed"
+	TypeURLValidationFailed = problemURL + "validation-failed"
+	DetailValidationFailed  = "one or more validation errors occurred"
+
+	TitleBadRequest   = "Bad Request"
+	TypeURLBadRequest = problemURL + "bad-request"
+
+	TitleUnauthorized   = "Unauthorized"
+	TypeURLUnauthorized = problemURL + "unauthorized"
+
+	TitleForbidden   = "Forbidden"
+	TypeURLForbidden = problemURL + "forbidden"
+
+	TitleNotFound   = "Not Found"
+	TypeURLNotFound = problemURL + "not-found"
+
+	TitleConflict   = "Conflict"
+	TypeURLConflict = problemURL + "conflict"
+
+	TitleInternalServerError   = "Internal Server Error"
+	TypeURLInternalServerError = problemURL + "internal-server-error"
+)
+
 func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) error {
 	problem := ValidationProblemDetail{
 		ProblemDetail: NewProblemDetail(
 			http.StatusBadRequest,
-			"Validation Failed",
-			"one or more validation errors occurred",
+			TitleValidationFailed,
+			DetailValidationFailed,
 			ctx.Request().URL.Path,
+			TypeURLValidationFailed,
 		),
 		Errors: validationErrors,
 	}
@@ -56,9 +82,10 @@ func ValidationFailed(ctx echo.Context, validationErrors []ValidationError) erro
 func BadRequest(ctx echo.Context, err error) error {
 	problem := NewProblemDetail(
 		http.StatusBadRequest,
-		"Bad Request",
+		TitleBadRequest,
 		err.Error(),
 		ctx.Request().URL.Path,
+		TypeURLBadRequest,
 	)
 	return echo.NewHTTPError(http.StatusBadRequest, problem)
 }
@@ -66,9 +93,10 @@ func BadRequest(ctx echo.Context, err error) error {
 func Unauthorized(ctx echo.Context, err error) error {
 	problem := NewProblemDetail(
 		http.StatusUnauthorized,
-		"Unauthorized",
+		TitleUnauthorized,
 		err.Error(),
 		ctx.Request().URL.Path,
+		TypeURLUnauthorized,
 	)
 	return echo.NewHTTPError(http.StatusUnauthorized, problem)
 }
@@ -76,9 +104,10 @@ func Unauthorized(ctx echo.Context, err error) error {
 func Forbidden(ctx echo.Context, err error) error {
 	problem := NewProblemDetail(
 		http.StatusForbidden,
-		"Forbidden",
+		TitleForbidden,
 		err.Error(),
 		ctx.Request().URL.Path,
+		TypeURLForbidden,
 	)
 	return echo.NewHTTPError(http.StatusForbidden, problem)
 }
@@ -86,9 +115,10 @@ func Forbidden(ctx echo.Context, err error) error {
 func NotFound(ctx echo.Context, err error) error {
 	problem := NewProblemDetail(
 		http.StatusNotFound,
-		"Not Found",
+		TitleNotFound,
 		err.Error(),
 		ctx.Request().URL.Path,
+		TypeURLNotFound,
 	)
 	return echo.NewHTTPError(http.StatusNotFound, problem)
 }
@@ -96,9 +126,10 @@ func NotFound(ctx echo.Context, err error) error {
 func Conflict(ctx echo.Context, err error) error {
 	problem := NewProblemDetail(
 		http.StatusConflict,
-		"Conflict",
+		TitleConflict,
 		err.Error(),
 		ctx.Request().URL.Path,
+		TypeURLConflict,
 	)
 	return echo.NewHTTPError(http.StatusConflict, problem)
 }
@@ -106,9 +137,10 @@ func Conflict(ctx echo.Context, err error) error {
 func InternalServerError(ctx echo.Context, err error) error {
 	problem := NewProblemDetail(
 		http.StatusInternalServerError,
-		"Internal Server Error",
+		TitleInternalServerError,
 		err.Error(),
 		ctx.Request().URL.Path,
+		TypeURLInternalServerError,
 	)
 	return echo.NewHTTPError(http.StatusInternalServerError, problem)
 }

@@ -22,6 +22,7 @@ func TestSigninHandler(t *testing.T) {
 	var (
 		accessToken        = "token"
 		invalidRequestBody = "invalid json"
+		uri                = "/api/v1/signin"
 	)
 
 	var requestBody = signin.SigninRequest{
@@ -55,8 +56,11 @@ func TestSigninHandler(t *testing.T) {
 			prepare:      func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.BadRequestReason,
-				Message: response.ErrInvalidJSON.Error(),
+				Type:     response.TypeURLBadRequest,
+				Title:    response.TitleBadRequest,
+				Status:   http.StatusBadRequest,
+				Detail:   response.ErrInvalidJSON.Error(),
+				Instance: uri,
 			},
 		},
 		{
@@ -64,6 +68,15 @@ func TestSigninHandler(t *testing.T) {
 			requestBody:  signin.SigninRequest{},
 			prepare:      func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {},
 			expectedCode: http.StatusBadRequest,
+			expectedResponseBody: response.ValidationProblemDetail{
+				ProblemDetail: response.ProblemDetail{
+					Type:     response.TypeURLValidationFailed,
+					Title:    response.TitleValidationFailed,
+					Status:   http.StatusBadRequest,
+					Detail:   response.DetailValidationFailed,
+					Instance: uri,
+				},
+			},
 		},
 		{
 			caseName:    "Error occurs during signin when authentication failed.",
@@ -73,8 +86,11 @@ func TestSigninHandler(t *testing.T) {
 			},
 			expectedCode: http.StatusUnauthorized,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.UnauthorizedReason,
-				Message: authDomain.ErrAuthenticationFailed.Error(),
+				Type:     response.TypeURLUnauthorized,
+				Title:    response.TitleUnauthorized,
+				Status:   http.StatusUnauthorized,
+				Detail:   authDomain.ErrAuthenticationFailed.Error(),
+				Instance: uri,
 			},
 		},
 		{
@@ -85,8 +101,11 @@ func TestSigninHandler(t *testing.T) {
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.InternalServerErrorReason,
-				Message: assert.AnError.Error(),
+				Type:     response.TypeURLInternalServerError,
+				Title:    response.TitleInternalServerError,
+				Status:   http.StatusInternalServerError,
+				Detail:   assert.AnError.Error(),
+				Instance: uri,
 			},
 		},
 	}
@@ -100,7 +119,7 @@ func TestSigninHandler(t *testing.T) {
 			e := echo.New()
 			body, err := json.Marshal(tt.requestBody)
 			assert.NoError(t, err)
-			req := httptest.NewRequest(http.MethodPost, "/api/v1/signin", bytes.NewBuffer(body))
+			req := httptest.NewRequest(http.MethodPost, uri, bytes.NewBuffer(body))
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			ctx := e.NewContext(req, rec)
@@ -111,24 +130,27 @@ func TestSigninHandler(t *testing.T) {
 			h := signin.NewSigninHandler(mockSigninUC)
 			err = h.Run(ctx)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tt.expectedCode, rec.Code)
-			if rec.Code == http.StatusCreated {
+			if tt.expectedCode == http.StatusCreated {
+				assert.NoError(t, err)
 				var resp signin.SigninResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
-			} else if rec.Code == http.StatusBadRequest && tt.requestBody != invalidRequestBody {
-				var resp response.ProblemDetail
-				err := json.Unmarshal(rec.Body.Bytes(), &resp)
-				assert.NoError(t, err)
-				assert.Equal(t, response.ValidationFailedReason, resp.Reason)
-				assert.NotEmpty(t, resp.Errors)
 			} else {
-				var resp response.ProblemDetail
-				err := json.Unmarshal(rec.Body.Bytes(), &resp)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedResponseBody, resp)
+				assert.Error(t, err)
+				he, ok := err.(*echo.HTTPError)
+				assert.True(t, ok)
+				assert.Equal(t, tt.expectedCode, he.Code)
+				switch resp := he.Message.(type) {
+				case response.ProblemDetail:
+					assert.Equal(t, tt.expectedResponseBody, resp)
+				case response.ValidationProblemDetail:
+					expected := tt.expectedResponseBody.(response.ValidationProblemDetail)
+					assert.Equal(t, expected.ProblemDetail, resp.ProblemDetail)
+					assert.Greater(t, len(resp.Errors), 0)
+				default:
+					t.Errorf("unexpected response: %v", resp)
+				}
 			}
 		})
 	}

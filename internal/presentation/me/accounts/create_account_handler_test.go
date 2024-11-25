@@ -32,6 +32,7 @@ func TestCreateAccountHandler(t *testing.T) {
 		currency           = money.JPY
 		updatedAt          = timer.Now().String()
 		invalidRequestBody = "invalid json"
+		uri                = "/api/v1/me/accounts"
 	)
 
 	var requestBody = accounts.CreateAccountRequestBody{
@@ -83,8 +84,11 @@ func TestCreateAccountHandler(t *testing.T) {
 			prepare:      func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.BadRequestReason,
-				Message: response.ErrInvalidJSON.Error(),
+				Type:     response.TypeURLBadRequest,
+				Title:    response.TitleBadRequest,
+				Status:   http.StatusBadRequest,
+				Detail:   response.ErrInvalidJSON.Error(),
+				Instance: uri,
 			},
 		},
 		{
@@ -95,6 +99,15 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 			prepare:      func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
 			expectedCode: http.StatusBadRequest,
+			expectedResponseBody: response.ValidationProblemDetail{
+				ProblemDetail: response.ProblemDetail{
+					Type:     response.TypeURLValidationFailed,
+					Title:    response.TitleValidationFailed,
+					Status:   http.StatusBadRequest,
+					Detail:   response.DetailValidationFailed,
+					Instance: uri,
+				},
+			},
 		},
 		{
 			caseName:    "If the context does not have a user id, an authentication error will be returned.",
@@ -105,8 +118,11 @@ func TestCreateAccountHandler(t *testing.T) {
 			prepare:      func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
 			expectedCode: http.StatusUnauthorized,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.UnauthorizedReason,
-				Message: config.ErrUserIDMissing.Error(),
+				Type:     response.TypeURLUnauthorized,
+				Title:    response.TitleUnauthorized,
+				Status:   http.StatusUnauthorized,
+				Detail:   config.ErrUserIDMissing.Error(),
+				Instance: uri,
 			},
 		},
 		{
@@ -121,8 +137,11 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 			expectedCode: http.StatusNotFound,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.NotFoundReason,
-				Message: userDomain.ErrNotFound.Error(),
+				Type:     response.TypeURLNotFound,
+				Title:    response.TitleNotFound,
+				Status:   http.StatusNotFound,
+				Detail:   userDomain.ErrNotFound.Error(),
+				Instance: uri,
 			},
 		},
 		{
@@ -137,8 +156,11 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 			expectedCode: http.StatusConflict,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.ConflictReason,
-				Message: accountDomain.ErrLimitReached.Error(),
+				Type:     response.TypeURLConflict,
+				Title:    response.TitleConflict,
+				Status:   http.StatusConflict,
+				Detail:   accountDomain.ErrLimitReached.Error(),
+				Instance: uri,
 			},
 		},
 		{
@@ -153,8 +175,11 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.InternalServerErrorReason,
-				Message: assert.AnError.Error(),
+				Type:     response.TypeURLInternalServerError,
+				Title:    response.TitleInternalServerError,
+				Status:   http.StatusInternalServerError,
+				Detail:   assert.AnError.Error(),
+				Instance: uri,
 			},
 		},
 	}
@@ -180,24 +205,27 @@ func TestCreateAccountHandler(t *testing.T) {
 			h := accounts.NewCreateAccountHandler(mockCreateAccountUC)
 			err = h.Run(ctx)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tt.expectedCode, rec.Code)
-			if rec.Code == http.StatusCreated {
+			if tt.expectedCode == http.StatusCreated {
+				assert.NoError(t, err)
 				var resp accounts.CreateAccountResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
-			} else if rec.Code == http.StatusBadRequest && tt.requestBody != invalidRequestBody {
-				var resp response.ProblemDetail
-				err := json.Unmarshal(rec.Body.Bytes(), &resp)
-				assert.NoError(t, err)
-				assert.Equal(t, response.ValidationFailedReason, resp.Reason)
-				assert.NotEmpty(t, resp.Errors)
 			} else {
-				var resp response.ProblemDetail
-				err := json.Unmarshal(rec.Body.Bytes(), &resp)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedResponseBody, resp)
+				assert.Error(t, err)
+				he, ok := err.(*echo.HTTPError)
+				assert.True(t, ok)
+				assert.Equal(t, tt.expectedCode, he.Code)
+				switch resp := he.Message.(type) {
+				case response.ProblemDetail:
+					assert.Equal(t, tt.expectedResponseBody, resp)
+				case response.ValidationProblemDetail:
+					expected := tt.expectedResponseBody.(response.ValidationProblemDetail)
+					assert.Equal(t, expected.ProblemDetail, resp.ProblemDetail)
+					assert.Greater(t, len(resp.Errors), 0)
+				default:
+					t.Errorf("unexpected response: %v", resp)
+				}
 			}
 		})
 	}

@@ -30,10 +30,10 @@ func TestValidationFailed(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, response.ValidationProblemDetail{
 		ProblemDetail: response.ProblemDetail{
-			Type:     "https://example.com/probs/bad-request",
-			Title:    "Validation Failed",
+			Type:     response.TypeURLValidationFailed,
+			Title:    response.TitleValidationFailed,
 			Status:   http.StatusBadRequest,
-			Detail:   "one or more validation errors occurred",
+			Detail:   response.DetailValidationFailed,
 			Instance: path,
 		},
 		Errors: validationErrors,
@@ -53,8 +53,8 @@ func TestErrorResponses(t *testing.T) {
 			caseName: "BadRequest",
 			function: response.BadRequest,
 			expectedResponse: response.ProblemDetail{
-				Type:     "https://example.com/probs/bad-request",
-				Title:    "Bad Request",
+				Type:     response.TypeURLBadRequest,
+				Title:    response.TitleBadRequest,
 				Status:   http.StatusBadRequest,
 				Detail:   assert.AnError.Error(),
 				Instance: path,
@@ -64,8 +64,8 @@ func TestErrorResponses(t *testing.T) {
 			caseName: "Unauthorized",
 			function: response.Unauthorized,
 			expectedResponse: response.ProblemDetail{
-				Type:     "https://example.com/probs/unauthorized",
-				Title:    "Unauthorized",
+				Type:     response.TypeURLUnauthorized,
+				Title:    response.TitleUnauthorized,
 				Status:   http.StatusUnauthorized,
 				Detail:   assert.AnError.Error(),
 				Instance: path,
@@ -75,8 +75,8 @@ func TestErrorResponses(t *testing.T) {
 			caseName: "Forbidden",
 			function: response.Forbidden,
 			expectedResponse: response.ProblemDetail{
-				Type:     "https://example.com/probs/forbidden",
-				Title:    "Forbidden",
+				Type:     response.TypeURLForbidden,
+				Title:    response.TitleForbidden,
 				Status:   http.StatusForbidden,
 				Detail:   assert.AnError.Error(),
 				Instance: path,
@@ -86,8 +86,8 @@ func TestErrorResponses(t *testing.T) {
 			caseName: "NotFound",
 			function: response.NotFound,
 			expectedResponse: response.ProblemDetail{
-				Type:     "https://example.com/probs/not-found",
-				Title:    "Not Found",
+				Type:     response.TypeURLNotFound,
+				Title:    response.TitleNotFound,
 				Status:   http.StatusNotFound,
 				Detail:   assert.AnError.Error(),
 				Instance: path,
@@ -97,8 +97,8 @@ func TestErrorResponses(t *testing.T) {
 			caseName: "Conflict",
 			function: response.Conflict,
 			expectedResponse: response.ProblemDetail{
-				Type:     "https://example.com/probs/conflict",
-				Title:    "Conflict",
+				Type:     response.TypeURLConflict,
+				Title:    response.TitleConflict,
 				Status:   http.StatusConflict,
 				Detail:   assert.AnError.Error(),
 				Instance: path,
@@ -108,8 +108,8 @@ func TestErrorResponses(t *testing.T) {
 			caseName: "InternalServerError",
 			function: response.InternalServerError,
 			expectedResponse: response.ProblemDetail{
-				Type:     "https://example.com/probs/internal-server-error",
-				Title:    "Internal Server Error",
+				Type:     response.TypeURLInternalServerError,
+				Title:    response.TitleInternalServerError,
 				Status:   http.StatusInternalServerError,
 				Detail:   assert.AnError.Error(),
 				Instance: path,

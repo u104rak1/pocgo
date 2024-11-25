@@ -13,6 +13,7 @@ import (
 	appMock "github.com/ucho456job/pocgo/internal/application/mock"
 	userApp "github.com/ucho456job/pocgo/internal/application/user"
 	"github.com/ucho456job/pocgo/internal/config"
+
 	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
 	"github.com/ucho456job/pocgo/internal/presentation/me"
 	"github.com/ucho456job/pocgo/internal/server/response"
@@ -24,6 +25,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 		userID    = ulid.GenerateStaticULID("user")
 		userName  = "Sato Taro"
 		userEmail = "sato@example.com"
+		uri       = "/api/v1/me"
 	)
 
 	tests := []struct {
@@ -61,8 +63,11 @@ func TestReadMyProfileHandler(t *testing.T) {
 			prepare:      func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {},
 			expectedCode: http.StatusUnauthorized,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.UnauthorizedReason,
-				Message: config.ErrUserIDMissing.Error(),
+				Type:     response.TypeURLUnauthorized,
+				Title:    response.TitleUnauthorized,
+				Status:   http.StatusUnauthorized,
+				Detail:   config.ErrUserIDMissing.Error(),
+				Instance: uri,
 			},
 		},
 		{
@@ -76,8 +81,11 @@ func TestReadMyProfileHandler(t *testing.T) {
 			},
 			expectedCode: http.StatusNotFound,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.NotFoundReason,
-				Message: userDomain.ErrNotFound.Error(),
+				Type:     response.TypeURLNotFound,
+				Title:    response.TitleNotFound,
+				Status:   http.StatusNotFound,
+				Detail:   userDomain.ErrNotFound.Error(),
+				Instance: uri,
 			},
 		},
 		{
@@ -91,8 +99,11 @@ func TestReadMyProfileHandler(t *testing.T) {
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ProblemDetail{
-				Reason:  response.InternalServerErrorReason,
-				Message: assert.AnError.Error(),
+				Type:     response.TypeURLInternalServerError,
+				Title:    response.TitleInternalServerError,
+				Status:   http.StatusInternalServerError,
+				Detail:   assert.AnError.Error(),
+				Instance: uri,
 			},
 		},
 	}
@@ -104,7 +115,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 			defer ctrl.Finish()
 
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodGet, "/api/v1/me", nil)
+			req := httptest.NewRequest(http.MethodGet, uri, nil)
 			rec := httptest.NewRecorder()
 			ctx := e.NewContext(req, rec)
 			ctx.SetRequest(req.WithContext(tt.setupContext()))
@@ -115,18 +126,27 @@ func TestReadMyProfileHandler(t *testing.T) {
 			h := me.NewReadMyProfileHandler(mockReadUserUC)
 			err := h.Run(ctx)
 
-			assert.NoError(t, err)
-			assert.Equal(t, tt.expectedCode, rec.Code)
-			if rec.Code == http.StatusOK {
+			if tt.expectedCode == http.StatusOK {
+				assert.NoError(t, err)
 				var resp me.ReadMyProfileResponse
 				err := json.Unmarshal(rec.Body.Bytes(), &resp)
 				assert.NoError(t, err)
 				assert.Equal(t, tt.expectedResponseBody, resp)
 			} else {
-				var resp response.ProblemDetail
-				err := json.Unmarshal(rec.Body.Bytes(), &resp)
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedResponseBody, resp)
+				assert.Error(t, err)
+				he, ok := err.(*echo.HTTPError)
+				assert.True(t, ok)
+				assert.Equal(t, tt.expectedCode, he.Code)
+				switch resp := he.Message.(type) {
+				case response.ProblemDetail:
+					assert.Equal(t, tt.expectedResponseBody, resp)
+				case response.ValidationProblemDetail:
+					expected := tt.expectedResponseBody.(response.ValidationProblemDetail)
+					assert.Equal(t, expected.ProblemDetail, resp.ProblemDetail)
+					assert.Greater(t, len(resp.Errors), 0)
+				default:
+					t.Errorf("unexpected response: %v", resp)
+				}
 			}
 		})
 	}
