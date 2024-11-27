@@ -175,6 +175,14 @@ func (h *ListTransactionsHandler) validation(req *ListTransactionsRequest) (vali
 			})
 		}
 	}
+	if req.From != nil && req.To != nil {
+		if err := validation.ValidateDateRange(*req.From, *req.To); err != nil {
+			validationErrors = append(validationErrors, response.ValidationError{
+				Field:   "query.from",
+				Message: err.Error(),
+			})
+		}
+	}
 	if req.OperationTypes != nil {
 		if err := validation.ValidTransactionOperationTypes(*req.OperationTypes); err != nil {
 			validationErrors = append(validationErrors, response.ValidationError{

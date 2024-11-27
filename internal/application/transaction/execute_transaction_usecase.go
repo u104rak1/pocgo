@@ -9,7 +9,7 @@ import (
 )
 
 type IExecuteTransactionUsecase interface {
-	Run(ctx context.Context, cmd ExecuteTransactionCommand) (*TransactionDTO, error)
+	Run(ctx context.Context, cmd ExecuteTransactionCommand) (*ExecuteTransactionDTO, error)
 }
 
 type executeTransactionUsecase struct {
@@ -40,7 +40,17 @@ type ExecuteTransactionCommand struct {
 	ReceiverAccountID *string
 }
 
-func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransactionCommand) (*TransactionDTO, error) {
+type ExecuteTransactionDTO struct {
+	ID                string
+	AccountID         string
+	ReceiverAccountID *string
+	OperationType     string
+	Amount            float64
+	Currency          string
+	TransactionAt     string
+}
+
+func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransactionCommand) (*ExecuteTransactionDTO, error) {
 	account, err := u.accountRepo.FindByID(ctx, cmd.AccountID)
 	if err != nil || account.UserID() != cmd.UserID {
 		return nil, err
@@ -82,7 +92,7 @@ func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransact
 		}
 	}
 
-	return &TransactionDTO{
+	return &ExecuteTransactionDTO{
 		ID:                transaction.ID(),
 		AccountID:         transaction.AccountID(),
 		ReceiverAccountID: transaction.ReceiverAccountID(),

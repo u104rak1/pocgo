@@ -40,7 +40,17 @@ type ListTransactionsCommand struct {
 
 type ListTransactionsDTO struct {
 	Total        int
-	Transactions []TransactionDTO
+	Transactions []ListTransactionDTO
+}
+
+type ListTransactionDTO struct {
+	ID                string
+	AccountID         string
+	ReceiverAccountID *string
+	OperationType     string
+	Amount            float64
+	Currency          string
+	TransactionAt     string
 }
 
 func (u *listTransactionsUsecase) Run(ctx context.Context, cmd ListTransactionsCommand) (*ListTransactionsDTO, error) {
@@ -62,9 +72,9 @@ func (u *listTransactionsUsecase) Run(ctx context.Context, cmd ListTransactionsC
 		return nil, err
 	}
 
-	transactionDTOs := make([]TransactionDTO, len(transactions))
+	transactionDTOs := make([]ListTransactionDTO, len(transactions))
 	for i, t := range transactions {
-		transactionDTOs[i] = TransactionDTO{
+		transactionDTOs[i] = ListTransactionDTO{
 			ID:                t.ID(),
 			AccountID:         t.AccountID(),
 			ReceiverAccountID: t.ReceiverAccountID(),
