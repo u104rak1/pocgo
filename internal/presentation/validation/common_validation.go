@@ -47,7 +47,10 @@ func ValidateDateRange(from, to string) error {
 }
 
 func ValidPage(page int) error {
-	return v.Validate(page, v.Min(1))
+	if page <= 0 {
+		return errors.New("page must be greater than 0")
+	}
+	return nil
 }
 
 func ValidSort(sort string) error {
