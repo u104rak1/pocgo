@@ -54,7 +54,7 @@ type ListTransactionDTO struct {
 }
 
 func (u *listTransactionsUsecase) Run(ctx context.Context, cmd ListTransactionsCommand) (*ListTransactionsDTO, error) {
-	_, err := u.accountServ.GetAndAuthorize(ctx, cmd.AccountID, cmd.UserID, nil)
+	_, err := u.accountServ.GetAndAuthorize(ctx, cmd.AccountID, &cmd.UserID, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -72,7 +72,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	createAccountUC := accountApp.NewCreateAccountUsecase(accountRepo, accountServ, userServ, unitOfWork)
 	signupUC := authApp.NewSignupUsecase(userRepo, authRepo, userServ, authServ)
 	signinUC := authApp.NewSigninUsecase(authServ)
-	execTransactionUC := transactionApp.NewExecuteTransactionUsecase(accountRepo, transactionServ, transactionUOW)
+	execTransactionUC := transactionApp.NewExecuteTransactionUsecase(accountServ, transactionServ, transactionUOW)
 	listTransactionsUC := transactionApp.NewListTransactionsUsecase(accountServ, transactionServ)
 
 	/** Handler */

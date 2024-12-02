@@ -7,7 +7,7 @@ type IAccountService interface {
 	CheckLimit(ctx context.Context, userID string) error
 
 	// Get the user's account and check the user ID and password. Password confirmation is optional and can be nil to skip password confirmation.
-	GetAndAuthorize(ctx context.Context, accountID, userID string, password *string) (*Account, error)
+	GetAndAuthorize(ctx context.Context, accountID string, userID, password *string) (*Account, error)
 }
 
 type accountService struct {
@@ -32,7 +32,7 @@ func (s *accountService) CheckLimit(ctx context.Context, userID string) error {
 	return nil
 }
 
-func (s *accountService) GetAndAuthorize(ctx context.Context, accountID, userID string, password *string) (*Account, error) {
+func (s *accountService) GetAndAuthorize(ctx context.Context, accountID string, userID, password *string) (*Account, error) {
 	account, err := s.accountRepo.FindByID(ctx, accountID)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (s *accountService) GetAndAuthorize(ctx context.Context, accountID, userID 
 	if account == nil {
 		return nil, ErrNotFound
 	}
-	if account.UserID() != userID {
+	if userID != nil && account.UserID() != *userID {
 		return nil, ErrUnauthorized
 	}
 	if password != nil {

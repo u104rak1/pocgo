@@ -50,7 +50,7 @@ func (mr *MockIAccountServiceMockRecorder) CheckLimit(ctx, userID interface{}) *
 }
 
 // GetAndAuthorize mocks base method.
-func (m *MockIAccountService) GetAndAuthorize(ctx context.Context, accountID, userID string, password *string) (*account.Account, error) {
+func (m *MockIAccountService) GetAndAuthorize(ctx context.Context, accountID string, userID, password *string) (*account.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAndAuthorize", ctx, accountID, userID, password)
 	ret0, _ := ret[0].(*account.Account)

@@ -13,18 +13,18 @@ type IExecuteTransactionUsecase interface {
 }
 
 type executeTransactionUsecase struct {
-	accountRepo     accountDomain.IAccountRepository
+	accountServ     accountDomain.IAccountService
 	transactionServ transactionDomain.ITransactionService
 	unitOfWork      unitofwork.IUnitOfWorkWithResult[transactionDomain.Transaction]
 }
 
 func NewExecuteTransactionUsecase(
-	accountRepository accountDomain.IAccountRepository,
+	accountService accountDomain.IAccountService,
 	transactionService transactionDomain.ITransactionService,
 	unitOfWork unitofwork.IUnitOfWorkWithResult[transactionDomain.Transaction],
 ) IExecuteTransactionUsecase {
 	return &executeTransactionUsecase{
-		accountRepo:     accountRepository,
+		accountServ:     accountService,
 		transactionServ: transactionService,
 		unitOfWork:      unitOfWork,
 	}
@@ -51,12 +51,8 @@ type ExecuteTransactionDTO struct {
 }
 
 func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransactionCommand) (*ExecuteTransactionDTO, error) {
-	account, err := u.accountRepo.FindByID(ctx, cmd.AccountID)
-	if err != nil || account.UserID() != cmd.UserID {
-		return nil, err
-	}
-
-	if err := account.ComparePassword(cmd.Password); err != nil {
+	account, err := u.accountServ.GetAndAuthorize(ctx, cmd.AccountID, &cmd.UserID, &cmd.Password)
+	if err != nil {
 		return nil, err
 	}
 
@@ -78,11 +74,8 @@ func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransact
 		}
 	case transactionDomain.Transfer:
 		transaction, err = u.unitOfWork.RunInTx(ctx, func(ctx context.Context) (*transactionDomain.Transaction, error) {
-			receiverAccount, err := u.accountRepo.FindByID(ctx, *cmd.ReceiverAccountID)
+			receiverAccount, err := u.accountServ.GetAndAuthorize(ctx, *cmd.ReceiverAccountID, nil, nil)
 			if err != nil {
-				if err == accountDomain.ErrNotFound {
-					return nil, accountDomain.ErrReceiverNotFound
-				}
 				return nil, err
 			}
 			return u.transactionServ.Transfer(ctx, account, receiverAccount, cmd.Amount, cmd.Currency)
