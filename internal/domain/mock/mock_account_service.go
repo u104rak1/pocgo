@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	account "github.com/ucho456job/pocgo/internal/domain/account"
+	account "github.com/u104raki/pocgo/internal/domain/account"
 )
 
 // MockIAccountService is a mock of IAccountService interface.

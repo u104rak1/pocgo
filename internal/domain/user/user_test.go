@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	"github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func TestNew(t *testing.T) {

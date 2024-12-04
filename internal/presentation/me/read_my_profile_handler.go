@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	userApp "github.com/ucho456job/pocgo/internal/application/user"
-	"github.com/ucho456job/pocgo/internal/config"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/server/response"
+	userApp "github.com/u104raki/pocgo/internal/application/user"
+	"github.com/u104raki/pocgo/internal/config"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/internal/server/response"
 )
 
 type ReadMyProfileHandler struct {

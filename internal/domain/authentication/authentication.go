@@ -1,8 +1,8 @@
 package authentication
 
 import (
-	user_domain "github.com/ucho456job/pocgo/internal/domain/user"
-	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
+	user_domain "github.com/u104raki/pocgo/internal/domain/user"
+	passwordUtil "github.com/u104raki/pocgo/pkg/password"
 )
 
 type Authentication struct {

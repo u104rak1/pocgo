@@ -6,11 +6,11 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	"github.com/ucho456job/pocgo/internal/domain/mock"
-	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
-	"github.com/ucho456job/pocgo/pkg/timer"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
+	"github.com/u104raki/pocgo/internal/domain/mock"
+	"github.com/u104raki/pocgo/internal/domain/value_object/money"
+	"github.com/u104raki/pocgo/pkg/timer"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func TestCheckLimit(t *testing.T) {

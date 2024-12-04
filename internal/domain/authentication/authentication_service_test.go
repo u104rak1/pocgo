@@ -7,10 +7,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/ucho456job/pocgo/internal/domain/authentication"
-	"github.com/ucho456job/pocgo/internal/domain/mock"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	"github.com/u104raki/pocgo/internal/domain/authentication"
+	"github.com/u104raki/pocgo/internal/domain/mock"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func TestVerifyUniqueness(t *testing.T) {

@@ -7,10 +7,10 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	userApp "github.com/ucho456job/pocgo/internal/application/user"
-	"github.com/ucho456job/pocgo/internal/domain/mock"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	userApp "github.com/u104raki/pocgo/internal/application/user"
+	"github.com/u104raki/pocgo/internal/domain/mock"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func TestReadUserUsecase(t *testing.T) {

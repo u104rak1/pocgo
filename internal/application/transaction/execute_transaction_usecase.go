@@ -3,9 +3,9 @@ package transaction
 import (
 	"context"
 
-	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
-	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	transactionDomain "github.com/ucho456job/pocgo/internal/domain/transaction"
+	unitofwork "github.com/u104raki/pocgo/internal/application/unit_of_work"
+	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
+	transactionDomain "github.com/u104raki/pocgo/internal/domain/transaction"
 )
 
 type IExecuteTransactionUsecase interface {

@@ -10,9 +10,9 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/repository"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/internal/infrastructure/postgres/repository"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func TestUserRepository_Save(t *testing.T) {

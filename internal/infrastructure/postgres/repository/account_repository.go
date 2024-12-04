@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"errors"
 
-	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
-	"github.com/ucho456job/pocgo/pkg/timer"
+	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
+	"github.com/u104raki/pocgo/internal/infrastructure/postgres/model"
+	"github.com/u104raki/pocgo/pkg/timer"
 	"github.com/uptrace/bun"
 )
 

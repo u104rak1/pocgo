@@ -2,9 +2,9 @@ package validation
 
 import (
 	v "github.com/go-ozzo/ozzo-validation/v4"
-	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	emailUtil "github.com/ucho456job/pocgo/pkg/email"
+	authDomain "github.com/u104raki/pocgo/internal/domain/authentication"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	emailUtil "github.com/u104raki/pocgo/pkg/email"
 )
 
 func ValidUserName(name string) error {

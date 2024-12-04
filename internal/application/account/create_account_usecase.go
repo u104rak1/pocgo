@@ -3,11 +3,11 @@ package account
 import (
 	"context"
 
-	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
-	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/pkg/timer"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	unitofwork "github.com/u104raki/pocgo/internal/application/unit_of_work"
+	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/pkg/timer"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 type ICreateAccountUsecase interface {

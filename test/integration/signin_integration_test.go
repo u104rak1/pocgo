@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
-	"github.com/ucho456job/pocgo/internal/presentation/signin"
-	"github.com/ucho456job/pocgo/pkg/password"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	"github.com/u104raki/pocgo/internal/infrastructure/postgres/model"
+	"github.com/u104raki/pocgo/internal/presentation/signin"
+	"github.com/u104raki/pocgo/pkg/password"
+	"github.com/u104raki/pocgo/pkg/ulid"
 	"github.com/uptrace/bun"
 )
 

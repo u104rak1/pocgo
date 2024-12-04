@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"github.com/ucho456job/pocgo/internal/config"
-	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	"github.com/ucho456job/pocgo/internal/server/response"
+	"github.com/u104raki/pocgo/internal/config"
+	authDomain "github.com/u104raki/pocgo/internal/domain/authentication"
+	"github.com/u104raki/pocgo/internal/server/response"
 )
 
 func AuthorizationMiddleware(authService authDomain.IAuthenticationService, jwtSecretKey []byte) echo.MiddlewareFunc {

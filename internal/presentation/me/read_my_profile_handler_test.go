@@ -10,14 +10,14 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	appMock "github.com/ucho456job/pocgo/internal/application/mock"
-	userApp "github.com/ucho456job/pocgo/internal/application/user"
-	"github.com/ucho456job/pocgo/internal/config"
+	appMock "github.com/u104raki/pocgo/internal/application/mock"
+	userApp "github.com/u104raki/pocgo/internal/application/user"
+	"github.com/u104raki/pocgo/internal/config"
 
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/presentation/me"
-	"github.com/ucho456job/pocgo/internal/server/response"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/internal/presentation/me"
+	"github.com/u104raki/pocgo/internal/server/response"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func TestReadMyProfileHandler(t *testing.T) {

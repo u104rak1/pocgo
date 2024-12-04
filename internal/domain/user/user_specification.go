@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	emailUtil "github.com/ucho456job/pocgo/pkg/email"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	emailUtil "github.com/u104raki/pocgo/pkg/email"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 const (

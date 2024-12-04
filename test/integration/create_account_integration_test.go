@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/seed"
-	"github.com/ucho456job/pocgo/internal/presentation/me/accounts"
-	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
-	"github.com/ucho456job/pocgo/pkg/timer"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
+	"github.com/u104raki/pocgo/internal/domain/value_object/money"
+	"github.com/u104raki/pocgo/internal/infrastructure/postgres/model"
+	"github.com/u104raki/pocgo/internal/infrastructure/postgres/seed"
+	"github.com/u104raki/pocgo/internal/presentation/me/accounts"
+	passwordUtil "github.com/u104raki/pocgo/pkg/password"
+	"github.com/u104raki/pocgo/pkg/timer"
+	"github.com/u104raki/pocgo/pkg/ulid"
 	"github.com/uptrace/bun"
 )
 

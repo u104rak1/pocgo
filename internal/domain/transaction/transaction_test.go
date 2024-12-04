@@ -5,11 +5,11 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
-	"github.com/ucho456job/pocgo/internal/domain/transaction"
-	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
-	"github.com/ucho456job/pocgo/pkg/timer"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
+	"github.com/u104raki/pocgo/internal/domain/transaction"
+	"github.com/u104raki/pocgo/internal/domain/value_object/money"
+	"github.com/u104raki/pocgo/pkg/timer"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func TestNewTransaction(t *testing.T) {

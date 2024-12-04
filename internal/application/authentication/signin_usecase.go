@@ -3,8 +3,8 @@ package authentication
 import (
 	"context"
 
-	"github.com/ucho456job/pocgo/internal/config"
-	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
+	"github.com/u104raki/pocgo/internal/config"
+	authDomain "github.com/u104raki/pocgo/internal/domain/authentication"
 )
 
 type ISigninUsecase interface {

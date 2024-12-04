@@ -6,7 +6,7 @@ import (
 	"time"
 
 	v "github.com/go-ozzo/ozzo-validation/v4"
-	ulidUtil "github.com/ucho456job/pocgo/pkg/ulid"
+	ulidUtil "github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func ValidULID(ulid string) error {

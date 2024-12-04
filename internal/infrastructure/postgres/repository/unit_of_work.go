@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	unitofwork "github.com/ucho456job/pocgo/internal/application/unit_of_work"
-	"github.com/ucho456job/pocgo/internal/config"
+	unitofwork "github.com/u104raki/pocgo/internal/application/unit_of_work"
+	"github.com/u104raki/pocgo/internal/config"
 	"github.com/uptrace/bun"
 )
 

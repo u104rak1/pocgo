@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	transaction "github.com/ucho456job/pocgo/internal/application/transaction"
+	transaction "github.com/u104raki/pocgo/internal/application/transaction"
 )
 
 // MockIListTransactionsUsecase is a mock of IListTransactionsUsecase interface.

@@ -3,8 +3,8 @@ package seed
 import (
 	"context"
 
-	transactionDomain "github.com/ucho456job/pocgo/internal/domain/transaction"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
+	transactionDomain "github.com/u104raki/pocgo/internal/domain/transaction"
+	"github.com/u104raki/pocgo/internal/infrastructure/postgres/model"
 	"github.com/uptrace/bun"
 )
 

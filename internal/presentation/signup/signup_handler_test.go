@@ -11,13 +11,13 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	authApp "github.com/ucho456job/pocgo/internal/application/authentication"
-	appMock "github.com/ucho456job/pocgo/internal/application/mock"
-	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/presentation/signup"
-	"github.com/ucho456job/pocgo/internal/server/response"
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	authApp "github.com/u104raki/pocgo/internal/application/authentication"
+	appMock "github.com/u104raki/pocgo/internal/application/mock"
+	authDomain "github.com/u104raki/pocgo/internal/domain/authentication"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/internal/presentation/signup"
+	"github.com/u104raki/pocgo/internal/server/response"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 func TestSignupHandler(t *testing.T) {

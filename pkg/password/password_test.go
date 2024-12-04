@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/ucho456job/pocgo/pkg/password"
+	"github.com/u104raki/pocgo/pkg/password"
 	"golang.org/x/crypto/bcrypt"
 )
 

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/ucho456job/pocgo/pkg/email"
+	"github.com/u104raki/pocgo/pkg/email"
 )
 
 func TestIsValid(t *testing.T) {

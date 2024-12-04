@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"errors"
 
-	authDomain "github.com/ucho456job/pocgo/internal/domain/authentication"
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
+	authDomain "github.com/u104raki/pocgo/internal/domain/authentication"
+	"github.com/u104raki/pocgo/internal/infrastructure/postgres/model"
 	"github.com/uptrace/bun"
 )
 

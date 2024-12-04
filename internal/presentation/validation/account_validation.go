@@ -2,7 +2,7 @@ package validation
 
 import (
 	v "github.com/go-ozzo/ozzo-validation/v4"
-	accountDomain "github.com/ucho456job/pocgo/internal/domain/account"
+	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
 )
 
 func ValidAccountName(name string) error {

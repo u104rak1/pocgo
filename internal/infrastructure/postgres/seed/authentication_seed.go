@@ -3,8 +3,8 @@ package seed
 import (
 	"context"
 
-	"github.com/ucho456job/pocgo/internal/infrastructure/postgres/model"
-	"github.com/ucho456job/pocgo/pkg/password"
+	"github.com/u104raki/pocgo/internal/infrastructure/postgres/model"
+	"github.com/u104raki/pocgo/pkg/password"
 	"github.com/uptrace/bun"
 )
 

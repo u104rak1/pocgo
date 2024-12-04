@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ucho456job/pocgo/pkg/ulid"
+	"github.com/u104raki/pocgo/pkg/ulid"
 )
 
 const (

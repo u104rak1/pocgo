@@ -3,10 +3,10 @@ package account
 import (
 	"time"
 
-	userDomain "github.com/ucho456job/pocgo/internal/domain/user"
-	"github.com/ucho456job/pocgo/internal/domain/value_object/money"
-	passwordUtil "github.com/ucho456job/pocgo/pkg/password"
-	"github.com/ucho456job/pocgo/pkg/timer"
+	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	"github.com/u104raki/pocgo/internal/domain/value_object/money"
+	passwordUtil "github.com/u104raki/pocgo/pkg/password"
+	"github.com/u104raki/pocgo/pkg/timer"
 )
 
 type Account struct {
