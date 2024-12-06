@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/internal/domain/account"
+	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
 	userDomain "github.com/u104raki/pocgo/internal/domain/user"
-	"github.com/u104raki/pocgo/internal/domain/value_object/money"
+	moneyVO "github.com/u104raki/pocgo/internal/domain/value_object/money"
 	passwordUtil "github.com/u104raki/pocgo/pkg/password"
 	"github.com/u104raki/pocgo/pkg/timer"
 	"github.com/u104raki/pocgo/pkg/ulid"
@@ -21,7 +21,7 @@ func TestNew(t *testing.T) {
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0
-		currency  = "JPY"
+		currency  = moneyVO.JPY
 		now       = timer.GetFixedDate()
 	)
 
@@ -34,7 +34,7 @@ func TestNew(t *testing.T) {
 		amount    float64
 		currency  string
 		updatedAt time.Time
-		wantErr   error
+		errMsg    string
 	}{
 		{
 			caseName:  "Successfully creates an account.",
@@ -45,10 +45,10 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   nil,
+			errMsg:    "",
 		},
 		{
-			caseName:  "Error occurs with invalid ID.",
+			caseName:  "Error occurs with invalid id.",
 			id:        "invalid",
 			userID:    userID,
 			name:      name,
@@ -56,10 +56,10 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   account.ErrInvalidID,
+			errMsg:    "account id must be a valid ULID",
 		},
 		{
-			caseName:  "Error occurs with invalid UserID.",
+			caseName:  "Error occurs with invalid user id.",
 			id:        accountID,
 			userID:    "invalid",
 			name:      name,
@@ -67,65 +67,54 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   userDomain.ErrInvalidID,
+			errMsg:    userDomain.ErrInvalidID.Error(),
 		},
 		{
 			caseName:  "Error occurs with 2-character name.",
 			id:        accountID,
 			userID:    userID,
-			name:      strings.Repeat("a", account.NameMinLength-1),
+			name:      strings.Repeat("a", 3-1),
 			password:  password,
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   account.ErrInvalidName,
+			errMsg:    "account name must be between 3 and 20 characters",
 		},
 		{
 			caseName:  "Successfully creates account with 3-character name.",
 			id:        accountID,
 			userID:    userID,
-			name:      strings.Repeat("a", account.NameMinLength),
+			name:      strings.Repeat("a", 3),
 			password:  password,
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   nil,
+			errMsg:    "",
 		},
 		{
 			caseName:  "Successfully creates account with 20-character name.",
 			id:        accountID,
 			userID:    userID,
-			name:      strings.Repeat("a", account.NameMaxLength),
+			name:      strings.Repeat("a", 20),
 			password:  password,
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   nil,
+			errMsg:    "",
 		},
 		{
 			caseName:  "Error occurs with 21-character name.",
 			id:        accountID,
 			userID:    userID,
-			name:      strings.Repeat("a", account.NameMaxLength+1),
+			name:      strings.Repeat("a", 20+1),
 			password:  password,
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   account.ErrInvalidName,
+			errMsg:    "account name must be between 3 and 20 characters",
 		},
 		{
 			caseName:  "Error occurs with 3-character password.",
-			id:        accountID,
-			userID:    userID,
-			name:      strings.Repeat("a", account.NameMaxLength+1),
-			password:  password,
-			amount:    amount,
-			currency:  currency,
-			updatedAt: now,
-			wantErr:   account.ErrInvalidName,
-		},
-		{
-			caseName:  "an error occurs when the password is 3 characters.",
 			id:        accountID,
 			userID:    userID,
 			name:      name,
@@ -133,7 +122,7 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   account.ErrPasswordInvalidLength,
+			errMsg:    "account password must be 4 characters",
 		},
 		{
 			caseName:  "Successfully creates account with 4-character password.",
@@ -144,7 +133,7 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   nil,
+			errMsg:    "",
 		},
 		{
 			caseName:  "Error occurs with 5-character password.",
@@ -155,8 +144,9 @@ func TestNew(t *testing.T) {
 			amount:    amount,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   account.ErrPasswordInvalidLength,
+			errMsg:    "account password must be 4 characters",
 		},
+
 		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
 
 		{
@@ -168,17 +158,17 @@ func TestNew(t *testing.T) {
 			amount:    -1,
 			currency:  currency,
 			updatedAt: now,
-			wantErr:   money.ErrNegativeAmount,
+			errMsg:    moneyVO.ErrNegativeAmount.Error(),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, err := account.New(tt.id, tt.userID, tt.name, tt.password, tt.amount, tt.currency, tt.updatedAt)
+			acc, err := accountDomain.New(tt.id, tt.userID, tt.name, tt.password, tt.amount, tt.currency, tt.updatedAt)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Equal(t, err.Error(), tt.errMsg)
 				assert.Nil(t, acc)
 			} else {
 				assert.NoError(t, err)
@@ -202,12 +192,12 @@ func TestReconstruct(t *testing.T) {
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0
-		currency  = "JPY"
+		currency  = moneyVO.JPY
 		now       = timer.GetFixedDate()
 	)
 	t.Run("Successfully reconstructs an account.", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(password)
-		acc, err := account.Reconstruct(accountID, userID, name, encodedPassword, amount, currency, now)
+		acc, err := accountDomain.Reconstruct(accountID, userID, name, encodedPassword, amount, currency, now)
 
 		assert.NoError(t, err)
 		assert.Equal(t, accountID, acc.ID())
@@ -228,35 +218,35 @@ func TestChangeName(t *testing.T) {
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0
-		currency  = "JPY"
+		currency  = moneyVO.JPY
 		now       = timer.Now()
 	)
 
 	tests := []struct {
 		caseName string
 		newName  string
-		wantErr  error
+		errMsg   string
 	}{
 		{
 			caseName: "Successfully changes to a valid name.",
 			newName:  "NewName",
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
 			caseName: "Error occurs with an invalid name.",
 			newName:  "",
-			wantErr:  account.ErrInvalidName,
+			errMsg:   "account name must be between 3 and 20 characters",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.ChangeName(tt.newName)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Equal(t, err.Error(), tt.errMsg)
 				assert.Equal(t, name, acc.Name())
 			} else {
 				assert.NoError(t, err)
@@ -273,24 +263,24 @@ func TestChangePassword(t *testing.T) {
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0
-		currency  = "JPY"
+		currency  = moneyVO.JPY
 		now       = timer.Now()
 	)
 
 	tests := []struct {
 		caseName    string
 		newPassword string
-		wantErr     error
+		errMsg      string
 	}{
 		{
 			caseName:    "Successfully changes to a valid password.",
 			newPassword: "5678",
-			wantErr:     nil,
+			errMsg:      "",
 		},
 		{
 			caseName:    "Error occurs with an invalid password.",
 			newPassword: "invalid",
-			wantErr:     account.ErrPasswordInvalidLength,
+			errMsg:      "account password must be 4 characters",
 		},
 		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
 	}
@@ -298,11 +288,11 @@ func TestChangePassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.ChangePassword(tt.newPassword)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Equal(t, err.Error(), tt.errMsg)
 				assert.Error(t, passwordUtil.Compare(acc.PasswordHash(), tt.newPassword))
 			} else {
 				assert.NoError(t, err)
@@ -319,35 +309,35 @@ func TestComparePassword(t *testing.T) {
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0
-		currency  = "JPY"
+		currency  = moneyVO.JPY
 		now       = timer.Now()
 	)
 
 	tests := []struct {
 		caseName    string
 		newPassword string
-		wantErr     error
+		errMsg      string
 	}{
 		{
 			caseName:    "Passwords match without errors.",
 			newPassword: password,
-			wantErr:     nil,
+			errMsg:      "",
 		},
 		{
 			caseName:    "Error occurs when passwords do not match.",
 			newPassword: "invalid",
-			wantErr:     account.ErrUnmatchedPassword,
+			errMsg:      "passwords do not match",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.ComparePassword(tt.newPassword)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Equal(t, err.Error(), tt.errMsg)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -362,7 +352,7 @@ func TestWithdraw(t *testing.T) {
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0
-		currency  = "JPY"
+		currency  = moneyVO.JPY
 		now       = timer.Now()
 	)
 
@@ -375,26 +365,26 @@ func TestWithdraw(t *testing.T) {
 		{
 			caseName: "Successfully withdraws when the currency matches and the balance is sufficient.",
 			amount:   300,
-			currency: money.JPY,
+			currency: moneyVO.JPY,
 			wantErr:  nil,
 		},
 		{
 			caseName: "Error occurs with unsupported currency.",
 			amount:   300,
 			currency: "EUR",
-			wantErr:  money.ErrUnsupportedCurrency,
+			wantErr:  moneyVO.ErrUnsupportedCurrency,
 		},
 		{
 			caseName: "Error occurs when the balance is insufficient.",
 			amount:   1500,
-			currency: money.JPY,
-			wantErr:  money.ErrInsufficientBalance,
+			currency: moneyVO.JPY,
+			wantErr:  moneyVO.ErrInsufficientBalance,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
-			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.Withdraw(tt.amount, tt.currency)
 
 			if tt.wantErr == nil {
@@ -414,7 +404,7 @@ func TestDeposit(t *testing.T) {
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0
-		currency  = "JPY"
+		currency  = moneyVO.JPY
 		now       = timer.Now()
 	)
 
@@ -427,26 +417,26 @@ func TestDeposit(t *testing.T) {
 		{
 			caseName: "Successfully deposits when the currency matches.",
 			amount:   300,
-			currency: money.JPY,
+			currency: moneyVO.JPY,
 			wantErr:  nil,
 		},
 		{
 			caseName: "Error occurs with unsupported currency.",
 			amount:   300,
 			currency: "EUR",
-			wantErr:  money.ErrUnsupportedCurrency,
+			wantErr:  moneyVO.ErrUnsupportedCurrency,
 		},
 		{
 			caseName: "Error occurs when the currency differs.",
 			amount:   300,
-			currency: money.USD,
-			wantErr:  money.ErrDifferentCurrency,
+			currency: moneyVO.USD,
+			wantErr:  moneyVO.ErrDifferentCurrency,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
-			acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.Deposit(tt.amount, tt.currency)
 
 			if tt.wantErr == nil {
@@ -466,12 +456,12 @@ func TestChangeUpdatedAt(t *testing.T) {
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0
-		currency  = "JPY"
+		currency  = moneyVO.JPY
 		now       = timer.Now()
 	)
 
 	t.Run("Successfully changes UpdatedAt to valid time.", func(t *testing.T) {
-		acc, _ := account.New(accountID, userID, name, password, amount, currency, now)
+		acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
 		newTime := timer.Now()
 		acc.ChangeUpdatedAt(newTime)
 		assert.Equal(t, newTime, acc.UpdatedAt())

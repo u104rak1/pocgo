@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
 	"github.com/u104raki/pocgo/internal/domain/mock"
-	"github.com/u104raki/pocgo/internal/domain/value_object/money"
+	moneyVO "github.com/u104raki/pocgo/internal/domain/value_object/money"
 	"github.com/u104raki/pocgo/pkg/timer"
 	"github.com/u104raki/pocgo/pkg/ulid"
 )
@@ -31,20 +31,20 @@ func TestCheckLimit(t *testing.T) {
 			errMsg: "",
 		},
 		{
-			caseName: "The Limit Reached Error occurs when account count reaches the limit (count = 3).",
-			userID:   userID,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(3, nil)
-			},
-			errMsg: "account limit reached, maximum 3 accounts",
-		},
-		{
-			caseName: "An unknown error occurs in CountByUserID.",
+			caseName: "Error occurs in CountByUserID.",
 			userID:   userID,
 			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
 				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(0, assert.AnError)
 			},
 			errMsg: assert.AnError.Error(),
+		},
+		{
+			caseName: "Error occurs when account count reaches the limit (count = 3).",
+			userID:   userID,
+			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(3, nil)
+			},
+			errMsg: "account limit reached, maximum 3 accounts",
 		},
 	}
 
@@ -77,7 +77,7 @@ func TestGetAndAuthorize(t *testing.T) {
 		name      = "account-name"
 		password  = "1234"
 		amount    = 100.0
-		currency  = money.JPY
+		currency  = moneyVO.JPY
 		updatedAt = timer.GetFixedDate()
 	)
 
@@ -123,7 +123,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			errMsg: "",
 		},
 		{
-			caseName:  "An unknown error occurs in FindByID.",
+			caseName:  "Error occurs in FindByID.",
 			accountID: accountID,
 			userID:    &userID,
 			password:  nil,
@@ -133,7 +133,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			errMsg: assert.AnError.Error(),
 		},
 		{
-			caseName:  "The account not found error occurs when the account does not exist.",
+			caseName:  "Error occurs when the account does not exist.",
 			accountID: accountID,
 			userID:    nil,
 			password:  nil,
@@ -143,7 +143,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			errMsg: "account not found",
 		},
 		{
-			caseName:  "The unauthorized access error occurs when the user ID does not match.",
+			caseName:  "Error occurs when the user ID does not match.",
 			accountID: accountID,
 			userID: func() *string {
 				unauthorizedUserID := ulid.GenerateStaticULID("unauthorized-user")
@@ -156,7 +156,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			errMsg: "unauthorized access to account",
 		},
 		{
-			caseName:  "The unmatched password error occurs when the password does not match.",
+			caseName:  "Error occurs when the password does not match.",
 			accountID: accountID,
 			userID:    nil,
 			password: func() *string {
