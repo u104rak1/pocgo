@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	moneyVO "github.com/u104raki/pocgo/internal/domain/value_object/money"
-	"github.com/u104raki/pocgo/internal/presentation/validation"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	"github.com/u104rak1/pocgo/internal/presentation/validation"
 )
 
 func TestValidAmount(t *testing.T) {

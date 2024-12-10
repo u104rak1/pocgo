@@ -6,12 +6,12 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
-	userDomain "github.com/u104raki/pocgo/internal/domain/user"
-	moneyVO "github.com/u104raki/pocgo/internal/domain/value_object/money"
-	passwordUtil "github.com/u104raki/pocgo/pkg/password"
-	"github.com/u104raki/pocgo/pkg/timer"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
+	"github.com/u104rak1/pocgo/pkg/timer"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestNew(t *testing.T) {

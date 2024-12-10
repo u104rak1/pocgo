@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	authApp "github.com/u104raki/pocgo/internal/application/authentication"
-	authDomain "github.com/u104raki/pocgo/internal/domain/authentication"
-	userDomain "github.com/u104raki/pocgo/internal/domain/user"
-	"github.com/u104raki/pocgo/internal/presentation/validation"
-	"github.com/u104raki/pocgo/internal/server/response"
+	authApp "github.com/u104rak1/pocgo/internal/application/authentication"
+	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	"github.com/u104rak1/pocgo/internal/presentation/validation"
+	"github.com/u104rak1/pocgo/internal/server/response"
 )
 
 type SignupHandler struct {

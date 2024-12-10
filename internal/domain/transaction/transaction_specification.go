@@ -3,7 +3,7 @@ package transaction
 import (
 	"errors"
 
-	"github.com/u104raki/pocgo/pkg/ulid"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 // Operation types

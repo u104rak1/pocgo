@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	authentication "github.com/u104raki/pocgo/internal/domain/authentication"
+	authentication "github.com/u104rak1/pocgo/internal/domain/authentication"
 )
 
 // MockIAuthenticationRepository is a mock of IAuthenticationRepository interface.

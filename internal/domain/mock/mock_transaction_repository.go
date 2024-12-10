@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	transaction "github.com/u104raki/pocgo/internal/domain/transaction"
+	transaction "github.com/u104rak1/pocgo/internal/domain/transaction"
 )
 
 // MockITransactionRepository is a mock of ITransactionRepository interface.

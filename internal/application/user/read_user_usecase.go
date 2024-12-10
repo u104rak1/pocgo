@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	userDomain "github.com/u104raki/pocgo/internal/domain/user"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 )
 
 type IReadUserUsecase interface {

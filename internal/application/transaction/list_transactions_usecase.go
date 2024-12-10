@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
-	transactionDomain "github.com/u104raki/pocgo/internal/domain/transaction"
+	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
 )
 
 type IListTransactionsUsecase interface {

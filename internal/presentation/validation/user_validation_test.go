@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	authDomain "github.com/u104raki/pocgo/internal/domain/authentication"
-	userDomain "github.com/u104raki/pocgo/internal/domain/user"
-	"github.com/u104raki/pocgo/internal/presentation/validation"
+	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	"github.com/u104rak1/pocgo/internal/presentation/validation"
 )
 
 func TestValidUserName(t *testing.T) {

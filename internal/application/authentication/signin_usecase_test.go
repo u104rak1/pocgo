@@ -7,9 +7,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	authApp "github.com/u104raki/pocgo/internal/application/authentication"
-	domainMock "github.com/u104raki/pocgo/internal/domain/mock"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	authApp "github.com/u104rak1/pocgo/internal/application/authentication"
+	domainMock "github.com/u104rak1/pocgo/internal/domain/mock"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestSigninUsecase(t *testing.T) {

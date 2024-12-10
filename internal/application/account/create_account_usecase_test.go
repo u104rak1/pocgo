@@ -6,11 +6,11 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	accountUC "github.com/u104raki/pocgo/internal/application/account"
-	appMock "github.com/u104raki/pocgo/internal/application/mock"
-	"github.com/u104raki/pocgo/internal/domain/mock"
-	"github.com/u104raki/pocgo/internal/domain/value_object/money"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	accountUC "github.com/u104rak1/pocgo/internal/application/account"
+	appMock "github.com/u104rak1/pocgo/internal/application/mock"
+	"github.com/u104rak1/pocgo/internal/domain/mock"
+	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestCreateAccountUsecase(t *testing.T) {

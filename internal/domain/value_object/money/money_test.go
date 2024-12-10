@@ -2,7 +2,7 @@ package money_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/internal/domain/value_object/money"
+	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
 
 	"testing"
 )

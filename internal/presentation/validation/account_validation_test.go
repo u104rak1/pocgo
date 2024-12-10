@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
-	"github.com/u104raki/pocgo/internal/presentation/validation"
+	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	"github.com/u104rak1/pocgo/internal/presentation/validation"
 )
 
 func TestValidAccountName(t *testing.T) {

@@ -6,9 +6,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/internal/application/authentication"
-	"github.com/u104raki/pocgo/internal/config"
-	domainMock "github.com/u104raki/pocgo/internal/domain/mock"
+	"github.com/u104rak1/pocgo/internal/application/authentication"
+	"github.com/u104rak1/pocgo/internal/config"
+	domainMock "github.com/u104rak1/pocgo/internal/domain/mock"
 )
 
 func TestSignupUsecase(t *testing.T) {

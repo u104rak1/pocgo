@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	account "github.com/u104raki/pocgo/internal/application/account"
+	account "github.com/u104rak1/pocgo/internal/application/account"
 )
 
 // MockICreateAccountUsecase is a mock of ICreateAccountUsecase interface.

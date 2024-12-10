@@ -3,9 +3,9 @@ package transaction
 import (
 	"context"
 
-	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
-	"github.com/u104raki/pocgo/pkg/timer"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	"github.com/u104rak1/pocgo/pkg/timer"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 type ITransactionService interface {

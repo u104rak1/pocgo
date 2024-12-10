@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/pkg/strutil"
+	"github.com/u104rak1/pocgo/pkg/strutil"
 )
 
 func TestToSnakeFromCamel(t *testing.T) {

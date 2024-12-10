@@ -4,7 +4,7 @@ import (
 	"math"
 
 	v "github.com/go-ozzo/ozzo-validation/v4"
-	moneyVO "github.com/u104raki/pocgo/internal/domain/value_object/money"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 )
 
 type MoneyValidation struct {

@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	authentication "github.com/u104raki/pocgo/internal/application/authentication"
+	authentication "github.com/u104rak1/pocgo/internal/application/authentication"
 )
 
 // MockISignupUsecase is a mock of ISignupUsecase interface.

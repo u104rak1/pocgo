@@ -3,7 +3,7 @@ package seed
 import (
 	"context"
 
-	"github.com/u104raki/pocgo/internal/infrastructure/postgres/model"
+	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
 	"github.com/uptrace/bun"
 )
 

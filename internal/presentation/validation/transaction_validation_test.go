@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/internal/domain/transaction"
-	"github.com/u104raki/pocgo/internal/presentation/validation"
+	"github.com/u104rak1/pocgo/internal/domain/transaction"
+	"github.com/u104rak1/pocgo/internal/presentation/validation"
 )
 
 func TestValidTransactionOperationType(t *testing.T) {

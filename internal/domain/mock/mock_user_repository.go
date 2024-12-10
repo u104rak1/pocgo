@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	user "github.com/u104raki/pocgo/internal/domain/user"
+	user "github.com/u104rak1/pocgo/internal/domain/user"
 )
 
 // MockIUserRepository is a mock of IUserRepository interface.

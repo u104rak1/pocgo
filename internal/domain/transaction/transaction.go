@@ -3,9 +3,9 @@ package transaction
 import (
 	"time"
 
-	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
-	"github.com/u104raki/pocgo/internal/domain/value_object/money"
-	"github.com/u104raki/pocgo/pkg/timer"
+	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	"github.com/u104rak1/pocgo/pkg/timer"
 )
 
 type Transaction struct {

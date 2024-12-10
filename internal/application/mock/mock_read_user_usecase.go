@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	user "github.com/u104raki/pocgo/internal/application/user"
+	user "github.com/u104rak1/pocgo/internal/application/user"
 )
 
 // MockIReadUserUsecase is a mock of IReadUserUsecase interface.

@@ -1,4 +1,4 @@
-module github.com/u104raki/pocgo
+module github.com/u104rak1/pocgo
 
 go 1.23.1
 

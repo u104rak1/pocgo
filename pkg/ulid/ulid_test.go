@@ -5,7 +5,7 @@ import (
 
 	"github.com/oklog/ulid/v2"
 	"github.com/stretchr/testify/assert"
-	myUlid "github.com/u104raki/pocgo/pkg/ulid"
+	myUlid "github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestNew(t *testing.T) {

@@ -1,8 +1,8 @@
 package main
 
 import (
-	_ "github.com/u104raki/pocgo/docs"
-	"github.com/u104raki/pocgo/internal/server"
+	_ "github.com/u104rak1/pocgo/docs"
+	"github.com/u104rak1/pocgo/internal/server"
 )
 
 // @title pocgo API

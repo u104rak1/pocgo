@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/u104raki/pocgo/internal/server/response"
+	"github.com/u104rak1/pocgo/internal/server/response"
 	"golang.org/x/exp/slog"
 )
 

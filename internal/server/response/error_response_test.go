@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/internal/server/response"
+	"github.com/u104rak1/pocgo/internal/server/response"
 )
 
 func TestValidationFailed(t *testing.T) {

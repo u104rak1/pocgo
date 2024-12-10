@@ -6,11 +6,11 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	accountDomain "github.com/u104raki/pocgo/internal/domain/account"
-	"github.com/u104raki/pocgo/internal/domain/mock"
-	moneyVO "github.com/u104raki/pocgo/internal/domain/value_object/money"
-	"github.com/u104raki/pocgo/pkg/timer"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	"github.com/u104rak1/pocgo/internal/domain/mock"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	"github.com/u104rak1/pocgo/pkg/timer"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestCheckLimit(t *testing.T) {
@@ -23,7 +23,7 @@ func TestCheckLimit(t *testing.T) {
 		errMsg   string
 	}{
 		{
-			caseName: "Successfully returns no error when account count is below the limit (count = 2).",
+			caseName: "Successfully when account count is below the limit (count = 2).",
 			userID:   userID,
 			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
 				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(2, nil)

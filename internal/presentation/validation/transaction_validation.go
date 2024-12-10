@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	v "github.com/go-ozzo/ozzo-validation/v4"
-	transactionDomain "github.com/u104raki/pocgo/internal/domain/transaction"
+	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
 )
 
 func ValidTransactionOperationType(operationType string) error {

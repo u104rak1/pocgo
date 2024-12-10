@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/internal/infrastructure/postgres/model"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 	"github.com/uptrace/bun"
 )
 

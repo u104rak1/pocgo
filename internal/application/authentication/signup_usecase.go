@@ -3,10 +3,10 @@ package authentication
 import (
 	"context"
 
-	"github.com/u104raki/pocgo/internal/config"
-	authDomain "github.com/u104raki/pocgo/internal/domain/authentication"
-	userDomain "github.com/u104raki/pocgo/internal/domain/user"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	"github.com/u104rak1/pocgo/internal/config"
+	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 type ISignupUsecase interface {

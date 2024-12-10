@@ -6,9 +6,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/internal/domain/mock"
-	"github.com/u104raki/pocgo/internal/domain/user"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	"github.com/u104rak1/pocgo/internal/domain/mock"
+	"github.com/u104rak1/pocgo/internal/domain/user"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestVerifyEmailUniqueness(t *testing.T) {

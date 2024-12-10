@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/pkg/timer"
+	"github.com/u104rak1/pocgo/pkg/timer"
 )
 
 func TestNow(t *testing.T) {

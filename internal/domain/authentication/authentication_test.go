@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u104raki/pocgo/internal/domain/authentication"
-	userDomain "github.com/u104raki/pocgo/internal/domain/user"
-	passwordUtil "github.com/u104raki/pocgo/pkg/password"
-	"github.com/u104raki/pocgo/pkg/ulid"
+	"github.com/u104rak1/pocgo/internal/domain/authentication"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestNew(t *testing.T) {
