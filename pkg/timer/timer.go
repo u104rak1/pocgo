@@ -5,33 +5,32 @@ import (
 	"time"
 )
 
-// Now returns the current UTC time truncated to seconds
+// Now は現在のUTC時刻を秒単位で切り捨てて返します
 func Now() time.Time {
 	return time.Now().UTC().Truncate(time.Second)
 }
 
-// FormatToISO8601 converts a time.Time value to an ISO8601 string in UTC.
+// FormatToISO8601 は time.Time 値をUTCのISO8601形式の文字列に変換します
 func FormatToISO8601(t time.Time) string {
 	return t.UTC().Truncate(time.Second).Format(time.RFC3339)
 }
 
-// Default fixed date: "2021-01-01T00:00:00Z".
 var fixedDate = time.Date(2021, 1, 1, 0, 0, 0, 0, time.UTC)
 
-// GetFixedDate returns the current fixed date for use in testing.
-// Default value is "2021-01-01T00:00:00Z".
+// GetFixedDate はテストで使用する固定の日時を返します
+// デフォルト値は "2021-01-01T00:00:00Z" です
 func GetFixedDate() time.Time {
 	return fixedDate
 }
 
-// GetFixedDateString returns the fixed date as an ISO8601 formatted string.
-// Default value is "2021-01-01T00:00:00Z".
+// GetFixedDateString は固定の日時をISO8601形式の文字列で返します
+// デフォルト値は "2021-01-01T00:00:00Z" です
 func GetFixedDateString() string {
 	return fixedDate.Format(time.RFC3339)
 }
 
-// ParseYYYYMMDD parses a date string in the format "YYYYMMDD" into a time.Time value in UTC.
-// The result is truncated to seconds.
+// ParseYYYYMMDD は "YYYYMMDD" 形式の日付文字列をUTCのtime.Time値にパースします
+// 結果は秒単位で切り捨てられます
 func ParseYYYYMMDD(dateStr string) (time.Time, error) {
 	parsedTime, err := time.Parse("20060102", dateStr)
 	if err != nil {

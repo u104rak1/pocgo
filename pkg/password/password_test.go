@@ -9,11 +9,11 @@ import (
 )
 
 func TestEncode(t *testing.T) {
-	t.Run("Successfully hashes a password.", func(t *testing.T) {
+	t.Run("パスワードをハッシュ化できる", func(t *testing.T) {
 		_, err := password.Encode("ValidPassword123")
 		assert.NoError(t, err)
 	})
-	// Since it is difficult to force an error in the GenerateFromPassword function, we omitted testing for errors.
+	// GenerateFromPassword関数でエラーを発生させることが難しいため、エラーケースのテストは省略します。
 }
 
 func TestCompare(t *testing.T) {
@@ -22,19 +22,19 @@ func TestCompare(t *testing.T) {
 		caseName string
 		password string
 		hash     string
-		wantErr  error
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully returns nil if the password matches.",
+			caseName: "パスワードが一致する場合は検証に成功する",
 			password: "ValidPassword123",
 			hash:     passwordHash,
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			caseName: "Fails to validate password, returns error if the password does not match.",
+			caseName: "パスワードが一致しない場合は検証に失敗する",
 			password: "DifferentPassword456",
 			hash:     passwordHash,
-			wantErr:  bcrypt.ErrMismatchedHashAndPassword,
+			errMsg:   bcrypt.ErrMismatchedHashAndPassword.Error(),
 		},
 	}
 
@@ -43,8 +43,9 @@ func TestCompare(t *testing.T) {
 			t.Parallel()
 			err := password.Compare(tt.hash, tt.password)
 
-			if tt.wantErr != nil {
+			if tt.errMsg != "" {
 				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 			} else {
 				assert.NoError(t, err)
 			}

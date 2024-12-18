@@ -9,7 +9,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	t.Run("Successfully generates a new ULID in the correct format.", func(t *testing.T) {
+	t.Run("正しい形式の新しいULIDを生成できる", func(t *testing.T) {
 		id := myUlid.New()
 		assert.NotEmpty(t, id)
 		_, err := ulid.Parse(id)
@@ -24,12 +24,12 @@ func TestIsValid(t *testing.T) {
 		want     bool
 	}{
 		{
-			caseName: "Successfully returns true if the ULID is valid.",
+			caseName: "有効なULIDの場合はtrueを返す",
 			ulid:     myUlid.New(),
 			want:     true,
 		},
 		{
-			caseName: "Fails to validate ULID, returns false if the ULID is invalid.",
+			caseName: "無効なULIDの場合はfalseを返す",
 			ulid:     "invalid-ulid",
 			want:     false,
 		},
@@ -44,13 +44,13 @@ func TestIsValid(t *testing.T) {
 }
 
 func TestGenerateStaticULID(t *testing.T) {
-	t.Run("Successfully returns the same ULID for identical seeds.", func(t *testing.T) {
+	t.Run("同じシード値からは同じULIDが生成される", func(t *testing.T) {
 		seed := "test-seed"
 		ulid1 := myUlid.GenerateStaticULID(seed)
 		ulid2 := myUlid.GenerateStaticULID(seed)
 		assert.Equal(t, ulid1, ulid2)
 	})
-	t.Run("Successfully returns different ULIDs for different seeds.", func(t *testing.T) {
+	t.Run("異なるシード値からは異なるULIDが生成される", func(t *testing.T) {
 		seed1 := "test-seed-1"
 		seed2 := "test-seed-2"
 		ulid1 := myUlid.GenerateStaticULID(seed1)

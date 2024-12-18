@@ -14,52 +14,52 @@ func TestIsValid(t *testing.T) {
 		want     bool
 	}{
 		{
-			caseName: "Successfully returns true if the email is valid.",
+			caseName: "基本的なメールアドレスを検証できる",
 			email:    "test@example.com",
 			want:     true,
 		},
 		{
-			caseName: "Successfully returns true if a valid email address includes any subdomains.",
+			caseName: "サブドメインを含むメールアドレスを検証できる",
 			email:    "user@mail.example.co.jp",
 			want:     true,
 		},
 		{
-			caseName: "Successfully returns true if the email address contains a plus sign.",
+			caseName: "プラス記号を含むメールアドレスを検証できる",
 			email:    "user+123@example.com",
 			want:     true,
 		},
 		{
-			caseName: "Successfully returns true if the email address contains a hyphen.",
+			caseName: "ハイフンを含むメールアドレスを検証できる",
 			email:    "user@my-example.com",
 			want:     true,
 		},
 		{
-			caseName: "Fails to validate email, returns false if there is no '@'.",
+			caseName: "アットマーク(@)がないメールアドレスは無効",
 			email:    "userexample.com",
 			want:     false,
 		},
 		{
-			caseName: "Fails to validate email, returns false if there are two '@' signs.",
+			caseName: "アットマーク(@)が2つあるメールアドレスは無効",
 			email:    "user@@example.com",
 			want:     false,
 		},
 		{
-			caseName: "Fails to validate email, returns false if there is no domain.",
+			caseName: "ドメインがないメールアドレスは無効",
 			email:    "user@.com",
 			want:     false,
 		},
 		{
-			caseName: "Fails to validate email, returns false if there is an invalid character.",
+			caseName: "無効な文字が含まれるメールアドレスは無効",
 			email:    "user@exa!mple.com",
 			want:     false,
 		},
 		{
-			caseName: "Fails to validate email, returns false if the domain is too short.",
+			caseName: "ドメインが短すぎるメールアドレスは無効",
 			email:    "user@example.c",
 			want:     false,
 		},
 		{
-			caseName: "Fails to validate email, returns false if there is no top-level domain.",
+			caseName: "トップレベルドメインがないメールアドレスは無効",
 			email:    "user@example",
 			want:     false,
 		},
