@@ -73,18 +73,18 @@ func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, ac
 func (s *authenticationService) Authenticate(ctx context.Context, email, password string) (userID string, err error) {
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		if err == userDomain.ErrNotFound {
-			return "", ErrAuthenticationFailed
-		}
 		return "", err
+	}
+	if user == nil {
+		return "", ErrAuthenticationFailed
 	}
 
 	auth, err := s.authRepo.FindByUserID(ctx, user.ID())
 	if err != nil {
-		if err == ErrNotFound {
-			return "", ErrAuthenticationFailed
-		}
 		return "", err
+	}
+	if auth == nil {
+		return "", ErrAuthenticationFailed
 	}
 
 	if err := auth.ComparePassword(password); err != nil {

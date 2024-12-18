@@ -37,7 +37,7 @@ func TestNew(t *testing.T) {
 		errMsg    string
 	}{
 		{
-			caseName:  "Successfully creates an account.",
+			caseName:  "Positive: 口座を作成できる",
 			id:        accountID,
 			userID:    userID,
 			name:      name,
@@ -48,7 +48,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "",
 		},
 		{
-			caseName:  "Error occurs with invalid id.",
+			caseName:  "Negative: 無効なIDの場合はエラーが返る",
 			id:        "invalid",
 			userID:    userID,
 			name:      name,
@@ -59,7 +59,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "account id must be a valid ULID",
 		},
 		{
-			caseName:  "Error occurs with invalid user id.",
+			caseName:  "Negative: 無効なユーザーIDの場合はエラーが返る",
 			id:        accountID,
 			userID:    "invalid",
 			name:      name,
@@ -70,7 +70,7 @@ func TestNew(t *testing.T) {
 			errMsg:    userDomain.ErrInvalidID.Error(),
 		},
 		{
-			caseName:  "Error occurs with 2-character name.",
+			caseName:  "Negative: 2文字の名前の場合はエラーが返る",
 			id:        accountID,
 			userID:    userID,
 			name:      strings.Repeat("a", 3-1),
@@ -81,7 +81,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "account name must be between 3 and 20 characters",
 		},
 		{
-			caseName:  "Successfully creates account with 3-character name.",
+			caseName:  "Positive: 3文字の名前の場合は口座を作成できる",
 			id:        accountID,
 			userID:    userID,
 			name:      strings.Repeat("a", 3),
@@ -92,7 +92,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "",
 		},
 		{
-			caseName:  "Successfully creates account with 20-character name.",
+			caseName:  "Positive: 20文字の名前の場合は口座を作成できる",
 			id:        accountID,
 			userID:    userID,
 			name:      strings.Repeat("a", 20),
@@ -103,7 +103,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "",
 		},
 		{
-			caseName:  "Error occurs with 21-character name.",
+			caseName:  "Negative: 21文字の名前の場合はエラーが返る",
 			id:        accountID,
 			userID:    userID,
 			name:      strings.Repeat("a", 20+1),
@@ -114,7 +114,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "account name must be between 3 and 20 characters",
 		},
 		{
-			caseName:  "Error occurs with 3-character password.",
+			caseName:  "Negative: 3文字のパスワードの場合はエラーが返る",
 			id:        accountID,
 			userID:    userID,
 			name:      name,
@@ -125,7 +125,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "account password must be 4 characters",
 		},
 		{
-			caseName:  "Successfully creates account with 4-character password.",
+			caseName:  "Positive: 4文字のパスワードの場合は口座を作成できる",
 			id:        accountID,
 			userID:    userID,
 			name:      name,
@@ -136,7 +136,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "",
 		},
 		{
-			caseName:  "Error occurs with 5-character password.",
+			caseName:  "Negative: 5文字のパスワードの場合はエラーが返る",
 			id:        accountID,
 			userID:    userID,
 			name:      name,
@@ -146,11 +146,8 @@ func TestNew(t *testing.T) {
 			updatedAt: now,
 			errMsg:    "account password must be 4 characters",
 		},
-
-		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
-
 		{
-			caseName:  "Error occurs with invalid amount.",
+			caseName:  "Negative: 無効な金額の場合はエラーが返る",
 			id:        accountID,
 			userID:    userID,
 			name:      name,
@@ -160,6 +157,8 @@ func TestNew(t *testing.T) {
 			updatedAt: now,
 			errMsg:    moneyVO.ErrNegativeAmount.Error(),
 		},
+
+		// Password.Encode関数を強制的にエラーにすることが難しい為、このエラーパターンはテストしない
 	}
 
 	for _, tt := range tests {
@@ -168,7 +167,8 @@ func TestNew(t *testing.T) {
 			acc, err := accountDomain.New(tt.id, tt.userID, tt.name, tt.password, tt.amount, tt.currency, tt.updatedAt)
 
 			if tt.errMsg != "" {
-				assert.Equal(t, err.Error(), tt.errMsg)
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Nil(t, acc)
 			} else {
 				assert.NoError(t, err)
@@ -195,7 +195,7 @@ func TestReconstruct(t *testing.T) {
 		currency  = moneyVO.JPY
 		now       = timer.GetFixedDate()
 	)
-	t.Run("Successfully reconstructs an account.", func(t *testing.T) {
+	t.Run("Positive: 口座を再構築できる", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(password)
 		acc, err := accountDomain.Reconstruct(accountID, userID, name, encodedPassword, amount, currency, now)
 
@@ -228,12 +228,12 @@ func TestChangeName(t *testing.T) {
 		errMsg   string
 	}{
 		{
-			caseName: "Successfully changes to a valid name.",
+			caseName: "Positive: 有効な名前の場合は名前を変更できる",
 			newName:  "NewName",
 			errMsg:   "",
 		},
 		{
-			caseName: "Error occurs with an invalid name.",
+			caseName: "Negative: 無効な名前の場合はエラーが返る",
 			newName:  "",
 			errMsg:   "account name must be between 3 and 20 characters",
 		},
@@ -246,7 +246,8 @@ func TestChangeName(t *testing.T) {
 			err := acc.ChangeName(tt.newName)
 
 			if tt.errMsg != "" {
-				assert.Equal(t, err.Error(), tt.errMsg)
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Equal(t, name, acc.Name())
 			} else {
 				assert.NoError(t, err)
@@ -273,16 +274,16 @@ func TestChangePassword(t *testing.T) {
 		errMsg      string
 	}{
 		{
-			caseName:    "Successfully changes to a valid password.",
+			caseName:    "Positive: 有効なパスワードの場合はパスワードを変更できる",
 			newPassword: "5678",
 			errMsg:      "",
 		},
 		{
-			caseName:    "Error occurs with an invalid password.",
+			caseName:    "Negative: 無効なパスワードの場合はエラーが返る",
 			newPassword: "invalid",
 			errMsg:      "account password must be 4 characters",
 		},
-		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
+		// Password.Encode関数を強制的にエラーにすることが難しい為、このエラーパターンはテストしない
 	}
 
 	for _, tt := range tests {
@@ -292,7 +293,8 @@ func TestChangePassword(t *testing.T) {
 			err := acc.ChangePassword(tt.newPassword)
 
 			if tt.errMsg != "" {
-				assert.Equal(t, err.Error(), tt.errMsg)
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Error(t, passwordUtil.Compare(acc.PasswordHash(), tt.newPassword))
 			} else {
 				assert.NoError(t, err)
@@ -319,12 +321,12 @@ func TestComparePassword(t *testing.T) {
 		errMsg      string
 	}{
 		{
-			caseName:    "Passwords match without errors.",
+			caseName:    "Positive: パスワードが一致している場合はエラーが返らない",
 			newPassword: password,
 			errMsg:      "",
 		},
 		{
-			caseName:    "Error occurs when passwords do not match.",
+			caseName:    "Negative: パスワードが一致していない場合はエラーが返る",
 			newPassword: "invalid",
 			errMsg:      "passwords do not match",
 		},
@@ -337,7 +339,8 @@ func TestComparePassword(t *testing.T) {
 			err := acc.ComparePassword(tt.newPassword)
 
 			if tt.errMsg != "" {
-				assert.Equal(t, err.Error(), tt.errMsg)
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 			} else {
 				assert.NoError(t, err)
 			}
@@ -360,25 +363,25 @@ func TestWithdraw(t *testing.T) {
 		caseName string
 		amount   float64
 		currency string
-		wantErr  error
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully withdraws when the currency matches and the balance is sufficient.",
+			caseName: "Positive: 通貨が一致し、残高が十分な場合は引き出しができる",
 			amount:   300,
 			currency: moneyVO.JPY,
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			caseName: "Error occurs with unsupported currency.",
+			caseName: "Negative: money値オブジェクトの作成に失敗した場合、エラーが返る",
 			amount:   300,
 			currency: "EUR",
-			wantErr:  moneyVO.ErrUnsupportedCurrency,
+			errMsg:   moneyVO.ErrUnsupportedCurrency.Error(),
 		},
 		{
-			caseName: "Error occurs when the balance is insufficient.",
+			caseName: "Negative: money値オブジェクトのSubメソッドが失敗した場合、エラーが返る",
 			amount:   1500,
 			currency: moneyVO.JPY,
-			wantErr:  moneyVO.ErrInsufficientBalance,
+			errMsg:   moneyVO.ErrInsufficientBalance.Error(),
 		},
 	}
 
@@ -387,11 +390,12 @@ func TestWithdraw(t *testing.T) {
 			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.Withdraw(tt.amount, tt.currency)
 
-			if tt.wantErr == nil {
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
+			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, amount-tt.amount, acc.Balance().Amount())
-			} else {
-				assert.ErrorIs(t, err, tt.wantErr)
 			}
 		})
 	}
@@ -412,25 +416,25 @@ func TestDeposit(t *testing.T) {
 		caseName string
 		amount   float64
 		currency string
-		wantErr  error
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully deposits when the currency matches.",
+			caseName: "Positive: 通貨が一致している場合は入金ができる",
 			amount:   300,
 			currency: moneyVO.JPY,
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			caseName: "Error occurs with unsupported currency.",
+			caseName: "Negative: money値オブジェクトの作成に失敗した場合、エラーが返る",
 			amount:   300,
 			currency: "EUR",
-			wantErr:  moneyVO.ErrUnsupportedCurrency,
+			errMsg:   moneyVO.ErrUnsupportedCurrency.Error(),
 		},
 		{
-			caseName: "Error occurs when the currency differs.",
+			caseName: "Negative: money値オブジェクトのAddメソッドが失敗した場合、エラーが返る",
 			amount:   300,
 			currency: moneyVO.USD,
-			wantErr:  moneyVO.ErrDifferentCurrency,
+			errMsg:   moneyVO.ErrDifferentCurrency.Error(),
 		},
 	}
 
@@ -439,11 +443,12 @@ func TestDeposit(t *testing.T) {
 			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
 			err := acc.Deposit(tt.amount, tt.currency)
 
-			if tt.wantErr == nil {
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
+			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, amount+tt.amount, acc.Balance().Amount())
-			} else {
-				assert.ErrorIs(t, err, tt.wantErr)
 			}
 		})
 	}
@@ -460,10 +465,11 @@ func TestChangeUpdatedAt(t *testing.T) {
 		now       = timer.Now()
 	)
 
-	t.Run("Successfully changes UpdatedAt to valid time.", func(t *testing.T) {
-		acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
+	t.Run("Positive: UpdatedAtを有効な時間に変更できる", func(t *testing.T) {
+		acc, err := accountDomain.New(accountID, userID, name, password, amount, currency, now)
+		assert.NoError(t, err)
 		newTime := timer.Now()
 		acc.ChangeUpdatedAt(newTime)
-		assert.Equal(t, newTime, acc.UpdatedAt())
+		assert.Equal(t, acc.UpdatedAt(), newTime)
 	})
 }

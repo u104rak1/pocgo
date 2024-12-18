@@ -1,7 +1,7 @@
 package authentication
 
 import (
-	user_domain "github.com/u104rak1/pocgo/internal/domain/user"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
 )
 
@@ -10,8 +10,8 @@ type Authentication struct {
 	passwordHash string
 }
 
+// 認証エンティティを作成します。新規で作成するのでパスワードの検証とハッシュ化を行います。
 func New(userID, password string) (*Authentication, error) {
-	// Validate password when creating a new authentication
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}
@@ -23,13 +23,13 @@ func New(userID, password string) (*Authentication, error) {
 	return newAuthentication(userID, passwordHash)
 }
 
+// データベースから認証を再構築します。パスワードは既にエンコードされているため、検証は行われません。
 func Reconstruct(userID, passwordHash string) (*Authentication, error) {
-	// When reconstructing the authentication from the DB, the password is already encoded so there is no validation.
 	return newAuthentication(userID, passwordHash)
 }
 
 func newAuthentication(userID, passwordHash string) (*Authentication, error) {
-	if err := user_domain.ValidID(userID); err != nil {
+	if err := userDomain.ValidID(userID); err != nil {
 		return nil, err
 	}
 	return &Authentication{

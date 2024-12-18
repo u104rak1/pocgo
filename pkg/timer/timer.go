@@ -38,3 +38,7 @@ func ParseYYYYMMDD(dateStr string) (time.Time, error) {
 	}
 	return parsedTime.UTC().Truncate(time.Second), nil
 }
+
+func TimePointer(t time.Time) *time.Time {
+	return &t
+}

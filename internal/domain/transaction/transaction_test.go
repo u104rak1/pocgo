@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
-	"github.com/u104rak1/pocgo/internal/domain/transaction"
-	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/timer"
 	"github.com/u104rak1/pocgo/pkg/ulid"
 )
@@ -19,7 +19,7 @@ func TestNewTransaction(t *testing.T) {
 		accountID         = ulid.GenerateStaticULID("account")
 		receiverAccountID = ulid.GenerateStaticULID("accountReceiver")
 		amount            = 1000.0
-		currency          = money.JPY
+		currency          = moneyVO.JPY
 		transactionAt     = timer.GetFixedDate()
 		invalidID         = "invalid id"
 	)
@@ -33,87 +33,87 @@ func TestNewTransaction(t *testing.T) {
 		amount            float64
 		currency          string
 		transactionAt     time.Time
-		wantErr           error
+		errMsg            string
 	}{
 		{
-			caseName:          "Successfully creates a transaction.",
+			caseName:          "Positive: 取引を作成できる",
 			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
-			operationType:     transaction.Transfer,
+			operationType:     transactionDomain.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           nil,
+			errMsg:            "",
 		},
 		{
-			caseName:          "Error occurs with invalid ID.",
+			caseName:          "Negative: 無効なIDの場合はエラーが返る",
 			id:                invalidID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
-			operationType:     transaction.Transfer,
+			operationType:     transactionDomain.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           transaction.ErrInvalidID,
+			errMsg:            "transaction id must be a valid ULID",
 		},
 		{
-			caseName:          "Error occurs with invalid AccountID.",
+			caseName:          "Negative: 無効な口座IDの場合はエラーが返る",
 			id:                transactionID,
 			accountID:         "inavlid",
 			receiverAccountID: &receiverAccountID,
-			operationType:     transaction.Transfer,
+			operationType:     transactionDomain.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           accountDomain.ErrInvalidID,
+			errMsg:            accountDomain.ErrInvalidID.Error(),
 		},
 		{
-			caseName:          "Error occurs with invalid ReceiverAccountID.",
+			caseName:          "Negative: 無効な受取口座IDの場合はエラーが返る",
 			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &invalidID,
-			operationType:     transaction.Transfer,
+			operationType:     transactionDomain.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           accountDomain.ErrInvalidID,
+			errMsg:            accountDomain.ErrInvalidID.Error(),
 		},
 		{
-			caseName:          "Successfully creates a transaction with TRANSFER transaction type.",
+			caseName:          "Positive: 振替取引を作成できる",
 			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
-			operationType:     transaction.Transfer,
+			operationType:     transactionDomain.Transfer,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           nil,
+			errMsg:            "",
 		},
 		{
-			caseName:          "Successfully creates a transaction with DEPOSIT transaction type.",
+			caseName:          "Positive: 入金取引を作成できる",
 			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: nil,
-			operationType:     transaction.Deposit,
+			operationType:     transactionDomain.Deposit,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           nil,
+			errMsg:            "",
 		},
 		{
-			caseName:          "Successfully creates a transaction with WITHDRAW transaction type.",
+			caseName:          "Positive: 出金取引を作成できる",
 			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: nil,
-			operationType:     transaction.Withdraw,
+			operationType:     transactionDomain.Withdraw,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           nil,
+			errMsg:            "",
 		},
 		{
-			caseName:          "Error occurs with unsupported transaction type.",
+			caseName:          "Negative: サポートされていない取引タイプの場合はエラーが返る",
 			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
@@ -121,41 +121,42 @@ func TestNewTransaction(t *testing.T) {
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           transaction.ErrUnsupportedType,
+			errMsg:            "unsupported transaction type",
 		},
 		{
-			caseName:          "Error occurs with invalid amount.",
+			caseName:          "Negative: 無効な金額の場合はエラーが返る",
 			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
-			operationType:     transaction.Transfer,
+			operationType:     transactionDomain.Transfer,
 			amount:            -1000,
 			currency:          currency,
 			transactionAt:     transactionAt,
-			wantErr:           money.ErrNegativeAmount,
+			errMsg:            moneyVO.ErrNegativeAmount.Error(),
 		},
 		{
-			caseName:          "Error occurs with unsupported currency.",
+			caseName:          "Negative: サポートされていない通貨の場合はエラーが返る",
 			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
-			operationType:     transaction.Transfer,
+			operationType:     transactionDomain.Transfer,
 			amount:            amount,
 			currency:          "EUR",
 			transactionAt:     transactionAt,
-			wantErr:           money.ErrUnsupportedCurrency,
+			errMsg:            moneyVO.ErrUnsupportedCurrency.Error(),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			tx, err := transaction.New(
+			tx, err := transactionDomain.New(
 				tt.id, tt.accountID, tt.receiverAccountID, tt.operationType, tt.amount, tt.currency, tt.transactionAt,
 			)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Nil(t, tx)
 			} else {
 				assert.NoError(t, err)

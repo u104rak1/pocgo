@@ -5,6 +5,7 @@
 package mock
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,31 +35,32 @@ func (m *MockITransactionRepository) EXPECT() *MockITransactionRepositoryMockRec
 	return m.recorder
 }
 
-// ListByAccountID mocks base method.
-func (m *MockITransactionRepository) ListByAccountID(accountID string, limit, offset *int) ([]*transaction.Transaction, error) {
+// ListWithTotalByAccountID mocks base method.
+func (m *MockITransactionRepository) ListWithTotalByAccountID(ctx context.Context, params transaction.ListTransactionsParams) ([]*transaction.Transaction, int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListByAccountID", accountID, limit, offset)
+	ret := m.ctrl.Call(m, "ListWithTotalByAccountID", ctx, params)
 	ret0, _ := ret[0].([]*transaction.Transaction)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(int)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
-// ListByAccountID indicates an expected call of ListByAccountID.
-func (mr *MockITransactionRepositoryMockRecorder) ListByAccountID(accountID, limit, offset interface{}) *gomock.Call {
+// ListWithTotalByAccountID indicates an expected call of ListWithTotalByAccountID.
+func (mr *MockITransactionRepositoryMockRecorder) ListWithTotalByAccountID(ctx, params interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByAccountID", reflect.TypeOf((*MockITransactionRepository)(nil).ListByAccountID), accountID, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListWithTotalByAccountID", reflect.TypeOf((*MockITransactionRepository)(nil).ListWithTotalByAccountID), ctx, params)
 }
 
 // Save mocks base method.
-func (m *MockITransactionRepository) Save(transaction *transaction.Transaction) error {
+func (m *MockITransactionRepository) Save(ctx context.Context, transaction *transaction.Transaction) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", transaction)
+	ret := m.ctrl.Call(m, "Save", ctx, transaction)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Save indicates an expected call of Save.
-func (mr *MockITransactionRepositoryMockRecorder) Save(transaction interface{}) *gomock.Call {
+func (mr *MockITransactionRepositoryMockRecorder) Save(ctx, transaction interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockITransactionRepository)(nil).Save), transaction)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockITransactionRepository)(nil).Save), ctx, transaction)
 }

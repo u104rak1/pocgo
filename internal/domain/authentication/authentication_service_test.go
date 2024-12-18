@@ -4,45 +4,46 @@ import (
 	"context"
 	"testing"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/u104rak1/pocgo/internal/domain/authentication"
+	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestVerifyUniqueness(t *testing.T) {
+	arg := gomock.Any()
+
 	tests := []struct {
 		caseName string
 		userID   string
-		setup    func(ctx context.Context, mockAuthRepo *mock.MockIAuthenticationRepository, userID string)
-		wantErr  error
+		setup    func(mockAuthRepo *mock.MockIAuthenticationRepository)
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully verifies that the user is unique.",
+			caseName: "Positive: ユーザーがユニークな場合はエラーが返らない",
 			userID:   ulid.GenerateStaticULID("Unique"),
-			setup: func(ctx context.Context, mockAuthRepo *mock.MockIAuthenticationRepository, userID string) {
-				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(false, nil)
+			setup: func(mockAuthRepo *mock.MockIAuthenticationRepository) {
+				mockAuthRepo.EXPECT().ExistsByUserID(arg, arg).Return(false, nil)
 			},
-			wantErr: nil,
+			errMsg: "",
 		},
 		{
-			caseName: "Error occurs when the user already exists.",
+			caseName: "Negative: ユーザーが既に存在する場合はエラーが返る",
 			userID:   ulid.GenerateStaticULID("duplicate"),
-			setup: func(ctx context.Context, mockAuthRepo *mock.MockIAuthenticationRepository, userID string) {
-				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(true, nil)
+			setup: func(mockAuthRepo *mock.MockIAuthenticationRepository) {
+				mockAuthRepo.EXPECT().ExistsByUserID(arg, arg).Return(true, nil)
 			},
-			wantErr: authentication.ErrAlreadyExists,
+			errMsg: "authentication already exists",
 		},
 		{
-			caseName: "Unknown Error occurs in ExistsByUserID.",
+			caseName: "Negative: ExistsByUserIDでエラーが返る場合はエラーが返る",
 			userID:   ulid.GenerateStaticULID("unknown"),
-			setup: func(ctx context.Context, mockAuthRepo *mock.MockIAuthenticationRepository, userID string) {
-				mockAuthRepo.EXPECT().ExistsByUserID(ctx, userID).Return(false, assert.AnError)
+			setup: func(mockAuthRepo *mock.MockIAuthenticationRepository) {
+				mockAuthRepo.EXPECT().ExistsByUserID(arg, arg).Return(false, assert.AnError)
 			},
-			wantErr: assert.AnError,
+			errMsg: assert.AnError.Error(),
 		},
 	}
 
@@ -54,14 +55,15 @@ func TestVerifyUniqueness(t *testing.T) {
 
 			mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
 			mockUserRepo := mock.NewMockIUserRepository(ctrl)
-			service := authentication.NewService(mockAuthRepo, mockUserRepo)
+			service := authDomain.NewService(mockAuthRepo, mockUserRepo)
 			ctx := context.Background()
-			tt.setup(ctx, mockAuthRepo, tt.userID)
+			tt.setup(mockAuthRepo)
 
 			err := service.VerifyUniqueness(ctx, tt.userID)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 			} else {
 				assert.NoError(t, err)
 			}
@@ -70,13 +72,13 @@ func TestVerifyUniqueness(t *testing.T) {
 }
 
 func TestGenerateAccessToken(t *testing.T) {
-	t.Run("Successfully returns access token.", func(t *testing.T) {
+	t.Run("Positive: アクセストークンを生成できる", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
 		mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
 		mockUserRepo := mock.NewMockIUserRepository(ctrl)
-		service := authentication.NewService(mockAuthRepo, mockUserRepo)
+		service := authDomain.NewService(mockAuthRepo, mockUserRepo)
 
 		ctx := context.Background()
 		userID := ulid.GenerateStaticULID("user")
@@ -94,7 +96,7 @@ func TestGetUserIDFromAccessToken(t *testing.T) {
 
 	mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
 	mockUserRepo := mock.NewMockIUserRepository(ctrl)
-	service := authentication.NewService(mockAuthRepo, mockUserRepo)
+	service := authDomain.NewService(mockAuthRepo, mockUserRepo)
 
 	ctx := context.Background()
 	userID := ulid.GenerateStaticULID("user")
@@ -107,23 +109,23 @@ func TestGetUserIDFromAccessToken(t *testing.T) {
 		accessToken  string
 		jwtSecretKey []byte
 		wantUserID   string
-		wantErr      error
+		errMsg       string
 	}{
 		{
-			caseName:     "Successfully returns userID from valid access token.",
+			caseName:     "Positive: 有効なアクセストークンの場合はユーザーIDを取得できる",
 			accessToken:  accessToken,
 			jwtSecretKey: jwtSecretKey,
 			wantUserID:   userID,
-			wantErr:      nil,
+			errMsg:       "",
 		},
 		{
-			caseName:     "Error occurs when the token is invalid.",
+			caseName:     "Negative: 無効なアクセストークンの場合はエラーが返る",
 			accessToken:  "invalidToken",
 			jwtSecretKey: jwtSecretKey,
 			wantUserID:   "",
-			wantErr:      jwt.ErrTokenMalformed,
+			errMsg:       "token is malformed: token contains an invalid number of segments",
 		},
-		// All branch testing is difficult, so skip it.
+		// その他のエラーパターンは、再現が難しい為テストしない
 	}
 
 	for _, tt := range tests {
@@ -131,8 +133,9 @@ func TestGetUserIDFromAccessToken(t *testing.T) {
 			t.Parallel()
 			userID, err := service.GetUserIDFromAccessToken(ctx, tt.accessToken, tt.jwtSecretKey)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Empty(t, userID)
 			} else {
 				assert.NoError(t, err)
@@ -152,83 +155,84 @@ func TestAuthenticate(t *testing.T) {
 		userID   = ulid.GenerateStaticULID("user")
 		email    = "sato@examle.com"
 		password = "password"
+		arg      = gomock.Any()
 	)
 	user, err := userDomain.New(userID, "sato taro", email)
 	assert.NoError(t, err)
-	auth, err := authentication.New(userID, password)
+	auth, err := authDomain.New(userID, password)
 	assert.NoError(t, err)
 
 	tests := []struct {
 		caseName   string
 		email      string
 		password   string
-		setup      func(ctx context.Context, mocks Mocks)
+		setup      func(mocks Mocks)
 		wantUserID string
-		wantErr    error
+		errMsg     string
 	}{
 		{
-			caseName: "Successfully authenticates with valid email and password.",
+			caseName: "Positive: 有効なメールアドレスとパスワードの場合は認証できる",
 			email:    email,
 			password: password,
-			setup: func(ctx context.Context, mocks Mocks) {
-				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(user, nil)
-				mocks.authRepo.EXPECT().FindByUserID(ctx, userID).Return(auth, nil)
+			setup: func(mocks Mocks) {
+				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(user, nil)
+				mocks.authRepo.EXPECT().FindByUserID(arg, arg).Return(auth, nil)
 			},
 			wantUserID: userID,
-			wantErr:    nil,
+			errMsg:     "",
 		},
 		{
-			caseName: "Error occurs when user is not found by email.",
+			caseName: "Negative: ユーザーが見つからない場合はエラーが返る",
 			email:    "not-found@example.com",
 			password: password,
-			setup: func(ctx context.Context, mocks Mocks) {
-				mocks.userRepo.EXPECT().FindByEmail(ctx, "not-found@example.com").Return(nil, userDomain.ErrNotFound)
+			setup: func(mocks Mocks) {
+				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(nil, nil)
 			},
 			wantUserID: "",
-			wantErr:    authentication.ErrAuthenticationFailed,
+			errMsg:     "email or password is incorrect",
 		},
 		{
-			caseName: "Unknown error occurs in FindByEmail.",
+			caseName: "Negative: FindByEmailが失敗する場合はエラーが返る",
 			email:    email,
 			password: password,
-			setup: func(ctx context.Context, mocks Mocks) {
-				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(nil, assert.AnError)
+			setup: func(mocks Mocks) {
+				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(nil, assert.AnError)
 			},
 			wantUserID: "",
-			wantErr:    assert.AnError,
+			errMsg:     assert.AnError.Error(),
 		},
 		{
-			caseName: "Error occurs when authentication is not found by userID.",
+			caseName: "Negative: 認証情報が見つからない場合はエラーが返る",
 			email:    email,
 			password: password,
-			setup: func(ctx context.Context, mocks Mocks) {
-				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(user, nil)
-				mocks.authRepo.EXPECT().FindByUserID(ctx, userID).Return(nil, authentication.ErrNotFound)
+			setup: func(mocks Mocks) {
+				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(user, nil)
+				mocks.authRepo.EXPECT().FindByUserID(arg, arg).Return(nil, nil)
 			},
 			wantUserID: "",
-			wantErr:    authentication.ErrAuthenticationFailed,
+			errMsg:     "email or password is incorrect",
 		},
 		{
-			caseName: "Unknown error occurs in FindByUserID.",
+			caseName: "Negative: FindByUserIDが失敗する場合はエラーが返る",
 			email:    email,
 			password: password,
-			setup: func(ctx context.Context, mocks Mocks) {
-				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(user, nil)
-				mocks.authRepo.EXPECT().FindByUserID(ctx, userID).Return(nil, assert.AnError)
+			setup: func(mocks Mocks) {
+				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(user, nil)
+				mocks.authRepo.EXPECT().FindByUserID(arg, arg).Return(nil, assert.AnError)
 			},
 			wantUserID: "",
-			wantErr:    assert.AnError,
+			errMsg:     assert.AnError.Error(),
 		},
 		{
-			caseName: "Error occurs when password is incorrect.",
+			caseName: "Negative: パスワードが一致しない場合はエラーが返る",
 			email:    email,
 			password: "wrongPassword",
-			setup: func(ctx context.Context, mocks Mocks) {
-				mocks.userRepo.EXPECT().FindByEmail(ctx, email).Return(user, nil)
-				mocks.authRepo.EXPECT().FindByUserID(ctx, userID).Return(auth, nil)
+			setup: func(mocks Mocks) {
+				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(user, nil)
+				mocks.authRepo.EXPECT().FindByUserID(arg, arg).Return(auth, nil)
 			},
 			wantUserID: "",
-			wantErr:    authentication.ErrAuthenticationFailed,
+			errMsg:     "email or password is incorrect",
 		},
 	}
 
@@ -242,14 +246,15 @@ func TestAuthenticate(t *testing.T) {
 				authRepo: mock.NewMockIAuthenticationRepository(ctrl),
 				userRepo: mock.NewMockIUserRepository(ctrl),
 			}
-			service := authentication.NewService(mocks.authRepo, mocks.userRepo)
+			service := authDomain.NewService(mocks.authRepo, mocks.userRepo)
 			ctx := context.Background()
-			tt.setup(ctx, mocks)
+			tt.setup(mocks)
 
 			userID, err := service.Authenticate(ctx, tt.email, tt.password)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Empty(t, userID)
 			} else {
 				assert.NoError(t, err)

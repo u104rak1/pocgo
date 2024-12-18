@@ -88,10 +88,10 @@ func (s *transactionService) Transfer(
 	amount float64,
 	currency string,
 ) (*Transaction, error) {
-	if err := senderAccount.Withdraw(amount, currency); err != nil {
+	if err := receiverAccount.Deposit(amount, currency); err != nil {
 		return nil, err
 	}
-	if err := receiverAccount.Deposit(amount, currency); err != nil {
+	if err := senderAccount.Withdraw(amount, currency); err != nil {
 		return nil, err
 	}
 

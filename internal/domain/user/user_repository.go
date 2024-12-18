@@ -8,5 +8,4 @@ type IUserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*User, error)
 	ExistsByID(ctx context.Context, id string) (bool, error)
 	ExistsByEmail(ctx context.Context, email string) (bool, error)
-	Delete(ctx context.Context, id string) error
 }

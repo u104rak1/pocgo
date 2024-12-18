@@ -31,9 +31,13 @@ type ReadUserDTO struct {
 }
 
 func (u *readUserUsecase) Run(ctx context.Context, cmd ReadUserCommand) (*ReadUserDTO, error) {
+	//TODO: エラーメッセージがユースケースに出てくる場合はdomain serviceに書く
 	user, err := u.userRepo.FindByID(ctx, cmd.ID)
 	if err != nil {
 		return nil, err
+	}
+	if user == nil {
+		return nil, userDomain.ErrNotFound
 	}
 
 	return &ReadUserDTO{

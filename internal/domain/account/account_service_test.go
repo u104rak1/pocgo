@@ -9,42 +9,46 @@ import (
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	"github.com/u104rak1/pocgo/pkg/strutil"
 	"github.com/u104rak1/pocgo/pkg/timer"
 	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestCheckLimit(t *testing.T) {
-	var userID = ulid.GenerateStaticULID("user")
+	var (
+		userID = ulid.GenerateStaticULID("user")
+		arg    = gomock.Any()
+	)
 
 	tests := []struct {
 		caseName string
 		userID   string
-		setup    func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository)
+		setup    func(mockAccountRepo *mock.MockIAccountRepository)
 		errMsg   string
 	}{
 		{
-			caseName: "Successfully when account count is below the limit (count = 2).",
+			caseName: "Positive: 口座数が上限に達していない場合はエラーが返らない",
 			userID:   userID,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(2, nil)
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().CountByUserID(arg, arg).Return(2, nil)
 			},
 			errMsg: "",
 		},
 		{
-			caseName: "Error occurs in CountByUserID.",
+			caseName: "Negative: 口座数が上限に達している場合はエラーが返る",
 			userID:   userID,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(0, assert.AnError)
-			},
-			errMsg: assert.AnError.Error(),
-		},
-		{
-			caseName: "Error occurs when account count reaches the limit (count = 3).",
-			userID:   userID,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().CountByUserID(ctx, userID).Return(3, nil)
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().CountByUserID(arg, arg).Return(3, nil)
 			},
 			errMsg: "account limit reached, maximum 3 accounts",
+		},
+		{
+			caseName: "Negative: CountByUserIDでエラーが返る場合はエラーが返る",
+			userID:   userID,
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().CountByUserID(arg, arg).Return(0, assert.AnError)
+			},
+			errMsg: assert.AnError.Error(),
 		},
 	}
 
@@ -57,14 +61,14 @@ func TestCheckLimit(t *testing.T) {
 			mockAccountRepo := mock.NewMockIAccountRepository(ctrl)
 			service := accountDomain.NewService(mockAccountRepo)
 			ctx := context.Background()
-			tt.setup(ctx, mockAccountRepo)
+			tt.setup(mockAccountRepo)
 
 			err := service.CheckLimit(ctx, tt.userID)
-			if tt.errMsg == "" {
-				assert.NoError(t, err)
-			} else {
+			if tt.errMsg != "" {
 				assert.Error(t, err)
 				assert.Equal(t, err.Error(), tt.errMsg)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}
@@ -79,6 +83,7 @@ func TestGetAndAuthorize(t *testing.T) {
 		amount    = 100.0
 		currency  = moneyVO.JPY
 		updatedAt = timer.GetFixedDate()
+		arg       = gomock.Any()
 	)
 
 	account, err := accountDomain.New(accountID, userID, name, password, amount, currency, updatedAt)
@@ -89,82 +94,76 @@ func TestGetAndAuthorize(t *testing.T) {
 		accountID string
 		userID    *string
 		password  *string
-		setup     func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository)
+		setup     func(mockAccountRepo *mock.MockIAccountRepository)
 		errMsg    string
 	}{
 		{
-			caseName:  "Successfully retrieves account when verify user id and password.",
+			caseName:  "Positive: ユーザーIDとパスワードが一致する場合は口座が取得できる",
 			accountID: accountID,
 			userID:    &userID,
 			password:  &password,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().FindByID(ctx, accountID).Return(account, nil)
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "",
 		},
 		{
-			caseName:  "Successfully retrieves account without userID verification.",
+			caseName:  "Positive: ユーザーIDがnilの場合は、ユーザーIDの検証を行わないで口座が取得できる",
 			accountID: accountID,
 			userID:    nil,
 			password:  &password,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().FindByID(ctx, accountID).Return(account, nil)
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "",
 		},
 		{
-			caseName:  "Successfully retrieves account without password verification.",
+			caseName:  "Positive: パスワードがnilの場合は、パスワードの検証を行わないで口座が取得できる",
 			accountID: accountID,
 			userID:    &userID,
 			password:  nil,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().FindByID(ctx, accountID).Return(account, nil)
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "",
 		},
 		{
-			caseName:  "Error occurs in FindByID.",
+			caseName:  "Negative: FindByIDでエラーが返る場合はエラーが返る",
 			accountID: accountID,
 			userID:    &userID,
 			password:  nil,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().FindByID(ctx, accountID).Return(nil, assert.AnError)
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(nil, assert.AnError)
 			},
 			errMsg: assert.AnError.Error(),
 		},
 		{
-			caseName:  "Error occurs when the account does not exist.",
+			caseName:  "Negative: 口座が存在しない場合はエラーが返る",
 			accountID: accountID,
 			userID:    nil,
 			password:  nil,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().FindByID(ctx, accountID).Return(nil, nil)
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(nil, nil)
 			},
 			errMsg: "account not found",
 		},
 		{
-			caseName:  "Error occurs when the user ID does not match.",
+			caseName:  "Negative: ユーザーIDが一致しない場合はエラーが返る",
 			accountID: accountID,
-			userID: func() *string {
-				unauthorizedUserID := ulid.GenerateStaticULID("unauthorized-user")
-				return &unauthorizedUserID
-			}(),
-			password: nil,
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().FindByID(ctx, accountID).Return(account, nil)
+			userID:    strutil.StrPointer(ulid.GenerateStaticULID("unauthorized-user")),
+			password:  nil,
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "unauthorized access to account",
 		},
 		{
-			caseName:  "Error occurs when the password does not match.",
+			caseName:  "Negative: パスワードが一致しない場合はエラーが返る",
 			accountID: accountID,
 			userID:    nil,
-			password: func() *string {
-				unmatchedPassword := "5678"
-				return &unmatchedPassword
-			}(),
-			setup: func(ctx context.Context, mockAccountRepo *mock.MockIAccountRepository) {
-				mockAccountRepo.EXPECT().FindByID(ctx, accountID).Return(account, nil)
+			password:  strutil.StrPointer("5678"),
+			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "passwords do not match",
 		},
@@ -179,15 +178,15 @@ func TestGetAndAuthorize(t *testing.T) {
 			mockAccountRepo := mock.NewMockIAccountRepository(ctrl)
 			service := accountDomain.NewService(mockAccountRepo)
 			ctx := context.Background()
-			tt.setup(ctx, mockAccountRepo)
+			tt.setup(mockAccountRepo)
 
 			a, err := service.GetAndAuthorize(ctx, tt.accountID, tt.userID, tt.password)
-			if tt.errMsg == "" {
-				assert.NoError(t, err)
-				assert.Equal(t, account.ID(), a.ID())
-			} else {
+			if tt.errMsg != "" {
 				assert.Error(t, err)
 				assert.Equal(t, err.Error(), tt.errMsg)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, account.ID(), a.ID())
 			}
 		})
 	}

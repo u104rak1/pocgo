@@ -4,7 +4,7 @@ import (
 	"time"
 
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
-	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/timer"
 )
 
@@ -13,7 +13,7 @@ type Transaction struct {
 	accountID         string
 	receiverAccountID *string
 	operationType     string
-	transferAmount    money.Money
+	transferAmount    moneyVO.Money
 	transactionAt     time.Time
 }
 
@@ -43,7 +43,7 @@ func New(
 		return nil, err
 	}
 
-	transferAmount, err := money.New(amount, currency)
+	transferAmount, err := moneyVO.New(amount, currency)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (t *Transaction) OperationType() string {
 	return t.operationType
 }
 
-func (t *Transaction) TransferAmount() money.Money {
+func (t *Transaction) TransferAmount() moneyVO.Money {
 	return t.transferAmount
 }
 

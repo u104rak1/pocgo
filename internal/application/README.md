@@ -5,3 +5,7 @@
 テスト
 repositoryなどの引数の内容に関心を持たなくて良い。できるならやっても良い。gomock.Any()を使って良い。
 エラーの内容に関心を持たなくて良い。
+
+usecaseにするべきかdomain serviceにするべきか
+たいていの場合、適切なまとまりをdomain serviceにする方が良さそう。
+エラーメッセージなどをユースケースに書く必要がでる場合はdomain serviceに書く。

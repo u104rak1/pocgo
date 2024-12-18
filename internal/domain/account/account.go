@@ -4,7 +4,7 @@ import (
 	"time"
 
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
-	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
 	"github.com/u104rak1/pocgo/pkg/timer"
 )
@@ -14,12 +14,12 @@ type Account struct {
 	userID       string
 	name         string
 	passwordHash string
-	balance      money.Money
+	balance      moneyVO.Money
 	updatedAt    time.Time
 }
 
+// 口座エンティティを作成します。新規で作成するのでパスワードの検証とハッシュ化を行います。
 func New(id, userID, name, password string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
-	// Validate password when creating a new account
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}
@@ -31,8 +31,8 @@ func New(id, userID, name, password string, amount float64, currency string, upd
 	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
 }
 
+// データベースから口座を再構築します。パスワードは既にエンコードされているため、検証は行われません。
 func Reconstruct(id, userID, name, passwordHash string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
-	// When reconstructing the account from the DB, the password is already encoded so there is no validation.
 	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
 }
 
@@ -49,7 +49,7 @@ func newAccount(id, userID, name, passwordHash string, amount float64, currency 
 		return nil, err
 	}
 
-	balance, err := money.New(amount, currency)
+	balance, err := moneyVO.New(amount, currency)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (a *Account) PasswordHash() string {
 	return a.passwordHash
 }
 
-func (a *Account) Balance() money.Money {
+func (a *Account) Balance() moneyVO.Money {
 	return a.balance
 }
 
@@ -120,7 +120,7 @@ func (a *Account) ComparePassword(password string) error {
 }
 
 func (a *Account) Withdraw(amount float64, currency string) error {
-	withdrawMoney, err := money.New(amount, currency)
+	withdrawMoney, err := moneyVO.New(amount, currency)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (a *Account) Withdraw(amount float64, currency string) error {
 }
 
 func (a *Account) Deposit(amount float64, currency string) error {
-	depositMoney, err := money.New(amount, currency)
+	depositMoney, err := moneyVO.New(amount, currency)
 	if err != nil {
 		return err
 	}

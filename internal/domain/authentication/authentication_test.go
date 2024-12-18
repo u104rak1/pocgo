@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u104rak1/pocgo/internal/domain/authentication"
+	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
 	"github.com/u104rak1/pocgo/pkg/ulid"
@@ -17,57 +17,58 @@ func TestNew(t *testing.T) {
 	)
 
 	tests := []struct {
-		name     string
+		caseName string
 		userID   string
 		password string
-		wantErr  error
+		errMsg   string
 	}{
 		{
-			name:     "Successfully creates an authentication.",
+			caseName: "Positive: 認証情報を作成できる",
 			userID:   userID,
 			password: password,
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			name:     "Error occurs with invalid userID.",
+			caseName: "Negative: 無効なユーザーIDの場合はエラーが返る",
 			userID:   "invalid",
 			password: password,
-			wantErr:  userDomain.ErrInvalidID,
+			errMsg:   userDomain.ErrInvalidID.Error(),
 		},
 		{
-			name:     "Error occurs with 7-character password.",
+			caseName: "Negative: 7文字のパスワードの場合はエラーが返る",
 			userID:   userID,
 			password: "1234567",
-			wantErr:  authentication.ErrPasswordInvalidLength,
+			errMsg:   "password must be between 8 and 20 characters",
 		},
 		{
-			name:     "Successfully creates an authentication with 8-character password.",
+			caseName: "Positive: 8文字のパスワードの場合は認証情報を作成できる",
 			userID:   userID,
 			password: "12345678",
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			name:     "Successfully creates an authentication with 20-character password.",
+			caseName: "Positive: 20文字のパスワードの場合は認証情報を作成できる",
 			userID:   userID,
 			password: "12345678901234567890",
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			name:     "Error occurs with 21-character password.",
+			caseName: "Negative: 21文字のパスワードの場合はエラーが返る",
 			userID:   userID,
 			password: "123456789012345678901",
-			wantErr:  authentication.ErrPasswordInvalidLength,
+			errMsg:   "password must be between 8 and 20 characters",
 		},
-		// Since it is difficult to force errors in the Encode function, we have omitted testing for errors.
+		// Password.Encode関数を強制的にエラーにすることが難しい為、このエラーパターンはテストしない
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			auth, err := authentication.New(tt.userID, tt.password)
+			auth, err := authDomain.New(tt.userID, tt.password)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Nil(t, auth)
 			} else {
 				assert.NoError(t, err)
@@ -83,9 +84,9 @@ func TestReconstruct(t *testing.T) {
 		userID   = ulid.GenerateStaticULID("user")
 		password = "password"
 	)
-	t.Run("Successfully reconstructs an authentication.", func(t *testing.T) {
+	t.Run("Positive: 認証情報を再構築できる", func(t *testing.T) {
 		encodedPassword, _ := passwordUtil.Encode(password)
-		auth, err := authentication.Reconstruct(userID, encodedPassword)
+		auth, err := authDomain.Reconstruct(userID, encodedPassword)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, auth)
@@ -101,30 +102,31 @@ func TestComparePassword(t *testing.T) {
 	)
 
 	tests := []struct {
-		name        string
+		caseName    string
 		newPassword string
-		wantErr     error
+		errMsg      string
 	}{
 		{
-			name:        "Passwords match without errors.",
+			caseName:    "Positive: パスワードが一致しない場合はエラーが返る",
 			newPassword: password,
-			wantErr:     nil,
+			errMsg:      "",
 		},
 		{
-			name:        "Error occurs when passwords do not match.",
+			caseName:    "Negative: パスワードが一致しない場合はエラーが返る",
 			newPassword: "deffirentPassword",
-			wantErr:     authentication.ErrUnmatchedPassword,
+			errMsg:      "passwords do not match",
 		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			auth, _ := authentication.New(userID, password)
+			auth, _ := authDomain.New(userID, password)
 			err := auth.ComparePassword(tt.newPassword)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 			} else {
 				assert.NoError(t, err)
 			}

@@ -3,10 +3,10 @@ package account
 import "context"
 
 type IAccountService interface {
-	// Checks whether the user has reached the maximum number of accounts.
+	// ユーザーの口座数が上限に達しているかをチェックします。
 	CheckLimit(ctx context.Context, userID string) error
 
-	// Get the user's account and check the user ID and password. Password confirmation is optional and can be nil to skip password confirmation.
+	// ユーザーの口座を取得する。ユーザーIDとパスワードの確認はオプションであり、必要ない場合はnilを渡す。
 	GetAndAuthorize(ctx context.Context, accountID string, userID, password *string) (*Account, error)
 }
 
