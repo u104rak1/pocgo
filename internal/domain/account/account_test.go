@@ -16,13 +16,12 @@ import (
 
 func TestNew(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
-		name      = "For work"
-		password  = "1234"
-		amount    = 1000.0
-		currency  = moneyVO.JPY
-		now       = timer.GetFixedDate()
+		userID   = ulid.GenerateStaticULID("user")
+		name     = "For work"
+		password = "1234"
+		amount   = 1000.0
+		currency = moneyVO.JPY
+		now      = timer.GetFixedDate()
 	)
 
 	tests := []struct {
@@ -38,7 +37,6 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			caseName:  "Positive: 口座を作成できる",
-			id:        accountID,
 			userID:    userID,
 			name:      name,
 			password:  password,
@@ -48,19 +46,7 @@ func TestNew(t *testing.T) {
 			errMsg:    "",
 		},
 		{
-			caseName:  "Negative: 無効なIDの場合はエラーが返る",
-			id:        "invalid",
-			userID:    userID,
-			name:      name,
-			password:  password,
-			amount:    amount,
-			currency:  currency,
-			updatedAt: now,
-			errMsg:    "account id must be a valid ULID",
-		},
-		{
 			caseName:  "Negative: 無効なユーザーIDの場合はエラーが返る",
-			id:        accountID,
 			userID:    "invalid",
 			name:      name,
 			password:  password,
@@ -71,7 +57,6 @@ func TestNew(t *testing.T) {
 		},
 		{
 			caseName:  "Negative: 2文字の名前の場合はエラーが返る",
-			id:        accountID,
 			userID:    userID,
 			name:      strings.Repeat("a", 3-1),
 			password:  password,
@@ -82,7 +67,6 @@ func TestNew(t *testing.T) {
 		},
 		{
 			caseName:  "Positive: 3文字の名前の場合は口座を作成できる",
-			id:        accountID,
 			userID:    userID,
 			name:      strings.Repeat("a", 3),
 			password:  password,
@@ -93,7 +77,6 @@ func TestNew(t *testing.T) {
 		},
 		{
 			caseName:  "Positive: 20文字の名前の場合は口座を作成できる",
-			id:        accountID,
 			userID:    userID,
 			name:      strings.Repeat("a", 20),
 			password:  password,
@@ -104,7 +87,6 @@ func TestNew(t *testing.T) {
 		},
 		{
 			caseName:  "Negative: 21文字の名前の場合はエラーが返る",
-			id:        accountID,
 			userID:    userID,
 			name:      strings.Repeat("a", 20+1),
 			password:  password,
@@ -115,7 +97,6 @@ func TestNew(t *testing.T) {
 		},
 		{
 			caseName:  "Negative: 3文字のパスワードの場合はエラーが返る",
-			id:        accountID,
 			userID:    userID,
 			name:      name,
 			password:  "123",
@@ -126,7 +107,6 @@ func TestNew(t *testing.T) {
 		},
 		{
 			caseName:  "Positive: 4文字のパスワードの場合は口座を作成できる",
-			id:        accountID,
 			userID:    userID,
 			name:      name,
 			password:  "1234",
@@ -137,7 +117,6 @@ func TestNew(t *testing.T) {
 		},
 		{
 			caseName:  "Negative: 5文字のパスワードの場合はエラーが返る",
-			id:        accountID,
 			userID:    userID,
 			name:      name,
 			password:  "12345",
@@ -148,7 +127,6 @@ func TestNew(t *testing.T) {
 		},
 		{
 			caseName:  "Negative: 無効な金額の場合はエラーが返る",
-			id:        accountID,
 			userID:    userID,
 			name:      name,
 			password:  password,
@@ -164,7 +142,7 @@ func TestNew(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, err := accountDomain.New(tt.id, tt.userID, tt.name, tt.password, tt.amount, tt.currency, tt.updatedAt)
+			acc, err := accountDomain.New(tt.userID, tt.name, tt.password, tt.amount, tt.currency, tt.updatedAt)
 
 			if tt.errMsg != "" {
 				assert.Error(t, err)
@@ -172,7 +150,7 @@ func TestNew(t *testing.T) {
 				assert.Nil(t, acc)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.id, acc.ID())
+				assert.NotEmpty(t, acc.ID())
 				assert.Equal(t, tt.userID, acc.UserID())
 				assert.Equal(t, tt.name, acc.Name())
 				assert.NoError(t, passwordUtil.Compare(acc.PasswordHash(), tt.password))
@@ -213,13 +191,12 @@ func TestReconstruct(t *testing.T) {
 
 func TestChangeName(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
-		name      = "For work"
-		password  = "1234"
-		amount    = 1000.0
-		currency  = moneyVO.JPY
-		now       = timer.Now()
+		userID   = ulid.GenerateStaticULID("user")
+		name     = "For work"
+		password = "1234"
+		amount   = 1000.0
+		currency = moneyVO.JPY
+		now      = timer.Now()
 	)
 
 	tests := []struct {
@@ -242,7 +219,7 @@ func TestChangeName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(userID, name, password, amount, currency, now)
 			err := acc.ChangeName(tt.newName)
 
 			if tt.errMsg != "" {
@@ -259,13 +236,12 @@ func TestChangeName(t *testing.T) {
 
 func TestChangePassword(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
-		name      = "For work"
-		password  = "1234"
-		amount    = 1000.0
-		currency  = moneyVO.JPY
-		now       = timer.Now()
+		userID   = ulid.GenerateStaticULID("user")
+		name     = "For work"
+		password = "1234"
+		amount   = 1000.0
+		currency = moneyVO.JPY
+		now      = timer.Now()
 	)
 
 	tests := []struct {
@@ -289,7 +265,7 @@ func TestChangePassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(userID, name, password, amount, currency, now)
 			err := acc.ChangePassword(tt.newPassword)
 
 			if tt.errMsg != "" {
@@ -306,13 +282,12 @@ func TestChangePassword(t *testing.T) {
 
 func TestComparePassword(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
-		name      = "For work"
-		password  = "1234"
-		amount    = 1000.0
-		currency  = moneyVO.JPY
-		now       = timer.Now()
+		userID   = ulid.GenerateStaticULID("user")
+		name     = "For work"
+		password = "1234"
+		amount   = 1000.0
+		currency = moneyVO.JPY
+		now      = timer.Now()
 	)
 
 	tests := []struct {
@@ -335,7 +310,7 @@ func TestComparePassword(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(userID, name, password, amount, currency, now)
 			err := acc.ComparePassword(tt.newPassword)
 
 			if tt.errMsg != "" {
@@ -350,13 +325,12 @@ func TestComparePassword(t *testing.T) {
 
 func TestWithdraw(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
-		name      = "For work"
-		password  = "1234"
-		amount    = 1000.0
-		currency  = moneyVO.JPY
-		now       = timer.Now()
+		userID   = ulid.GenerateStaticULID("user")
+		name     = "For work"
+		password = "1234"
+		amount   = 1000.0
+		currency = moneyVO.JPY
+		now      = timer.Now()
 	)
 
 	tests := []struct {
@@ -387,7 +361,7 @@ func TestWithdraw(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
-			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(userID, name, password, amount, currency, now)
 			err := acc.Withdraw(tt.amount, tt.currency)
 
 			if tt.errMsg != "" {
@@ -403,13 +377,12 @@ func TestWithdraw(t *testing.T) {
 
 func TestDeposit(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
-		name      = "For work"
-		password  = "1234"
-		amount    = 1000.0
-		currency  = moneyVO.JPY
-		now       = timer.Now()
+		userID   = ulid.GenerateStaticULID("user")
+		name     = "For work"
+		password = "1234"
+		amount   = 1000.0
+		currency = moneyVO.JPY
+		now      = timer.Now()
 	)
 
 	tests := []struct {
@@ -440,7 +413,7 @@ func TestDeposit(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
-			acc, _ := accountDomain.New(accountID, userID, name, password, amount, currency, now)
+			acc, _ := accountDomain.New(userID, name, password, amount, currency, now)
 			err := acc.Deposit(tt.amount, tt.currency)
 
 			if tt.errMsg != "" {
@@ -456,17 +429,16 @@ func TestDeposit(t *testing.T) {
 
 func TestChangeUpdatedAt(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
-		name      = "For work"
-		password  = "1234"
-		amount    = 1000.0
-		currency  = moneyVO.JPY
-		now       = timer.Now()
+		userID   = ulid.GenerateStaticULID("user")
+		name     = "For work"
+		password = "1234"
+		amount   = 1000.0
+		currency = moneyVO.JPY
+		now      = timer.Now()
 	)
 
 	t.Run("Positive: UpdatedAtを有効な時間に変更できる", func(t *testing.T) {
-		acc, err := accountDomain.New(accountID, userID, name, password, amount, currency, now)
+		acc, err := accountDomain.New(userID, name, password, amount, currency, now)
 		assert.NoError(t, err)
 		newTime := timer.Now()
 		acc.ChangeUpdatedAt(newTime)

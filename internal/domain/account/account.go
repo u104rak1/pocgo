@@ -7,6 +7,7 @@ import (
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
 	"github.com/u104rak1/pocgo/pkg/timer"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 type Account struct {
@@ -19,7 +20,9 @@ type Account struct {
 }
 
 // 口座エンティティを作成します。新規で作成するのでパスワードの検証とハッシュ化を行います。
-func New(id, userID, name, password string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
+func New(userID, name, password string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
+	id := ulid.New()
+
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}

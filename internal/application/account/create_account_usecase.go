@@ -7,7 +7,6 @@ import (
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	"github.com/u104rak1/pocgo/pkg/timer"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 type ICreateAccountUsecase interface {
@@ -52,9 +51,8 @@ type CreateAccountDTO struct {
 }
 
 func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand) (*CreateAccountDTO, error) {
-	accountID := ulid.New()
 	account, err := accountDomain.New(
-		accountID, cmd.UserID, cmd.Name, cmd.Password,
+		cmd.UserID, cmd.Name, cmd.Password,
 		0, cmd.Currency, timer.Now(),
 	)
 	if err != nil {

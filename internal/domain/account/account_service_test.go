@@ -86,15 +86,12 @@ func TestGetAndAuthorize(t *testing.T) {
 		arg       = gomock.Any()
 	)
 
-	account, err := accountDomain.New(accountID, userID, name, password, amount, currency, updatedAt)
-	assert.NoError(t, err)
-
 	tests := []struct {
 		caseName  string
 		accountID string
 		userID    *string
 		password  *string
-		setup     func(mockAccountRepo *mock.MockIAccountRepository)
+		setup     func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account)
 		errMsg    string
 	}{
 		{
@@ -102,7 +99,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			accountID: accountID,
 			userID:    &userID,
 			password:  &password,
-			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+			setup: func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account) {
 				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "",
@@ -112,7 +109,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			accountID: accountID,
 			userID:    nil,
 			password:  &password,
-			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+			setup: func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account) {
 				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "",
@@ -122,7 +119,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			accountID: accountID,
 			userID:    &userID,
 			password:  nil,
-			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+			setup: func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account) {
 				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "",
@@ -132,7 +129,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			accountID: accountID,
 			userID:    &userID,
 			password:  nil,
-			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+			setup: func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account) {
 				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(nil, assert.AnError)
 			},
 			errMsg: assert.AnError.Error(),
@@ -142,7 +139,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			accountID: accountID,
 			userID:    nil,
 			password:  nil,
-			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+			setup: func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account) {
 				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(nil, nil)
 			},
 			errMsg: "account not found",
@@ -152,7 +149,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			accountID: accountID,
 			userID:    strutil.StrPointer(ulid.GenerateStaticULID("unauthorized-user")),
 			password:  nil,
-			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+			setup: func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account) {
 				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "unauthorized access to account",
@@ -162,7 +159,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			accountID: accountID,
 			userID:    nil,
 			password:  strutil.StrPointer("5678"),
-			setup: func(mockAccountRepo *mock.MockIAccountRepository) {
+			setup: func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account) {
 				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
 			errMsg: "passwords do not match",
@@ -178,7 +175,9 @@ func TestGetAndAuthorize(t *testing.T) {
 			mockAccountRepo := mock.NewMockIAccountRepository(ctrl)
 			service := accountDomain.NewService(mockAccountRepo)
 			ctx := context.Background()
-			tt.setup(mockAccountRepo)
+			account, err := accountDomain.New(userID, name, password, amount, currency, updatedAt)
+			assert.NoError(t, err)
+			tt.setup(mockAccountRepo, account)
 
 			a, err := service.GetAndAuthorize(ctx, tt.accountID, tt.userID, tt.password)
 			if tt.errMsg != "" {
