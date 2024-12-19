@@ -405,7 +405,6 @@ func TestListWithTotal(t *testing.T) {
 			service := transactionDomain.NewService(mocks.accountRepo, mocks.transactionRepo)
 			ctx := context.Background()
 			tx1, err := transactionDomain.New(
-				ulid.GenerateStaticULID("transaction-1"),
 				accountID,
 				nil,
 				transactionDomain.Deposit,
@@ -416,7 +415,6 @@ func TestListWithTotal(t *testing.T) {
 			assert.NoError(t, err)
 
 			tx2, err := transactionDomain.New(
-				ulid.GenerateStaticULID("transaction-2"),
 				accountID,
 				nil,
 				transactionDomain.Withdraw,

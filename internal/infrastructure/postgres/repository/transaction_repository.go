@@ -32,7 +32,7 @@ func (r *transactionRepository) Save(ctx context.Context, transaction *transacti
 	}
 
 	transactionModel := &model.Transaction{
-		ID:                transaction.ID(),
+		ID:                transaction.IDString(),
 		AccountID:         transaction.AccountID(),
 		ReceiverAccountID: transaction.ReceiverAccountID(),
 		OperationType:     transaction.OperationType(),
@@ -75,7 +75,7 @@ func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, pa
 
 	transactions = make([]*transactionDomain.Transaction, len(transactionModels))
 	for i, m := range transactionModels {
-		transaction, err := transactionDomain.New(
+		transaction, err := transactionDomain.Reconstruct(
 			m.ID,
 			m.AccountID,
 			m.ReceiverAccountID,

@@ -5,7 +5,6 @@ import (
 
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	"github.com/u104rak1/pocgo/pkg/timer"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 type ITransactionService interface {
@@ -44,8 +43,7 @@ func (s *transactionService) Deposit(
 		return nil, err
 	}
 
-	transactionID := ulid.New()
-	transaction, err := New(transactionID, account.ID(), nil, Deposit, amount, currency, updatedAt)
+	transaction, err := New(account.ID(), nil, Deposit, amount, currency, updatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -70,8 +68,7 @@ func (s *transactionService) Withdraw(
 		return nil, err
 	}
 
-	transactionID := ulid.New()
-	transaction, err := New(transactionID, account.ID(), nil, Withdraw, amount, currency, updatedAt)
+	transaction, err := New(account.ID(), nil, Withdraw, amount, currency, updatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -106,9 +103,8 @@ func (s *transactionService) Transfer(
 		return nil, err
 	}
 
-	transactionID := ulid.New()
 	receiverAccountID := receiverAccount.ID()
-	transaction, err := New(transactionID, senderAccount.ID(), &receiverAccountID, Transfer, amount, currency, updatedAt)
+	transaction, err := New(senderAccount.ID(), &receiverAccountID, Transfer, amount, currency, updatedAt)
 	if err != nil {
 		return nil, err
 	}

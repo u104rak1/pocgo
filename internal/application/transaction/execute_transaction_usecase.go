@@ -86,7 +86,7 @@ func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransact
 	}
 
 	return &ExecuteTransactionDTO{
-		ID:                transaction.ID(),
+		ID:                transaction.IDString(),
 		AccountID:         transaction.AccountID(),
 		ReceiverAccountID: transaction.ReceiverAccountID(),
 		OperationType:     transaction.OperationType(),

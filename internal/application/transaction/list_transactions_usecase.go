@@ -75,7 +75,7 @@ func (u *listTransactionsUsecase) Run(ctx context.Context, cmd ListTransactionsC
 	transactionDTOs := make([]ListTransactionDTO, len(transactions))
 	for i, t := range transactions {
 		transactionDTOs[i] = ListTransactionDTO{
-			ID:                t.ID(),
+			ID:                t.IDString(),
 			AccountID:         t.AccountID(),
 			ReceiverAccountID: t.ReceiverAccountID(),
 			OperationType:     t.OperationType(),

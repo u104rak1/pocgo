@@ -15,7 +15,6 @@ import (
 func TestNewTransaction(t *testing.T) {
 
 	var (
-		transactionID     = ulid.GenerateStaticULID("transaction")
 		accountID         = ulid.GenerateStaticULID("account")
 		receiverAccountID = ulid.GenerateStaticULID("accountReceiver")
 		amount            = 1000.0
@@ -26,7 +25,6 @@ func TestNewTransaction(t *testing.T) {
 
 	tests := []struct {
 		caseName          string
-		id                string
 		accountID         string
 		receiverAccountID *string
 		operationType     string
@@ -37,7 +35,6 @@ func TestNewTransaction(t *testing.T) {
 	}{
 		{
 			caseName:          "Positive: 取引を作成できる",
-			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
 			operationType:     transactionDomain.Transfer,
@@ -47,19 +44,7 @@ func TestNewTransaction(t *testing.T) {
 			errMsg:            "",
 		},
 		{
-			caseName:          "Negative: 無効なIDの場合はエラーが返る",
-			id:                invalidID,
-			accountID:         accountID,
-			receiverAccountID: &receiverAccountID,
-			operationType:     transactionDomain.Transfer,
-			amount:            amount,
-			currency:          currency,
-			transactionAt:     transactionAt,
-			errMsg:            "transaction id must be a valid ULID",
-		},
-		{
 			caseName:          "Negative: 無効な口座IDの場合はエラーが返る",
-			id:                transactionID,
 			accountID:         "inavlid",
 			receiverAccountID: &receiverAccountID,
 			operationType:     transactionDomain.Transfer,
@@ -70,7 +55,6 @@ func TestNewTransaction(t *testing.T) {
 		},
 		{
 			caseName:          "Negative: 無効な受取口座IDの場合はエラーが返る",
-			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &invalidID,
 			operationType:     transactionDomain.Transfer,
@@ -81,7 +65,6 @@ func TestNewTransaction(t *testing.T) {
 		},
 		{
 			caseName:          "Positive: 振替取引を作成できる",
-			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
 			operationType:     transactionDomain.Transfer,
@@ -92,7 +75,6 @@ func TestNewTransaction(t *testing.T) {
 		},
 		{
 			caseName:          "Positive: 入金取引を作成できる",
-			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: nil,
 			operationType:     transactionDomain.Deposit,
@@ -103,7 +85,6 @@ func TestNewTransaction(t *testing.T) {
 		},
 		{
 			caseName:          "Positive: 出金取引を作成できる",
-			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: nil,
 			operationType:     transactionDomain.Withdraw,
@@ -114,7 +95,6 @@ func TestNewTransaction(t *testing.T) {
 		},
 		{
 			caseName:          "Negative: サポートされていない取引タイプの場合はエラーが返る",
-			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
 			operationType:     "UNSUPPORTED",
@@ -125,7 +105,6 @@ func TestNewTransaction(t *testing.T) {
 		},
 		{
 			caseName:          "Negative: 無効な金額の場合はエラーが返る",
-			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
 			operationType:     transactionDomain.Transfer,
@@ -136,7 +115,6 @@ func TestNewTransaction(t *testing.T) {
 		},
 		{
 			caseName:          "Negative: サポートされていない通貨の場合はエラーが返る",
-			id:                transactionID,
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
 			operationType:     transactionDomain.Transfer,
@@ -151,7 +129,7 @@ func TestNewTransaction(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			tx, err := transactionDomain.New(
-				tt.id, tt.accountID, tt.receiverAccountID, tt.operationType, tt.amount, tt.currency, tt.transactionAt,
+				tt.accountID, tt.receiverAccountID, tt.operationType, tt.amount, tt.currency, tt.transactionAt,
 			)
 
 			if tt.errMsg != "" {
@@ -161,7 +139,7 @@ func TestNewTransaction(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, tx)
-				assert.Equal(t, tt.id, tx.ID())
+				assert.NotEmpty(t, tx.ID())
 				assert.Equal(t, tt.accountID, tx.AccountID())
 				assert.Equal(t, tt.receiverAccountID, tx.ReceiverAccountID())
 				assert.Equal(t, tt.operationType, tx.OperationType())
@@ -172,4 +150,30 @@ func TestNewTransaction(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestReconstruct(t *testing.T) {
+	var (
+		transactionID     = ulid.GenerateStaticULID("transaction")
+		accountID         = ulid.GenerateStaticULID("account")
+		receiverAccountID = ulid.GenerateStaticULID("accountReceiver")
+		operationType     = "TRANSFER"
+		amount            = 1000.0
+		currency          = moneyVO.JPY
+		transactionAt     = timer.GetFixedDate()
+	)
+	t.Run("Positive: 取引を再構築できる", func(t *testing.T) {
+		tx, err := transactionDomain.Reconstruct(transactionID, accountID, &receiverAccountID, operationType, amount, currency, transactionAt)
+		assert.NoError(t, err)
+		assert.NotNil(t, tx)
+		assert.NotEmpty(t, tx.ID())
+		assert.Equal(t, transactionID, tx.IDString())
+		assert.Equal(t, accountID, tx.AccountID())
+		assert.Equal(t, &receiverAccountID, tx.ReceiverAccountID())
+		assert.Equal(t, operationType, tx.OperationType())
+		assert.Equal(t, amount, tx.TransferAmount().Amount())
+		assert.Equal(t, currency, tx.TransferAmount().Currency())
+		assert.Equal(t, transactionAt, tx.TransactionAt())
+		assert.Equal(t, timer.GetFixedDateString(), tx.TransactionAtString())
+	})
 }

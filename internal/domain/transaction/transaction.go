@@ -6,10 +6,13 @@ import (
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/timer"
+	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
+type TransactionID string
+
 type Transaction struct {
-	id                string
+	id                TransactionID
 	accountID         string
 	receiverAccountID *string
 	operationType     string
@@ -18,6 +21,18 @@ type Transaction struct {
 }
 
 func New(
+	accountID string,
+	receiverAccountID *string,
+	operationType string,
+	amount float64,
+	currency string,
+	transactionAt time.Time,
+) (*Transaction, error) {
+	id := TransactionID(ulid.New())
+	return newTransaction(id, accountID, receiverAccountID, operationType, amount, currency, transactionAt)
+}
+
+func Reconstruct(
 	id, accountID string,
 	receiverAccountID *string,
 	operationType string,
@@ -25,10 +40,19 @@ func New(
 	currency string,
 	transactionAt time.Time,
 ) (*Transaction, error) {
-	if err := ValidID(id); err != nil {
-		return nil, err
-	}
+	transactionID := TransactionID(id)
+	return newTransaction(transactionID, accountID, receiverAccountID, operationType, amount, currency, transactionAt)
+}
 
+func newTransaction(
+	id TransactionID,
+	accountID string,
+	receiverAccountID *string,
+	operationType string,
+	amount float64,
+	currency string,
+	transactionAt time.Time,
+) (*Transaction, error) {
 	if err := accountDomain.ValidID(accountID); err != nil {
 		return nil, err
 	}
@@ -58,8 +82,12 @@ func New(
 	}, nil
 }
 
-func (t *Transaction) ID() string {
+func (t *Transaction) ID() TransactionID {
 	return t.id
+}
+
+func (t *Transaction) IDString() string {
+	return string(t.id)
 }
 
 func (t *Transaction) AccountID() string {
