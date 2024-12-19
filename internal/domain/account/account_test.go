@@ -434,7 +434,7 @@ func TestDeposit(t *testing.T) {
 			caseName: "Negative: money値オブジェクトのAddメソッドが失敗した場合、エラーが返る",
 			amount:   300,
 			currency: moneyVO.USD,
-			errMsg:   moneyVO.ErrDifferentCurrency.Error(),
+			errMsg:   moneyVO.ErrAddDifferentCurrency.Error(),
 		},
 	}
 

@@ -7,40 +7,42 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
-	"github.com/u104rak1/pocgo/internal/domain/user"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestVerifyEmailUniqueness(t *testing.T) {
+	var arg = gomock.Any()
+
 	tests := []struct {
 		caseName string
 		email    string
-		setup    func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string)
-		wantErr  error
+		setup    func(mockUserRepo *mock.MockIUserRepository)
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully verifies that the email is unique.",
+			caseName: "Positive: ユーザーのメールアドレスがユニークな場合はエラーが返らない",
 			email:    "new@example.com",
-			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string) {
-				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, nil)
+			setup: func(mockUserRepo *mock.MockIUserRepository) {
+				mockUserRepo.EXPECT().ExistsByEmail(arg, arg).Return(false, nil)
 			},
-			wantErr: nil,
+			errMsg: "",
 		},
 		{
-			caseName: "Error occurs when the email already exists.",
+			caseName: "Negative: ユーザーのメールアドレスが既に存在する場合はエラーが返る",
 			email:    "existing@example.com",
-			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string) {
-				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(true, nil)
+			setup: func(mockUserRepo *mock.MockIUserRepository) {
+				mockUserRepo.EXPECT().ExistsByEmail(arg, arg).Return(true, nil)
 			},
-			wantErr: user.ErrEmailAlreadyExists,
+			errMsg: "user email already exists",
 		},
 		{
-			caseName: "Un known error occurs in ExsitsByEmail.",
+			caseName: "Negative: ExistsByEmailでエラーが返る場合はエラーが返る",
 			email:    "error@example.com",
-			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, email string) {
-				mockUserRepo.EXPECT().ExistsByEmail(ctx, email).Return(false, assert.AnError)
+			setup: func(mockUserRepo *mock.MockIUserRepository) {
+				mockUserRepo.EXPECT().ExistsByEmail(arg, arg).Return(false, assert.AnError)
 			},
-			wantErr: assert.AnError,
+			errMsg: assert.AnError.Error(),
 		},
 	}
 
@@ -52,47 +54,54 @@ func TestVerifyEmailUniqueness(t *testing.T) {
 
 			mockUserRepo := mock.NewMockIUserRepository(ctrl)
 
-			service := user.NewService(mockUserRepo)
+			service := userDomain.NewService(mockUserRepo)
 			ctx := context.Background()
-			tt.setup(ctx, mockUserRepo, tt.email)
+			tt.setup(mockUserRepo)
 
 			err := service.VerifyEmailUniqueness(ctx, tt.email)
 
-			assert.ErrorIs(t, tt.wantErr, err)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }
 
 func TestEnsureUserExists(t *testing.T) {
+	var arg = gomock.Any()
+
 	tests := []struct {
 		caseName string
 		id       string
-		setup    func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string)
-		wantErr  error
+		setup    func(mockUserRepo *mock.MockIUserRepository)
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully verifies that the user exists.",
+			caseName: "Positive: ユーザーが存在する場合はエラーが返らない",
 			id:       ulid.GenerateStaticULID("existing-user-id"),
-			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string) {
-				mockUserRepo.EXPECT().ExistsByID(ctx, id).Return(true, nil)
+			setup: func(mockUserRepo *mock.MockIUserRepository) {
+				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(true, nil)
 			},
-			wantErr: nil,
+			errMsg: "",
 		},
 		{
-			caseName: "Error occurs when the user does not exist.",
+			caseName: "Negative: ユーザーが存在しない場合はエラーが返る",
 			id:       ulid.GenerateStaticULID("non-existing-user-id"),
-			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string) {
-				mockUserRepo.EXPECT().ExistsByID(ctx, id).Return(false, nil)
+			setup: func(mockUserRepo *mock.MockIUserRepository) {
+				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(false, nil)
 			},
-			wantErr: user.ErrNotFound,
+			errMsg: "user not found",
 		},
 		{
-			caseName: "Unknown error occurs in ExistsByID.",
+			caseName: "Negative: ExistsByIDでエラーが返る場合はエラーが返る",
 			id:       ulid.GenerateStaticULID("unknown-error-user-id"),
-			setup: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository, id string) {
-				mockUserRepo.EXPECT().ExistsByID(ctx, id).Return(false, assert.AnError)
+			setup: func(mockUserRepo *mock.MockIUserRepository) {
+				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(false, assert.AnError)
 			},
-			wantErr: assert.AnError,
+			errMsg: assert.AnError.Error(),
 		},
 	}
 
@@ -104,13 +113,18 @@ func TestEnsureUserExists(t *testing.T) {
 
 			mockUserRepo := mock.NewMockIUserRepository(ctrl)
 
-			service := user.NewService(mockUserRepo)
+			service := userDomain.NewService(mockUserRepo)
 			ctx := context.Background()
-			tt.setup(ctx, mockUserRepo, tt.id)
+			tt.setup(mockUserRepo)
 
 			err := service.EnsureUserExists(ctx, tt.id)
 
-			assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

@@ -45,14 +45,14 @@ func (m Money) Currency() string {
 
 func (m Money) Add(other Money) (*Money, error) {
 	if m.currency != other.currency {
-		return nil, ErrDifferentCurrency
+		return nil, ErrAddDifferentCurrency
 	}
 	return &Money{amount: m.amount + other.amount, currency: m.currency}, nil
 }
 
 func (m Money) Sub(other Money) (*Money, error) {
 	if m.currency != other.currency {
-		return nil, ErrDifferentCurrency
+		return nil, ErrSubDifferentCurrency
 	}
 	if m.amount < other.amount {
 		return nil, ErrInsufficientBalance

@@ -65,7 +65,7 @@ func TestDeposit(t *testing.T) {
 			amount:   depositAmount,
 			currency: moneyVO.USD,
 			setup:    func(mocks Mocks) {},
-			errMsg:   moneyVO.ErrDifferentCurrency.Error(),
+			errMsg:   moneyVO.ErrAddDifferentCurrency.Error(),
 		},
 		{
 			caseName: "Negative: 口座の保存が失敗した場合はエラーが返る",
@@ -171,7 +171,7 @@ func TestWithdraw(t *testing.T) {
 			amount:   withdrawAmount,
 			currency: moneyVO.USD,
 			setup:    func(mocks Mocks) {},
-			errMsg:   moneyVO.ErrDifferentCurrency.Error(),
+			errMsg:   moneyVO.ErrAddDifferentCurrency.Error(),
 		},
 		{
 			caseName: "Negative: 口座の保存が失敗した場合はエラーが返る",
@@ -286,7 +286,7 @@ func TestTransfer(t *testing.T) {
 			amount:          transferAmount,
 			currency:        moneyVO.USD,
 			setup:           func(mocks Mocks) {},
-			errMsg:          moneyVO.ErrDifferentCurrency.Error(),
+			errMsg:          moneyVO.ErrAddDifferentCurrency.Error(),
 		},
 		{
 			caseName:        "Negative: money.Withdrawが失敗した場合はエラーが返る（送金元の残高不足）",

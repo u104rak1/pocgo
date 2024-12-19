@@ -100,7 +100,7 @@ func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 	})
 	if err != nil {
 		switch err {
-		case moneyVO.ErrDifferentCurrency:
+		case moneyVO.ErrAddDifferentCurrency:
 			return response.BadRequest(ctx, err)
 		case moneyVO.ErrInsufficientBalance,
 			accountDomain.ErrUnmatchedPassword:

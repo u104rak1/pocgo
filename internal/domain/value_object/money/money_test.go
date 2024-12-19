@@ -2,7 +2,7 @@ package money_test
 
 import (
 	"github.com/stretchr/testify/assert"
-	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 
 	"testing"
 )
@@ -12,61 +12,59 @@ func TestNew(t *testing.T) {
 		name     string
 		amount   float64
 		currency string
-		wantErr  error
+		errMsg   string
 	}{
-		// JPY specific tests
 		{
-			name:     "Successfully creates a money value object, if valid JPY.",
+			name:     "Positive: 有効なJPYの場合は、金額が作成できる",
 			amount:   1000,
-			currency: money.JPY,
-			wantErr:  nil,
+			currency: "JPY",
+			errMsg:   "",
 		},
 		{
-			name:     "Error occurs with invalid JPY with 1 decimal point.",
+			name:     "Negative: 小数点以下のJPYの場合はエラーが返る",
 			amount:   1000.1,
-			currency: money.JPY,
-			wantErr:  money.ErrInvalidJPYPrecision,
+			currency: "JPY",
+			errMsg:   "amount in JPY must not have decimal places",
 		},
-		// USD specific tests
 		{
-			name:     "Successfully creates a money value object, if valid USD.",
+			name:     "Positive: 有効なUSDの場合は、金額が作成できる",
 			amount:   10,
-			currency: money.USD,
-			wantErr:  nil,
+			currency: "USD",
+			errMsg:   "",
 		},
 		{
-			name:     "Successfully creates a money value object, if valid USD with 2 decimal points.",
+			name:     "Positive: 小数点第2位までのUSDの場合は、金額が作成できる",
 			amount:   10.99,
-			currency: money.USD,
-			wantErr:  nil,
+			currency: "USD",
+			errMsg:   "",
 		},
 		{
-			name:     "Error occurs with invalid USD with 3 decimal points.",
+			name:     "Negative: 小数点第3位のUSDの場合はエラーが返る",
 			amount:   10.001,
-			currency: money.USD,
-			wantErr:  money.ErrInvalidUSDPrecision,
+			currency: "USD",
+			errMsg:   "amount in USD cannot have more than 2 decimal places",
 		},
-		// Common tests
 		{
-			name:     "Error occurs with negative amount.",
+			name:     "Negative: 金額がマイナスの場合はエラーが返る",
 			amount:   -1,
-			currency: money.JPY,
-			wantErr:  money.ErrNegativeAmount,
+			currency: "JPY",
+			errMsg:   "amount cannot be negative",
 		},
 		{
-			name:     "Error occurs with unsupported currency.",
+			name:     "Negative: サポートされていない通貨の場合はエラーが返る",
 			amount:   1000,
 			currency: "EUR",
-			wantErr:  money.ErrUnsupportedCurrency,
+			errMsg:   "unsupported currency",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			m, err := money.New(tt.amount, tt.currency)
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			m, err := moneyVO.New(tt.amount, tt.currency)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Nil(t, m)
 			} else {
 				assert.NoError(t, err)
@@ -79,30 +77,30 @@ func TestNew(t *testing.T) {
 }
 
 func TestAdd(t *testing.T) {
-	m1, _ := money.New(1000, money.JPY)
-	m2, _ := money.New(500, money.JPY)
-	m3, _ := money.New(10.50, money.USD)
+	m1, _ := moneyVO.New(1000, "JPY")
+	m2, _ := moneyVO.New(500, "JPY")
+	m3, _ := moneyVO.New(10.50, "USD")
 
 	tests := []struct {
-		name    string
-		money1  *money.Money
-		money2  *money.Money
-		want    float64
-		wantErr error
+		name   string
+		money1 *moneyVO.Money
+		money2 *moneyVO.Money
+		want   float64
+		errMsg string
 	}{
 		{
-			name:    "Successfully adds two money, if the currency is the same.",
-			money1:  m1,
-			money2:  m2,
-			want:    1500,
-			wantErr: nil,
+			name:   "Positive: 通貨が同じ場合は、金額が加算できる",
+			money1: m1,
+			money2: m2,
+			want:   1500,
+			errMsg: "",
 		},
 		{
-			name:    "Error occurs with different currency.",
-			money1:  m1,
-			money2:  m3,
-			want:    0,
-			wantErr: money.ErrDifferentCurrency,
+			name:   "Negative: 通貨が異なる場合はエラーが返る",
+			money1: m1,
+			money2: m3,
+			want:   0,
+			errMsg: "cannot add different currencies",
 		},
 	}
 
@@ -110,8 +108,9 @@ func TestAdd(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			result, err := tt.money1.Add(*tt.money2)
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Nil(t, result)
 			} else {
 				assert.NoError(t, err)
@@ -122,38 +121,38 @@ func TestAdd(t *testing.T) {
 }
 
 func TestSub(t *testing.T) {
-	m1, _ := money.New(1000, money.JPY)
-	m2, _ := money.New(500, money.JPY)
-	m3, _ := money.New(2000, money.JPY)
-	m4, _ := money.New(10.50, money.USD)
+	m1, _ := moneyVO.New(1000, "JPY")
+	m2, _ := moneyVO.New(500, "JPY")
+	m3, _ := moneyVO.New(2000, "JPY")
+	m4, _ := moneyVO.New(10.50, "USD")
 
 	tests := []struct {
-		name    string
-		money1  *money.Money
-		money2  *money.Money
-		want    float64
-		wantErr error
+		name   string
+		money1 *moneyVO.Money
+		money2 *moneyVO.Money
+		want   float64
+		errMsg string
 	}{
 		{
-			name:    "Successfully subtracts two money, if the currency is the same.",
-			money1:  m1,
-			money2:  m2,
-			want:    500,
-			wantErr: nil,
+			name:   "Positive: 通貨が同じ場合は、金額が減算できる",
+			money1: m1,
+			money2: m2,
+			want:   500,
+			errMsg: "",
 		},
 		{
-			name:    "Error occurs with insufficient balance.",
-			money1:  m1,
-			money2:  m3,
-			want:    0,
-			wantErr: money.ErrInsufficientBalance,
+			name:   "Negative: 金額が足りない場合はエラーが返る",
+			money1: m1,
+			money2: m3,
+			want:   0,
+			errMsg: "insufficient balance",
 		},
 		{
-			name:    "Error occurs with different currency.",
-			money1:  m1,
-			money2:  m4,
-			want:    0,
-			wantErr: money.ErrDifferentCurrency,
+			name:   "Negative: 通貨が異なる場合はエラーが返る",
+			money1: m1,
+			money2: m4,
+			want:   0,
+			errMsg: "cannot subtract different currencies",
 		},
 	}
 
@@ -161,8 +160,9 @@ func TestSub(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			result, err := tt.money1.Sub(*tt.money2)
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Nil(t, result)
 			} else {
 				assert.NoError(t, err)

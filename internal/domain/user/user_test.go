@@ -21,56 +21,56 @@ func TestNew(t *testing.T) {
 		id       string
 		name     string
 		email    string
-		wantErr  error
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully creates a user.",
+			caseName: "Positive: ユーザーが作成できる",
 			id:       id,
 			name:     name,
 			email:    email,
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			caseName: "Error occurs with invalid ID.",
+			caseName: "Negative: 無効なIDの場合はエラーが返る",
 			id:       "invalid",
 			name:     name,
 			email:    email,
-			wantErr:  user.ErrInvalidID,
+			errMsg:   "user id must be a valid ULID",
 		},
 		{
-			caseName: "Error occurs with 2-character name.",
+			caseName: "Negative: 名前が3文字未満の場合はエラーが返る",
 			id:       id,
 			name:     strings.Repeat("a", user.NameMinLength-1),
 			email:    email,
-			wantErr:  user.ErrInvalidName,
+			errMsg:   "user name must be between 3 and 20 characters",
 		},
 		{
-			caseName: "Successfully creates a user with 3-character name.",
+			caseName: "Positive: 名前が3文字の場合は、ユーザーが作成できる",
 			id:       id,
 			name:     strings.Repeat("a", user.NameMinLength),
 			email:    email,
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			caseName: "Successfully creates a user with 20-character name.",
+			caseName: "Positive: 名前が20文字の場合は、ユーザーが作成できる",
 			id:       id,
 			name:     strings.Repeat("a", user.NameMaxLength),
 			email:    email,
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			caseName: "Error occurs with 21-character name.",
+			caseName: "Negative: 名前が21文字の場合はエラーが返る",
 			id:       id,
 			name:     strings.Repeat("a", user.NameMaxLength+1),
 			email:    email,
-			wantErr:  user.ErrInvalidName,
+			errMsg:   "user name must be between 3 and 20 characters",
 		},
 		{
-			caseName: "Error occurs with invalid email.",
+			caseName: "Negative: 無効なメールアドレスの場合はエラーが返る",
 			id:       id,
 			name:     name,
 			email:    "invalid",
-			wantErr:  user.ErrInvalidEmail,
+			errMsg:   "the email format is invalid",
 		},
 	}
 
@@ -79,8 +79,9 @@ func TestNew(t *testing.T) {
 			t.Parallel()
 			u, err := user.New(tt.id, tt.name, tt.email)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Nil(t, u)
 			} else {
 				assert.NoError(t, err)
@@ -102,17 +103,17 @@ func TestChangeName(t *testing.T) {
 	tests := []struct {
 		caseName string
 		newName  string
-		wantErr  error
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully changes to a valid name.",
+			caseName: "Positive: 有効な名前の場合は、名前が変更できる",
 			newName:  "yamada hanako",
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			caseName: "Error occurs with an invalid name.",
-			newName:  strings.Repeat("a", user.NameMaxLength+1),
-			wantErr:  user.ErrInvalidName,
+			caseName: "Negative: 無効な名前の場合はエラーが返る",
+			newName:  strings.Repeat("a", 21),
+			errMsg:   "user name must be between 3 and 20 characters",
 		},
 	}
 
@@ -122,8 +123,9 @@ func TestChangeName(t *testing.T) {
 			u, _ := user.New(id, name, email)
 			err := u.ChangeName(tt.newName)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Equal(t, name, u.Name())
 			} else {
 				assert.NoError(t, err)
@@ -143,17 +145,17 @@ func TestChangeEmail(t *testing.T) {
 	tests := []struct {
 		caseName string
 		newEmail string
-		wantErr  error
+		errMsg   string
 	}{
 		{
-			caseName: "Successfully changes to a valid email.",
+			caseName: "Positive: 有効なメールアドレスの場合は、メールアドレスが変更できる",
 			newEmail: "yamada@example.com",
-			wantErr:  nil,
+			errMsg:   "",
 		},
 		{
-			caseName: "Error occurs with an invalid email.",
+			caseName: "Negative: 無効なメールアドレスの場合はエラーが返る",
 			newEmail: "invalid-email",
-			wantErr:  user.ErrInvalidEmail,
+			errMsg:   "the email format is invalid",
 		},
 	}
 
@@ -163,8 +165,9 @@ func TestChangeEmail(t *testing.T) {
 			u, _ := user.New(id, name, email)
 			err := u.ChangeEmail(tt.newEmail)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 				assert.Equal(t, email, u.Email())
 			} else {
 				assert.NoError(t, err)
