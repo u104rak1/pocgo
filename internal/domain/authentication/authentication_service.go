@@ -10,10 +10,10 @@ import (
 )
 
 type IAuthenticationService interface {
-	VerifyUniqueness(ctx context.Context, userID string) error
-	GenerateAccessToken(ctx context.Context, userID string, jwtSecretKey []byte) (string, error)
-	GetUserIDFromAccessToken(ctx context.Context, accessToken string, jwtSecretKey []byte) (string, error)
-	Authenticate(ctx context.Context, email, password string) (userID string, err error)
+	VerifyUniqueness(ctx context.Context, userID userDomain.UserID) error
+	GenerateAccessToken(ctx context.Context, userID userDomain.UserID, jwtSecretKey []byte) (string, error)
+	GetUserIDFromAccessToken(ctx context.Context, accessToken string, jwtSecretKey []byte) (*userDomain.UserID, error)
+	Authenticate(ctx context.Context, email, password string) (*userDomain.UserID, error)
 }
 
 type authenticationService struct {
@@ -28,7 +28,7 @@ func NewService(authenticationRepository IAuthenticationRepository, userReposito
 	}
 }
 
-func (s *authenticationService) VerifyUniqueness(ctx context.Context, userID string) error {
+func (s *authenticationService) VerifyUniqueness(ctx context.Context, userID userDomain.UserID) error {
 	exists, err := s.authRepo.ExistsByUserID(ctx, userID)
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func (s *authenticationService) VerifyUniqueness(ctx context.Context, userID str
 	return nil
 }
 
-func (s *authenticationService) GenerateAccessToken(ctx context.Context, userID string, jwtSecretKey []byte) (string, error) {
+func (s *authenticationService) GenerateAccessToken(ctx context.Context, userID userDomain.UserID, jwtSecretKey []byte) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"exp": timer.Now().Add(time.Hour * 24).Unix(),
@@ -49,7 +49,7 @@ func (s *authenticationService) GenerateAccessToken(ctx context.Context, userID 
 	return token.SignedString(jwtSecretKey)
 }
 
-func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, accessToken string, jwtSecretKey []byte) (string, error) {
+func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, accessToken string, jwtSecretKey []byte) (*userDomain.UserID, error) {
 	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, ErrUnexpectedSigningMethod
@@ -58,38 +58,40 @@ func (s *authenticationService) GetUserIDFromAccessToken(ctx context.Context, ac
 	})
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		if userID, ok := claims["sub"].(string); ok {
-			return userID, nil
+			userID := userDomain.UserID(userID)
+			return &userID, nil
 		}
 	}
 
-	return "", ErrInvalidAccessToken
+	return nil, ErrInvalidAccessToken
 }
 
-func (s *authenticationService) Authenticate(ctx context.Context, email, password string) (userID string, err error) {
+func (s *authenticationService) Authenticate(ctx context.Context, email, password string) (*userDomain.UserID, error) {
 	user, err := s.userRepo.FindByEmail(ctx, email)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if user == nil {
-		return "", ErrAuthenticationFailed
+		return nil, ErrAuthenticationFailed
 	}
 
 	auth, err := s.authRepo.FindByUserID(ctx, user.ID())
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if auth == nil {
-		return "", ErrAuthenticationFailed
+		return nil, ErrAuthenticationFailed
 	}
 
 	if err := auth.ComparePassword(password); err != nil {
-		return "", ErrAuthenticationFailed
+		return nil, ErrAuthenticationFailed
 	}
 
-	return user.ID(), nil
+	userID := user.ID()
+	return &userID, nil
 }

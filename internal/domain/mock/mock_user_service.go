@@ -9,6 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
+	user "github.com/u104rak1/pocgo/internal/domain/user"
 )
 
 // MockIUserService is a mock of IUserService interface.
@@ -35,7 +36,7 @@ func (m *MockIUserService) EXPECT() *MockIUserServiceMockRecorder {
 }
 
 // EnsureUserExists mocks base method.
-func (m *MockIUserService) EnsureUserExists(ctx context.Context, id string) error {
+func (m *MockIUserService) EnsureUserExists(ctx context.Context, id user.UserID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EnsureUserExists", ctx, id)
 	ret0, _ := ret[0].(error)

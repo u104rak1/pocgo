@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	account "github.com/u104rak1/pocgo/internal/domain/account"
+	user "github.com/u104rak1/pocgo/internal/domain/user"
 )
 
 // MockIAccountService is a mock of IAccountService interface.
@@ -36,7 +37,7 @@ func (m *MockIAccountService) EXPECT() *MockIAccountServiceMockRecorder {
 }
 
 // CheckLimit mocks base method.
-func (m *MockIAccountService) CheckLimit(ctx context.Context, userID string) error {
+func (m *MockIAccountService) CheckLimit(ctx context.Context, userID user.UserID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckLimit", ctx, userID)
 	ret0, _ := ret[0].(error)
@@ -50,7 +51,7 @@ func (mr *MockIAccountServiceMockRecorder) CheckLimit(ctx, userID interface{}) *
 }
 
 // GetAndAuthorize mocks base method.
-func (m *MockIAccountService) GetAndAuthorize(ctx context.Context, accountID string, userID, password *string) (*account.Account, error) {
+func (m *MockIAccountService) GetAndAuthorize(ctx context.Context, accountID account.AccountID, userID *user.UserID, password *string) (*account.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAndAuthorize", ctx, accountID, userID, password)
 	ret0, _ := ret[0].(*account.Account)

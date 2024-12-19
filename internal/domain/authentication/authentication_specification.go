@@ -11,7 +11,6 @@ const (
 )
 
 var (
-	ErrInvalidID                           = errors.New("authentication id must be a valid ULID")
 	ErrPasswordInvalidLength               = fmt.Errorf("password must be between %d and %d characters", PasswordMinLength, PasswordMaxLength)
 	ErrAlreadyExists                       = errors.New("authentication already exists")
 	ErrUnexpectedSigningMethod             = errors.New("unexpected signing method")

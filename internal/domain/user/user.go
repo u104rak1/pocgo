@@ -1,16 +1,26 @@
 package user
 
+import "github.com/u104rak1/pocgo/pkg/ulid"
+
+type UserID string
+
 type User struct {
-	id    string
+	id    UserID
 	name  string
 	email string
 }
 
-func New(id, name, email string) (*User, error) {
-	if err := ValidID(id); err != nil {
-		return nil, err
-	}
+func New(name, email string) (*User, error) {
+	id := UserID(ulid.New())
+	return newUser(id, name, email)
+}
 
+func Reconstruct(id, name, email string) (*User, error) {
+	userID := UserID(id)
+	return newUser(userID, name, email)
+}
+
+func newUser(id UserID, name, email string) (*User, error) {
 	if err := validName(name); err != nil {
 		return nil, err
 	}
@@ -26,8 +36,12 @@ func New(id, name, email string) (*User, error) {
 	}, nil
 }
 
-func (u *User) ID() string {
+func (u *User) ID() UserID {
 	return u.id
+}
+
+func (u *User) IDString() string {
+	return string(u.id)
 }
 
 func (u *User) Name() string {

@@ -6,12 +6,12 @@ import (
 )
 
 type Authentication struct {
-	userID       string
+	userID       userDomain.UserID
 	passwordHash string
 }
 
 // 認証エンティティを作成します。新規で作成するのでパスワードの検証とハッシュ化を行います。
-func New(userID, password string) (*Authentication, error) {
+func New(userID userDomain.UserID, password string) (*Authentication, error) {
 	if err := validPassword(password); err != nil {
 		return nil, err
 	}
@@ -25,21 +25,22 @@ func New(userID, password string) (*Authentication, error) {
 
 // データベースから認証を再構築します。パスワードは既にエンコードされているため、検証は行われません。
 func Reconstruct(userID, passwordHash string) (*Authentication, error) {
-	return newAuthentication(userID, passwordHash)
+	return newAuthentication(userDomain.UserID(userID), passwordHash)
 }
 
-func newAuthentication(userID, passwordHash string) (*Authentication, error) {
-	if err := userDomain.ValidID(userID); err != nil {
-		return nil, err
-	}
+func newAuthentication(userID userDomain.UserID, passwordHash string) (*Authentication, error) {
 	return &Authentication{
 		userID:       userID,
 		passwordHash: passwordHash,
 	}, nil
 }
 
-func (a *Authentication) UserID() string {
+func (a *Authentication) UserID() userDomain.UserID {
 	return a.userID
+}
+
+func (a *Authentication) UserIDString() string {
+	return string(a.userID)
 }
 
 func (a *Authentication) PasswordHash() string {

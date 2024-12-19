@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	authentication "github.com/u104rak1/pocgo/internal/domain/authentication"
+	user "github.com/u104rak1/pocgo/internal/domain/user"
 )
 
 // MockIAuthenticationRepository is a mock of IAuthenticationRepository interface.
@@ -36,7 +37,7 @@ func (m *MockIAuthenticationRepository) EXPECT() *MockIAuthenticationRepositoryM
 }
 
 // ExistsByUserID mocks base method.
-func (m *MockIAuthenticationRepository) ExistsByUserID(ctx context.Context, userID string) (bool, error) {
+func (m *MockIAuthenticationRepository) ExistsByUserID(ctx context.Context, userID user.UserID) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExistsByUserID", ctx, userID)
 	ret0, _ := ret[0].(bool)
@@ -51,7 +52,7 @@ func (mr *MockIAuthenticationRepositoryMockRecorder) ExistsByUserID(ctx, userID 
 }
 
 // FindByUserID mocks base method.
-func (m *MockIAuthenticationRepository) FindByUserID(ctx context.Context, userID string) (*authentication.Authentication, error) {
+func (m *MockIAuthenticationRepository) FindByUserID(ctx context.Context, userID user.UserID) (*authentication.Authentication, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByUserID", ctx, userID)
 	ret0, _ := ret[0].(*authentication.Authentication)

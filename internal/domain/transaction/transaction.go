@@ -13,16 +13,17 @@ type TransactionID string
 
 type Transaction struct {
 	id                TransactionID
-	accountID         string
-	receiverAccountID *string
+	accountID         accountDomain.AccountID
+	receiverAccountID *accountDomain.AccountID
 	operationType     string
 	transferAmount    moneyVO.Money
 	transactionAt     time.Time
 }
 
+// 取引エンティティを作成します。transactionAtは口座の更新日と同じ値にしたいので、引数で受け取ります。
 func New(
-	accountID string,
-	receiverAccountID *string,
+	accountID accountDomain.AccountID,
+	receiverAccountID *accountDomain.AccountID,
 	operationType string,
 	amount float64,
 	currency string,
@@ -41,28 +42,26 @@ func Reconstruct(
 	transactionAt time.Time,
 ) (*Transaction, error) {
 	transactionID := TransactionID(id)
-	return newTransaction(transactionID, accountID, receiverAccountID, operationType, amount, currency, transactionAt)
+	aID := accountDomain.AccountID(accountID)
+
+	var raID *accountDomain.AccountID
+	if receiverAccountID != nil {
+		tempRaID := accountDomain.AccountID(*receiverAccountID)
+		raID = &tempRaID
+	}
+
+	return newTransaction(transactionID, aID, raID, operationType, amount, currency, transactionAt)
 }
 
 func newTransaction(
 	id TransactionID,
-	accountID string,
-	receiverAccountID *string,
+	accountID accountDomain.AccountID,
+	receiverAccountID *accountDomain.AccountID,
 	operationType string,
 	amount float64,
 	currency string,
 	transactionAt time.Time,
 ) (*Transaction, error) {
-	if err := accountDomain.ValidID(accountID); err != nil {
-		return nil, err
-	}
-
-	if receiverAccountID != nil {
-		if err := accountDomain.ValidID(*receiverAccountID); err != nil {
-			return nil, err
-		}
-	}
-
 	if err := validOperationType(operationType); err != nil {
 		return nil, err
 	}
@@ -90,12 +89,23 @@ func (t *Transaction) IDString() string {
 	return string(t.id)
 }
 
-func (t *Transaction) AccountID() string {
+func (t *Transaction) AccountID() accountDomain.AccountID {
 	return t.accountID
 }
 
-func (t *Transaction) ReceiverAccountID() *string {
+func (t *Transaction) AccountIDString() string {
+	return string(t.accountID)
+}
+
+func (t *Transaction) ReceiverAccountID() *accountDomain.AccountID {
 	return t.receiverAccountID
+}
+
+func (t *Transaction) ReceiverAccountIDString() string {
+	if t.receiverAccountID == nil {
+		return ""
+	}
+	return string(*t.receiverAccountID)
 }
 
 func (t *Transaction) OperationType() string {

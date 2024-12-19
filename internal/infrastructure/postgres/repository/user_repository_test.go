@@ -12,13 +12,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/repository"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestUserRepository_Save(t *testing.T) {
 	repo, mock, ctx, db := PrepareTestRepository(t, repository.NewUserRepository)
-	userID := ulid.GenerateStaticULID("user")
-	user, err := userDomain.New(userID, "sato taro", "sato@example.com")
+	user, err := userDomain.New("sato taro", "sato@example.com")
 	assert.NoError(t, err)
 
 	expectQuery := fmt.Sprintf(`
@@ -112,15 +110,14 @@ func TestUserRepository_Save(t *testing.T) {
 
 func TestUserRepository_FindByID(t *testing.T) {
 	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewUserRepository)
-	userID := ulid.GenerateStaticULID("user")
-	user, err := userDomain.New(userID, "sato taro", "sato@example.com")
+	user, err := userDomain.New("sato taro", "sato@example.com")
 	assert.NoError(t, err)
 
 	expectQuery := fmt.Sprintf(`
 		SELECT "user"."id", "user"."name", "user"."email", "user"."deleted_at"
 		FROM "users" AS "user"
 		WHERE (id = '%s') AND "user"."deleted_at" IS NULL
-	`, userID)
+	`, user.IDString())
 
 	tests := []struct {
 		caseName string
@@ -132,7 +129,7 @@ func TestUserRepository_FindByID(t *testing.T) {
 			caseName: "Successfully finds user by ID.",
 			prepare: func() {
 				rows := sqlmock.NewRows([]string{"id", "name", "email", "deleted_at"}).
-					AddRow(userID, user.Name(), user.Email(), nil)
+					AddRow(user.IDString(), user.Name(), user.Email(), nil)
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(rows)
 			},
 			wantUser: user,
@@ -159,7 +156,7 @@ func TestUserRepository_FindByID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			tt.prepare()
-			foundUser, err := repo.FindByID(ctx, userID)
+			foundUser, err := repo.FindByID(ctx, user.ID())
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
@@ -176,8 +173,7 @@ func TestUserRepository_FindByID(t *testing.T) {
 
 func TestUserRepository_FindByEmail(t *testing.T) {
 	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewUserRepository)
-	userID := ulid.GenerateStaticULID("user")
-	user, err := userDomain.New(userID, "sato taro", "sato@example.com")
+	user, err := userDomain.New("sato taro", "sato@example.com")
 	assert.NoError(t, err)
 
 	expectQuery := fmt.Sprintf(`
@@ -196,7 +192,7 @@ func TestUserRepository_FindByEmail(t *testing.T) {
 			caseName: "Successfully finds user by email.",
 			prepare: func() {
 				rows := sqlmock.NewRows([]string{"id", "name", "email", "deleted_at"}).
-					AddRow(userID, user.Name(), user.Email(), nil)
+					AddRow(user.IDString(), user.Name(), user.Email(), nil)
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(rows)
 			},
 			wantUser: user,
@@ -240,14 +236,15 @@ func TestUserRepository_FindByEmail(t *testing.T) {
 
 func TestUserRepository_ExistsByID(t *testing.T) {
 	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewUserRepository)
-	id := ulid.GenerateStaticULID("user")
+	user, err := userDomain.New("sato taro", "sato@example.com")
+	assert.NoError(t, err)
 
 	expectQuery := fmt.Sprintf(`
 		SELECT EXISTS
 			(SELECT "user"."id", "user"."name", "user"."email", "user"."deleted_at"
 			FROM "users" AS "user"
 			WHERE (id = '%s') AND "user"."deleted_at" IS NULL)
-	`, id)
+	`, user.IDString())
 
 	tests := []struct {
 		caseName   string
@@ -284,7 +281,7 @@ func TestUserRepository_ExistsByID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			tt.prepare()
-			exists, err := repo.ExistsByID(ctx, id)
+			exists, err := repo.ExistsByID(ctx, user.ID())
 
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)

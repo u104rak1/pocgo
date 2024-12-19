@@ -8,21 +8,21 @@ import (
 	"github.com/stretchr/testify/assert"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/strutil"
-	"github.com/u104rak1/pocgo/pkg/timer"
 	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestCheckLimit(t *testing.T) {
 	var (
-		userID = ulid.GenerateStaticULID("user")
+		userID = userDomain.UserID(ulid.GenerateStaticULID("user"))
 		arg    = gomock.Any()
 	)
 
 	tests := []struct {
 		caseName string
-		userID   string
+		userID   userDomain.UserID
 		setup    func(mockAccountRepo *mock.MockIAccountRepository)
 		errMsg   string
 	}{
@@ -76,20 +76,19 @@ func TestCheckLimit(t *testing.T) {
 
 func TestGetAndAuthorize(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
+		accountID = accountDomain.AccountID(ulid.GenerateStaticULID("account"))
+		userID    = userDomain.UserID(ulid.GenerateStaticULID("user"))
 		name      = "account-name"
 		password  = "1234"
 		amount    = 100.0
 		currency  = moneyVO.JPY
-		updatedAt = timer.GetFixedDate()
 		arg       = gomock.Any()
 	)
 
 	tests := []struct {
 		caseName  string
-		accountID string
-		userID    *string
+		accountID accountDomain.AccountID
+		userID    *userDomain.UserID
 		password  *string
 		setup     func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account)
 		errMsg    string
@@ -147,8 +146,11 @@ func TestGetAndAuthorize(t *testing.T) {
 		{
 			caseName:  "Negative: ユーザーIDが一致しない場合はエラーが返る",
 			accountID: accountID,
-			userID:    strutil.StrPointer(ulid.GenerateStaticULID("unauthorized-user")),
-			password:  nil,
+			userID: func() *userDomain.UserID {
+				id := userDomain.UserID(ulid.GenerateStaticULID("unauthorized-user"))
+				return &id
+			}(),
+			password: nil,
 			setup: func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account) {
 				mockAccountRepo.EXPECT().FindByID(arg, arg).Return(account, nil)
 			},
@@ -175,7 +177,7 @@ func TestGetAndAuthorize(t *testing.T) {
 			mockAccountRepo := mock.NewMockIAccountRepository(ctrl)
 			service := accountDomain.NewService(mockAccountRepo)
 			ctx := context.Background()
-			account, err := accountDomain.New(userID, name, password, amount, currency, updatedAt)
+			account, err := accountDomain.New(userID, amount, name, password, currency)
 			assert.NoError(t, err)
 			tt.setup(mockAccountRepo, account)
 

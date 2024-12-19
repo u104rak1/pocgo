@@ -12,13 +12,13 @@ import (
 
 func TestNew(t *testing.T) {
 	var (
-		userID   = ulid.GenerateStaticULID("user")
+		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
 		password = "password"
 	)
 
 	tests := []struct {
 		caseName string
-		userID   string
+		userID   userDomain.UserID
 		password string
 		errMsg   string
 	}{
@@ -27,12 +27,6 @@ func TestNew(t *testing.T) {
 			userID:   userID,
 			password: password,
 			errMsg:   "",
-		},
-		{
-			caseName: "Negative: 無効なユーザーIDの場合はエラーが返る",
-			userID:   "invalid",
-			password: password,
-			errMsg:   userDomain.ErrInvalidID.Error(),
 		},
 		{
 			caseName: "Negative: 7文字のパスワードの場合はエラーが返る",
@@ -90,14 +84,14 @@ func TestReconstruct(t *testing.T) {
 
 		assert.NoError(t, err)
 		assert.NotNil(t, auth)
-		assert.Equal(t, userID, auth.UserID())
+		assert.Equal(t, userID, auth.UserIDString())
 		assert.Equal(t, encodedPassword, auth.PasswordHash())
 	})
 }
 
 func TestComparePassword(t *testing.T) {
 	var (
-		userID   = ulid.GenerateStaticULID("user")
+		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
 		password = "password"
 	)
 

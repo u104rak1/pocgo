@@ -75,13 +75,13 @@ func TestEnsureUserExists(t *testing.T) {
 
 	tests := []struct {
 		caseName string
-		id       string
+		id       userDomain.UserID
 		setup    func(mockUserRepo *mock.MockIUserRepository)
 		errMsg   string
 	}{
 		{
 			caseName: "Positive: ユーザーが存在する場合はエラーが返らない",
-			id:       ulid.GenerateStaticULID("existing-user-id"),
+			id:       userDomain.UserID(ulid.GenerateStaticULID("existing-user-id")),
 			setup: func(mockUserRepo *mock.MockIUserRepository) {
 				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(true, nil)
 			},
@@ -89,7 +89,7 @@ func TestEnsureUserExists(t *testing.T) {
 		},
 		{
 			caseName: "Negative: ユーザーが存在しない場合はエラーが返る",
-			id:       ulid.GenerateStaticULID("non-existing-user-id"),
+			id:       userDomain.UserID(ulid.GenerateStaticULID("non-existing-user-id")),
 			setup: func(mockUserRepo *mock.MockIUserRepository) {
 				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(false, nil)
 			},
@@ -97,7 +97,7 @@ func TestEnsureUserExists(t *testing.T) {
 		},
 		{
 			caseName: "Negative: ExistsByIDでエラーが返る場合はエラーが返る",
-			id:       ulid.GenerateStaticULID("unknown-error-user-id"),
+			id:       userDomain.UserID(ulid.GenerateStaticULID("unknown-error-user-id")),
 			setup: func(mockUserRepo *mock.MockIUserRepository) {
 				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(false, assert.AnError)
 			},

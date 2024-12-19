@@ -10,9 +10,11 @@ import (
 	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
+type AccountID string
+
 type Account struct {
-	id           string
-	userID       string
+	id           AccountID
+	userID       userDomain.UserID
 	name         string
 	passwordHash string
 	balance      moneyVO.Money
@@ -20,8 +22,8 @@ type Account struct {
 }
 
 // 口座エンティティを作成します。新規で作成するのでパスワードの検証とハッシュ化を行います。
-func New(userID, name, password string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
-	id := ulid.New()
+func New(userID userDomain.UserID, amount float64, name, password, currency string) (*Account, error) {
+	id := AccountID(ulid.New())
 
 	if err := validPassword(password); err != nil {
 		return nil, err
@@ -31,24 +33,18 @@ func New(userID, name, password string, amount float64, currency string, updated
 		return nil, err
 	}
 
-	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
+	updatedAt := timer.Now()
+
+	return newAccount(id, name, passwordHash, currency, userID, amount, updatedAt)
 }
 
 // データベースから口座を再構築します。パスワードは既にエンコードされているため、検証は行われません。
-func Reconstruct(id, userID, name, passwordHash string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
-	return newAccount(id, userID, name, passwordHash, amount, currency, updatedAt)
+func Reconstruct(id, userID, name, passwordHash, currency string, amount float64, updatedAt time.Time) (*Account, error) {
+	return newAccount(AccountID(id), name, passwordHash, currency, userDomain.UserID(userID), amount, updatedAt)
 }
 
-func newAccount(id, userID, name, passwordHash string, amount float64, currency string, updatedAt time.Time) (*Account, error) {
-	if err := ValidID(id); err != nil {
-		return nil, err
-	}
-
+func newAccount(id AccountID, name, passwordHash, currency string, userID userDomain.UserID, amount float64, updatedAt time.Time) (*Account, error) {
 	if err := validName(name); err != nil {
-		return nil, err
-	}
-
-	if err := userDomain.ValidID(userID); err != nil {
 		return nil, err
 	}
 
@@ -67,12 +63,20 @@ func newAccount(id, userID, name, passwordHash string, amount float64, currency 
 	}, nil
 }
 
-func (a *Account) ID() string {
+func (a *Account) ID() AccountID {
 	return a.id
 }
 
-func (a *Account) UserID() string {
+func (a *Account) IDString() string {
+	return string(a.id)
+}
+
+func (a *Account) UserID() userDomain.UserID {
 	return a.userID
+}
+
+func (a *Account) UserIDString() string {
+	return string(a.userID)
 }
 
 func (a *Account) Name() string {

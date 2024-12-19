@@ -3,10 +3,12 @@ package transaction
 import (
 	"context"
 	"time"
+
+	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 )
 
 type ListTransactionsParams struct {
-	AccountID      string
+	AccountID      accountDomain.AccountID
 	From           *time.Time
 	To             *time.Time
 	OperationTypes []string

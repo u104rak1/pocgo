@@ -7,7 +7,6 @@ import (
 
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
-	"github.com/u104rak1/pocgo/pkg/timer"
 	"github.com/uptrace/bun"
 )
 
@@ -21,7 +20,7 @@ func NewUserRepository(db *bun.DB) userDomain.IUserRepository {
 
 func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error {
 	userModel := &model.User{
-		ID:    user.ID(),
+		ID:    user.IDString(),
 		Email: user.Email(),
 		Name:  user.Name(),
 	}
@@ -32,7 +31,7 @@ func (r *userRepository) Save(ctx context.Context, user *userDomain.User) error 
 	return err
 }
 
-func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.User, error) {
+func (r *userRepository) FindByID(ctx context.Context, id userDomain.UserID) (*userDomain.User, error) {
 	userModel := &model.User{}
 	if err := r.execDB(ctx).NewSelect().Model(userModel).Where("id = ?", id).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -40,7 +39,7 @@ func (r *userRepository) FindByID(ctx context.Context, id string) (*userDomain.U
 		}
 		return nil, err
 	}
-	return userDomain.New(userModel.ID, userModel.Name, userModel.Email)
+	return userDomain.Reconstruct(userModel.ID, userModel.Name, userModel.Email)
 }
 
 func (r *userRepository) FindByEmail(ctx context.Context, email string) (*userDomain.User, error) {
@@ -51,22 +50,13 @@ func (r *userRepository) FindByEmail(ctx context.Context, email string) (*userDo
 		}
 		return nil, err
 	}
-	return userDomain.New(userModel.ID, userModel.Name, userModel.Email)
+	return userDomain.Reconstruct(userModel.ID, userModel.Name, userModel.Email)
 }
 
-func (r *userRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
+func (r *userRepository) ExistsByID(ctx context.Context, id userDomain.UserID) (bool, error) {
 	return r.execDB(ctx).NewSelect().Model((*model.User)(nil)).Where("id = ?", id).Exists(ctx)
 }
 
 func (r *userRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	return r.execDB(ctx).NewSelect().Model((*model.User)(nil)).Where("email = ?", email).Exists(ctx)
-}
-
-func (r *userRepository) Delete(ctx context.Context, id string) error {
-	_, err := r.execDB(ctx).NewUpdate().
-		Model(&model.User{ID: id, DeletedAt: timer.Now()}).
-		Column("deleted_at").
-		WherePK().
-		Exec(ctx)
-	return err
 }

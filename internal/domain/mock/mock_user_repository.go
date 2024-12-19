@@ -35,20 +35,6 @@ func (m *MockIUserRepository) EXPECT() *MockIUserRepositoryMockRecorder {
 	return m.recorder
 }
 
-// Delete mocks base method.
-func (m *MockIUserRepository) Delete(ctx context.Context, id string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Delete indicates an expected call of Delete.
-func (mr *MockIUserRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIUserRepository)(nil).Delete), ctx, id)
-}
-
 // ExistsByEmail mocks base method.
 func (m *MockIUserRepository) ExistsByEmail(ctx context.Context, email string) (bool, error) {
 	m.ctrl.T.Helper()
@@ -65,7 +51,7 @@ func (mr *MockIUserRepositoryMockRecorder) ExistsByEmail(ctx, email interface{})
 }
 
 // ExistsByID mocks base method.
-func (m *MockIUserRepository) ExistsByID(ctx context.Context, id string) (bool, error) {
+func (m *MockIUserRepository) ExistsByID(ctx context.Context, id user.UserID) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExistsByID", ctx, id)
 	ret0, _ := ret[0].(bool)
@@ -95,7 +81,7 @@ func (mr *MockIUserRepositoryMockRecorder) FindByEmail(ctx, email interface{}) *
 }
 
 // FindByID mocks base method.
-func (m *MockIUserRepository) FindByID(ctx context.Context, id string) (*user.User, error) {
+func (m *MockIUserRepository) FindByID(ctx context.Context, id user.UserID) (*user.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", ctx, id)
 	ret0, _ := ret[0].(*user.User)

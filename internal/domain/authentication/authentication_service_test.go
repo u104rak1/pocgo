@@ -17,13 +17,13 @@ func TestVerifyUniqueness(t *testing.T) {
 
 	tests := []struct {
 		caseName string
-		userID   string
+		userID   userDomain.UserID
 		setup    func(mockAuthRepo *mock.MockIAuthenticationRepository)
 		errMsg   string
 	}{
 		{
 			caseName: "Positive: ユーザーがユニークな場合はエラーが返らない",
-			userID:   ulid.GenerateStaticULID("Unique"),
+			userID:   userDomain.UserID(ulid.GenerateStaticULID("Unique")),
 			setup: func(mockAuthRepo *mock.MockIAuthenticationRepository) {
 				mockAuthRepo.EXPECT().ExistsByUserID(arg, arg).Return(false, nil)
 			},
@@ -31,7 +31,7 @@ func TestVerifyUniqueness(t *testing.T) {
 		},
 		{
 			caseName: "Negative: ユーザーが既に存在する場合はエラーが返る",
-			userID:   ulid.GenerateStaticULID("duplicate"),
+			userID:   userDomain.UserID(ulid.GenerateStaticULID("duplicate")),
 			setup: func(mockAuthRepo *mock.MockIAuthenticationRepository) {
 				mockAuthRepo.EXPECT().ExistsByUserID(arg, arg).Return(true, nil)
 			},
@@ -39,7 +39,7 @@ func TestVerifyUniqueness(t *testing.T) {
 		},
 		{
 			caseName: "Negative: ExistsByUserIDでエラーが返る場合はエラーが返る",
-			userID:   ulid.GenerateStaticULID("unknown"),
+			userID:   userDomain.UserID(ulid.GenerateStaticULID("unknown")),
 			setup: func(mockAuthRepo *mock.MockIAuthenticationRepository) {
 				mockAuthRepo.EXPECT().ExistsByUserID(arg, arg).Return(false, assert.AnError)
 			},
@@ -81,7 +81,7 @@ func TestGenerateAccessToken(t *testing.T) {
 		service := authDomain.NewService(mockAuthRepo, mockUserRepo)
 
 		ctx := context.Background()
-		userID := ulid.GenerateStaticULID("user")
+		userID := userDomain.UserID(ulid.GenerateStaticULID("user"))
 		jwtSecretKey := []byte("validSecretKey")
 		token, err := service.GenerateAccessToken(ctx, userID, jwtSecretKey)
 
@@ -91,39 +91,33 @@ func TestGenerateAccessToken(t *testing.T) {
 }
 
 func TestGetUserIDFromAccessToken(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
-	mockUserRepo := mock.NewMockIUserRepository(ctrl)
-	service := authDomain.NewService(mockAuthRepo, mockUserRepo)
-
-	ctx := context.Background()
-	userID := ulid.GenerateStaticULID("user")
-	jwtSecretKey := []byte("validSecretKey")
-	accessToken, err := service.GenerateAccessToken(ctx, userID, jwtSecretKey)
-	assert.NoError(t, err)
+	var (
+		userID       = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		jwtSecretKey = []byte("validSecretKey")
+	)
 
 	tests := []struct {
-		caseName     string
-		accessToken  string
-		jwtSecretKey []byte
-		wantUserID   string
-		errMsg       string
+		caseName           string
+		prepareAccessToken func(service authDomain.IAuthenticationService, ctx context.Context) string
+		wantUserID         userDomain.UserID
+		errMsg             string
 	}{
 		{
-			caseName:     "Positive: 有効なアクセストークンの場合はユーザーIDを取得できる",
-			accessToken:  accessToken,
-			jwtSecretKey: jwtSecretKey,
-			wantUserID:   userID,
-			errMsg:       "",
+			caseName: "Positive: 有効なアクセストークンの場合はユーザーIDを取得できる",
+			prepareAccessToken: func(service authDomain.IAuthenticationService, ctx context.Context) string {
+				token, err := service.GenerateAccessToken(ctx, userID, jwtSecretKey)
+				assert.NoError(t, err)
+				return token
+			},
+			wantUserID: userID,
+			errMsg:     "",
 		},
 		{
-			caseName:     "Negative: 無効なアクセストークンの場合はエラーが返る",
-			accessToken:  "invalidToken",
-			jwtSecretKey: jwtSecretKey,
-			wantUserID:   "",
-			errMsg:       "token is malformed: token contains an invalid number of segments",
+			caseName: "Negative: 無効なアクセストークンの場合はエラーが返る",
+			prepareAccessToken: func(service authDomain.IAuthenticationService, ctx context.Context) string {
+				return "invalidToken"
+			},
+			errMsg: "token is malformed: token contains an invalid number of segments",
 		},
 		// その他のエラーパターンは、再現が難しい為テストしない
 	}
@@ -131,7 +125,15 @@ func TestGetUserIDFromAccessToken(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			userID, err := service.GetUserIDFromAccessToken(ctx, tt.accessToken, tt.jwtSecretKey)
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
+			mockUserRepo := mock.NewMockIUserRepository(ctrl)
+			service := authDomain.NewService(mockAuthRepo, mockUserRepo)
+			ctx := context.Background()
+			accessToken := tt.prepareAccessToken(service, ctx)
+			userID, err := service.GetUserIDFromAccessToken(ctx, accessToken, jwtSecretKey)
 
 			if tt.errMsg != "" {
 				assert.Error(t, err)
@@ -139,7 +141,7 @@ func TestGetUserIDFromAccessToken(t *testing.T) {
 				assert.Empty(t, userID)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.wantUserID, userID)
+				assert.Equal(t, tt.wantUserID, *userID)
 			}
 		})
 	}
@@ -153,86 +155,78 @@ func TestAuthenticate(t *testing.T) {
 
 	var (
 		userID   = ulid.GenerateStaticULID("user")
+		name     = "sato taro"
 		email    = "sato@examle.com"
 		password = "password"
 		arg      = gomock.Any()
 	)
-	user, err := userDomain.New(userID, "sato taro", email)
-	assert.NoError(t, err)
-	auth, err := authDomain.New(userID, password)
-	assert.NoError(t, err)
 
 	tests := []struct {
 		caseName   string
 		email      string
 		password   string
-		setup      func(mocks Mocks)
-		wantUserID string
+		setup      func(mocks Mocks, user *userDomain.User, auth *authDomain.Authentication)
+		wantUserID userDomain.UserID
 		errMsg     string
 	}{
 		{
 			caseName: "Positive: 有効なメールアドレスとパスワードの場合は認証できる",
 			email:    email,
 			password: password,
-			setup: func(mocks Mocks) {
+			setup: func(mocks Mocks, user *userDomain.User, auth *authDomain.Authentication) {
 				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(user, nil)
 				mocks.authRepo.EXPECT().FindByUserID(arg, arg).Return(auth, nil)
 			},
-			wantUserID: userID,
+			wantUserID: userDomain.UserID(userID),
 			errMsg:     "",
 		},
 		{
 			caseName: "Negative: ユーザーが見つからない場合はエラーが返る",
 			email:    "not-found@example.com",
 			password: password,
-			setup: func(mocks Mocks) {
+			setup: func(mocks Mocks, user *userDomain.User, auth *authDomain.Authentication) {
 				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(nil, nil)
 			},
-			wantUserID: "",
-			errMsg:     "email or password is incorrect",
+			errMsg: "email or password is incorrect",
 		},
 		{
 			caseName: "Negative: FindByEmailが失敗する場合はエラーが返る",
 			email:    email,
 			password: password,
-			setup: func(mocks Mocks) {
+			setup: func(mocks Mocks, user *userDomain.User, auth *authDomain.Authentication) {
 				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(nil, assert.AnError)
 			},
-			wantUserID: "",
-			errMsg:     assert.AnError.Error(),
+			errMsg: assert.AnError.Error(),
 		},
 		{
 			caseName: "Negative: 認証情報が見つからない場合はエラーが返る",
 			email:    email,
 			password: password,
-			setup: func(mocks Mocks) {
+			setup: func(mocks Mocks, user *userDomain.User, auth *authDomain.Authentication) {
 				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(user, nil)
 				mocks.authRepo.EXPECT().FindByUserID(arg, arg).Return(nil, nil)
 			},
-			wantUserID: "",
-			errMsg:     "email or password is incorrect",
+			errMsg: "email or password is incorrect",
 		},
 		{
 			caseName: "Negative: FindByUserIDが失敗する場合はエラーが返る",
 			email:    email,
 			password: password,
-			setup: func(mocks Mocks) {
+			setup: func(mocks Mocks, user *userDomain.User, auth *authDomain.Authentication) {
 				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(user, nil)
 				mocks.authRepo.EXPECT().FindByUserID(arg, arg).Return(nil, assert.AnError)
 			},
-			wantUserID: "",
-			errMsg:     assert.AnError.Error(),
+			errMsg: assert.AnError.Error(),
 		},
 		{
 			caseName: "Negative: パスワードが一致しない場合はエラーが返る",
 			email:    email,
 			password: "wrongPassword",
-			setup: func(mocks Mocks) {
+			setup: func(mocks Mocks, user *userDomain.User, auth *authDomain.Authentication) {
 				mocks.userRepo.EXPECT().FindByEmail(arg, arg).Return(user, nil)
 				mocks.authRepo.EXPECT().FindByUserID(arg, arg).Return(auth, nil)
 			},
-			wantUserID: "",
-			errMsg:     "email or password is incorrect",
+			errMsg: "email or password is incorrect",
 		},
 	}
 
@@ -248,17 +242,21 @@ func TestAuthenticate(t *testing.T) {
 			}
 			service := authDomain.NewService(mocks.authRepo, mocks.userRepo)
 			ctx := context.Background()
-			tt.setup(mocks)
+			user, err := userDomain.Reconstruct(userID, name, email)
+			assert.NoError(t, err)
+			auth, err := authDomain.New(user.ID(), password)
+			assert.NoError(t, err)
+			tt.setup(mocks, user, auth)
 
-			userID, err := service.Authenticate(ctx, tt.email, tt.password)
+			gotUserID, err := service.Authenticate(ctx, tt.email, tt.password)
 
 			if tt.errMsg != "" {
 				assert.Error(t, err)
 				assert.Equal(t, tt.errMsg, err.Error())
-				assert.Empty(t, userID)
+				assert.Empty(t, gotUserID)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.wantUserID, userID)
+				assert.Equal(t, tt.wantUserID, *gotUserID)
 			}
 		})
 	}

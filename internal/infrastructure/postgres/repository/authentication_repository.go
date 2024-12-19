@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
 	"github.com/uptrace/bun"
 )
@@ -29,7 +30,7 @@ func (r *authenticationRepository) Save(ctx context.Context, authentication *aut
 	return err
 }
 
-func (r *authenticationRepository) FindByUserID(ctx context.Context, userID string) (*authDomain.Authentication, error) {
+func (r *authenticationRepository) FindByUserID(ctx context.Context, userID userDomain.UserID) (*authDomain.Authentication, error) {
 	authModel := &model.Authentication{}
 	if err := r.execDB(ctx).NewSelect().Model(authModel).Where("user_id = ?", userID).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -40,7 +41,7 @@ func (r *authenticationRepository) FindByUserID(ctx context.Context, userID stri
 	return authDomain.Reconstruct(userID, authModel.PasswordHash)
 }
 
-func (r *authenticationRepository) ExistsByUserID(ctx context.Context, userID string) (bool, error) {
+func (r *authenticationRepository) ExistsByUserID(ctx context.Context, userID userDomain.UserID) (bool, error) {
 	exists, err := r.execDB(ctx).NewSelect().Model((*model.Authentication)(nil)).Where("user_id = ?", userID).Exists(ctx)
 	if err != nil {
 		return false, err

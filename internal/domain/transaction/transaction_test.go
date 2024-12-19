@@ -13,20 +13,18 @@ import (
 )
 
 func TestNewTransaction(t *testing.T) {
-
 	var (
-		accountID         = ulid.GenerateStaticULID("account")
-		receiverAccountID = ulid.GenerateStaticULID("accountReceiver")
+		accountID         = accountDomain.AccountID(ulid.GenerateStaticULID("account"))
+		receiverAccountID = accountDomain.AccountID(ulid.GenerateStaticULID("accountReceiver"))
 		amount            = 1000.0
 		currency          = moneyVO.JPY
 		transactionAt     = timer.GetFixedDate()
-		invalidID         = "invalid id"
 	)
 
 	tests := []struct {
 		caseName          string
-		accountID         string
-		receiverAccountID *string
+		accountID         accountDomain.AccountID
+		receiverAccountID *accountDomain.AccountID
 		operationType     string
 		amount            float64
 		currency          string
@@ -44,27 +42,7 @@ func TestNewTransaction(t *testing.T) {
 			errMsg:            "",
 		},
 		{
-			caseName:          "Negative: 無効な口座IDの場合はエラーが返る",
-			accountID:         "inavlid",
-			receiverAccountID: &receiverAccountID,
-			operationType:     transactionDomain.Transfer,
-			amount:            amount,
-			currency:          currency,
-			transactionAt:     transactionAt,
-			errMsg:            accountDomain.ErrInvalidID.Error(),
-		},
-		{
-			caseName:          "Negative: 無効な受取口座IDの場合はエラーが返る",
-			accountID:         accountID,
-			receiverAccountID: &invalidID,
-			operationType:     transactionDomain.Transfer,
-			amount:            amount,
-			currency:          currency,
-			transactionAt:     transactionAt,
-			errMsg:            accountDomain.ErrInvalidID.Error(),
-		},
-		{
-			caseName:          "Positive: 振替取引を作成できる",
+			caseName:          "Positive: 振り込み取引を作成できる",
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
 			operationType:     transactionDomain.Transfer,
@@ -104,7 +82,7 @@ func TestNewTransaction(t *testing.T) {
 			errMsg:            "unsupported transaction type",
 		},
 		{
-			caseName:          "Negative: 無効な金額の場合はエラーが返る",
+			caseName:          "Negative: Money値オブジェクト作成時にエラーが返る場合はエラーが返る",
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
 			operationType:     transactionDomain.Transfer,
@@ -112,16 +90,6 @@ func TestNewTransaction(t *testing.T) {
 			currency:          currency,
 			transactionAt:     transactionAt,
 			errMsg:            moneyVO.ErrNegativeAmount.Error(),
-		},
-		{
-			caseName:          "Negative: サポートされていない通貨の場合はエラーが返る",
-			accountID:         accountID,
-			receiverAccountID: &receiverAccountID,
-			operationType:     transactionDomain.Transfer,
-			amount:            amount,
-			currency:          "EUR",
-			transactionAt:     transactionAt,
-			errMsg:            moneyVO.ErrUnsupportedCurrency.Error(),
 		},
 	}
 
@@ -166,10 +134,9 @@ func TestReconstruct(t *testing.T) {
 		tx, err := transactionDomain.Reconstruct(transactionID, accountID, &receiverAccountID, operationType, amount, currency, transactionAt)
 		assert.NoError(t, err)
 		assert.NotNil(t, tx)
-		assert.NotEmpty(t, tx.ID())
 		assert.Equal(t, transactionID, tx.IDString())
-		assert.Equal(t, accountID, tx.AccountID())
-		assert.Equal(t, &receiverAccountID, tx.ReceiverAccountID())
+		assert.Equal(t, accountID, tx.AccountIDString())
+		assert.Equal(t, receiverAccountID, tx.ReceiverAccountIDString())
 		assert.Equal(t, operationType, tx.OperationType())
 		assert.Equal(t, amount, tx.TransferAmount().Amount())
 		assert.Equal(t, currency, tx.TransferAmount().Currency())

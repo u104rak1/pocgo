@@ -1,13 +1,17 @@
 package account
 
-import "context"
+import (
+	"context"
+
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+)
 
 type IAccountService interface {
 	// ユーザーの口座数が上限に達しているかをチェックします。
-	CheckLimit(ctx context.Context, userID string) error
+	CheckLimit(ctx context.Context, userID userDomain.UserID) error
 
 	// ユーザーの口座を取得する。ユーザーIDとパスワードの確認はオプションであり、必要ない場合はnilを渡す。
-	GetAndAuthorize(ctx context.Context, accountID string, userID, password *string) (*Account, error)
+	GetAndAuthorize(ctx context.Context, accountID AccountID, userID *userDomain.UserID, password *string) (*Account, error)
 }
 
 type accountService struct {
@@ -20,7 +24,7 @@ func NewService(accountRepository IAccountRepository) IAccountService {
 	}
 }
 
-func (s *accountService) CheckLimit(ctx context.Context, userID string) error {
+func (s *accountService) CheckLimit(ctx context.Context, userID userDomain.UserID) error {
 	count, err := s.accountRepo.CountByUserID(ctx, userID)
 	if err != nil {
 		return err
@@ -32,7 +36,7 @@ func (s *accountService) CheckLimit(ctx context.Context, userID string) error {
 	return nil
 }
 
-func (s *accountService) GetAndAuthorize(ctx context.Context, accountID string, userID, password *string) (*Account, error) {
+func (s *accountService) GetAndAuthorize(ctx context.Context, accountID AccountID, userID *userDomain.UserID, password *string) (*Account, error) {
 	account, err := s.accountRepo.FindByID(ctx, accountID)
 	if err != nil {
 		return nil, err

@@ -9,6 +9,7 @@ import (
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
 	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/numutil"
 	"github.com/u104rak1/pocgo/pkg/strutil"
@@ -23,12 +24,11 @@ func TestDeposit(t *testing.T) {
 	}
 
 	var (
-		userID        = ulid.GenerateStaticULID("user")
+		userID        = userDomain.UserID(ulid.GenerateStaticULID("user"))
 		name          = "account-name"
 		password      = "1234"
 		balance       = 100.0
 		currency      = moneyVO.JPY
-		updatedAt     = timer.GetFixedDate()
 		depositAmount = 50.0
 		arg           = gomock.Any()
 	)
@@ -93,7 +93,7 @@ func TestDeposit(t *testing.T) {
 			service := transactionDomain.NewService(mocks.accountRepo, mocks.transactionRepo)
 			ctx := context.Background()
 			tt.setup(mocks)
-			account, err := accountDomain.New(userID, name, password, balance, currency, updatedAt)
+			account, err := accountDomain.New(userID, balance, name, password, currency)
 			assert.NoError(t, err)
 
 			transaction, err := service.Deposit(ctx, account, tt.amount, tt.currency)
@@ -120,12 +120,11 @@ func TestWithdraw(t *testing.T) {
 	}
 
 	var (
-		userID         = ulid.GenerateStaticULID("user")
+		userID         = userDomain.UserID(ulid.GenerateStaticULID("user"))
 		name           = "account-name"
 		password       = "1234"
 		balance        = 100.0
 		currency       = moneyVO.JPY
-		updatedAt      = timer.GetFixedDate()
 		withdrawAmount = 50.0
 		arg            = gomock.Any()
 	)
@@ -189,7 +188,7 @@ func TestWithdraw(t *testing.T) {
 			service := transactionDomain.NewService(mocks.accountRepo, mocks.transactionRepo)
 			ctx := context.Background()
 			tt.setup(mocks)
-			account, err := accountDomain.New(userID, name, password, balance, currency, updatedAt)
+			account, err := accountDomain.New(userID, balance, name, password, currency)
 			assert.NoError(t, err)
 
 			transaction, err := service.Withdraw(ctx, account, tt.amount, tt.currency)
@@ -216,12 +215,11 @@ func TestTransfer(t *testing.T) {
 	}
 
 	var (
-		userID         = ulid.GenerateStaticULID("user")
+		userID         = userDomain.UserID(ulid.GenerateStaticULID("user"))
 		name           = "account-name"
 		password       = "1234"
 		balance        = 100.0
 		currency       = moneyVO.JPY
-		updatedAt      = timer.GetFixedDate()
 		transferAmount = 50.0
 		arg            = gomock.Any()
 	)
@@ -301,9 +299,9 @@ func TestTransfer(t *testing.T) {
 			service := transactionDomain.NewService(mocks.accountRepo, mocks.transactionRepo)
 			ctx := context.Background()
 			tt.setup(mocks)
-			senderAccount, err := accountDomain.New(userID, name, password, balance, currency, updatedAt)
+			senderAccount, err := accountDomain.New(userID, balance, name, password, currency)
 			assert.NoError(t, err)
-			receiverAccount, err := accountDomain.New(userID, name, password, balance, currency, updatedAt)
+			receiverAccount, err := accountDomain.New(userID, balance, name, password, currency)
 			assert.NoError(t, err)
 
 			transaction, err := service.Transfer(ctx, senderAccount, receiverAccount, tt.amount, tt.currency)
@@ -331,7 +329,7 @@ func TestListWithTotal(t *testing.T) {
 	}
 
 	var (
-		accountID = ulid.GenerateStaticULID("account")
+		accountID = accountDomain.AccountID(ulid.GenerateStaticULID("account"))
 		arg       = gomock.Any()
 	)
 

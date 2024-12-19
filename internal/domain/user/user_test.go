@@ -5,13 +5,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/u104rak1/pocgo/internal/domain/user"
+	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
 	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestNew(t *testing.T) {
 	var (
-		id    = ulid.GenerateStaticULID("user")
 		name  = "sato taro"
 		email = "sato@example.com"
 	)
@@ -25,49 +24,36 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			caseName: "Positive: ユーザーが作成できる",
-			id:       id,
 			name:     name,
 			email:    email,
 			errMsg:   "",
 		},
 		{
-			caseName: "Negative: 無効なIDの場合はエラーが返る",
-			id:       "invalid",
-			name:     name,
-			email:    email,
-			errMsg:   "user id must be a valid ULID",
-		},
-		{
 			caseName: "Negative: 名前が3文字未満の場合はエラーが返る",
-			id:       id,
-			name:     strings.Repeat("a", user.NameMinLength-1),
+			name:     strings.Repeat("a", 2),
 			email:    email,
 			errMsg:   "user name must be between 3 and 20 characters",
 		},
 		{
 			caseName: "Positive: 名前が3文字の場合は、ユーザーが作成できる",
-			id:       id,
-			name:     strings.Repeat("a", user.NameMinLength),
+			name:     strings.Repeat("a", 3),
 			email:    email,
 			errMsg:   "",
 		},
 		{
 			caseName: "Positive: 名前が20文字の場合は、ユーザーが作成できる",
-			id:       id,
-			name:     strings.Repeat("a", user.NameMaxLength),
+			name:     strings.Repeat("a", 20),
 			email:    email,
 			errMsg:   "",
 		},
 		{
 			caseName: "Negative: 名前が21文字の場合はエラーが返る",
-			id:       id,
-			name:     strings.Repeat("a", user.NameMaxLength+1),
+			name:     strings.Repeat("a", 21),
 			email:    email,
 			errMsg:   "user name must be between 3 and 20 characters",
 		},
 		{
 			caseName: "Negative: 無効なメールアドレスの場合はエラーが返る",
-			id:       id,
 			name:     name,
 			email:    "invalid",
 			errMsg:   "the email format is invalid",
@@ -77,7 +63,7 @@ func TestNew(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			u, err := user.New(tt.id, tt.name, tt.email)
+			u, err := userDomain.New(tt.name, tt.email)
 
 			if tt.errMsg != "" {
 				assert.Error(t, err)
@@ -85,7 +71,7 @@ func TestNew(t *testing.T) {
 				assert.Nil(t, u)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.id, u.ID())
+				assert.NotEmpty(t, u.ID())
 				assert.Equal(t, tt.name, u.Name())
 				assert.Equal(t, tt.email, u.Email())
 			}
@@ -93,9 +79,24 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestChangeName(t *testing.T) {
+func TestReconstruct(t *testing.T) {
 	var (
 		id    = ulid.GenerateStaticULID("user")
+		name  = "sato taro"
+		email = "sato@example.com"
+	)
+
+	t.Run("Positive: ユーザーを再構築できる", func(t *testing.T) {
+		u, err := userDomain.Reconstruct(id, name, email)
+		assert.NoError(t, err)
+		assert.Equal(t, id, u.IDString())
+		assert.Equal(t, name, u.Name())
+		assert.Equal(t, email, u.Email())
+	})
+}
+
+func TestChangeName(t *testing.T) {
+	var (
 		name  = "sato taro"
 		email = "sato@example.com"
 	)
@@ -120,7 +121,7 @@ func TestChangeName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			u, _ := user.New(id, name, email)
+			u, _ := userDomain.New(name, email)
 			err := u.ChangeName(tt.newName)
 
 			if tt.errMsg != "" {
@@ -137,7 +138,6 @@ func TestChangeName(t *testing.T) {
 
 func TestChangeEmail(t *testing.T) {
 	var (
-		id    = ulid.GenerateStaticULID("user")
 		name  = "sato taro"
 		email = "sato@example.com"
 	)
@@ -162,7 +162,7 @@ func TestChangeEmail(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
-			u, _ := user.New(id, name, email)
+			u, _ := userDomain.New(name, email)
 			err := u.ChangeEmail(tt.newEmail)
 
 			if tt.errMsg != "" {

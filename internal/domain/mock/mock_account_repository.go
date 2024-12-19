@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	account "github.com/u104rak1/pocgo/internal/domain/account"
+	user "github.com/u104rak1/pocgo/internal/domain/user"
 )
 
 // MockIAccountRepository is a mock of IAccountRepository interface.
@@ -36,7 +37,7 @@ func (m *MockIAccountRepository) EXPECT() *MockIAccountRepositoryMockRecorder {
 }
 
 // CountByUserID mocks base method.
-func (m *MockIAccountRepository) CountByUserID(ctx context.Context, userID string) (int, error) {
+func (m *MockIAccountRepository) CountByUserID(ctx context.Context, userID user.UserID) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CountByUserID", ctx, userID)
 	ret0, _ := ret[0].(int)
@@ -50,22 +51,8 @@ func (mr *MockIAccountRepositoryMockRecorder) CountByUserID(ctx, userID interfac
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByUserID", reflect.TypeOf((*MockIAccountRepository)(nil).CountByUserID), ctx, userID)
 }
 
-// Delete mocks base method.
-func (m *MockIAccountRepository) Delete(ctx context.Context, id string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", ctx, id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Delete indicates an expected call of Delete.
-func (mr *MockIAccountRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIAccountRepository)(nil).Delete), ctx, id)
-}
-
 // FindByID mocks base method.
-func (m *MockIAccountRepository) FindByID(ctx context.Context, id string) (*account.Account, error) {
+func (m *MockIAccountRepository) FindByID(ctx context.Context, id account.AccountID) (*account.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", ctx, id)
 	ret0, _ := ret[0].(*account.Account)
@@ -77,21 +64,6 @@ func (m *MockIAccountRepository) FindByID(ctx context.Context, id string) (*acco
 func (mr *MockIAccountRepositoryMockRecorder) FindByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockIAccountRepository)(nil).FindByID), ctx, id)
-}
-
-// ListByUserID mocks base method.
-func (m *MockIAccountRepository) ListByUserID(ctx context.Context, userID string) ([]*account.Account, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListByUserID", ctx, userID)
-	ret0, _ := ret[0].([]*account.Account)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListByUserID indicates an expected call of ListByUserID.
-func (mr *MockIAccountRepositoryMockRecorder) ListByUserID(ctx, userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListByUserID", reflect.TypeOf((*MockIAccountRepository)(nil).ListByUserID), ctx, userID)
 }
 
 // Save mocks base method.
