@@ -19,5 +19,5 @@ type ListTransactionsParams struct {
 
 type ITransactionRepository interface {
 	Save(ctx context.Context, transaction *Transaction) error
-	ListWithTotalByAccountID(ctx context.Context, params ListTransactionsParams) (transactions []*Transaction, total int, err error)
+	ListWithTotalByAccountID(ctx context.Context, params ListTransactionsParams) (transactions []Transaction, total int, err error)
 }

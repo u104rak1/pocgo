@@ -41,7 +41,7 @@ func TestNewTransaction(t *testing.T) {
 			errMsg:            "",
 		},
 		{
-			caseName:          "Positive: 振り込み取引を作成できる",
+			caseName:          "Positive: 送金取引を作成できる",
 			accountID:         accountID,
 			receiverAccountID: &receiverAccountID,
 			operationType:     transactionDomain.Transfer,

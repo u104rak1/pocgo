@@ -11,7 +11,7 @@ type ITransactionService interface {
 	Deposit(ctx context.Context, account *accountDomain.Account, amount float64, currency string) (*Transaction, error)
 	Withdraw(ctx context.Context, account *accountDomain.Account, amount float64, currency string) (*Transaction, error)
 	Transfer(ctx context.Context, senderAccount *accountDomain.Account, receiverAccount *accountDomain.Account, amount float64, currency string) (*Transaction, error)
-	ListWithTotal(ctx context.Context, params ListTransactionsParams) (transactions []*Transaction, total int, err error)
+	ListWithTotal(ctx context.Context, params ListTransactionsParams) (transactions []Transaction, total int, err error)
 }
 
 type transactionService struct {
@@ -114,7 +114,7 @@ func (s *transactionService) Transfer(
 	return transaction, nil
 }
 
-func (s *transactionService) ListWithTotal(ctx context.Context, params ListTransactionsParams) (transactions []*Transaction, total int, err error) {
+func (s *transactionService) ListWithTotal(ctx context.Context, params ListTransactionsParams) (transactions []Transaction, total int, err error) {
 	if params.Sort == nil {
 		sort := "DESC"
 		params.Sort = &sort
