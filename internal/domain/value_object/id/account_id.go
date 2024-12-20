@@ -1,5 +1,7 @@
 package id
 
+import "fmt"
+
 type accountIDType struct{}
 
 type AccountID = ID[accountIDType]
@@ -9,7 +11,11 @@ func NewAccountID() AccountID {
 }
 
 func AccountIDFromString(value string) (AccountID, error) {
-	return NewFromString[accountIDType](value)
+	accountID, err := NewFromString[accountIDType](value)
+	if err != nil {
+		return AccountID{}, fmt.Errorf("invalid account id: %w", err)
+	}
+	return accountID, nil
 }
 
 // NewAccountIDForTest テスト用のAccountIDを生成します

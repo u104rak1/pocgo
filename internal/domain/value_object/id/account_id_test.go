@@ -16,12 +16,44 @@ func TestNewAccountID(t *testing.T) {
 }
 
 func TestAccountIDFromString(t *testing.T) {
-	t.Run("有効なULIDからAccountIDを生成できること", func(t *testing.T) {
-		input := "01H2X5JMIN3P8T68PYHXXVK5XN"
-		id, err := idVO.AccountIDFromString(input)
-		assert.NoError(t, err)
-		assert.Equal(t, input, id.String())
-	})
+	tests := []struct {
+		name   string
+		input  string
+		errMsg string
+	}{
+		{
+			name:   "Positive: 有効なULIDからAccountIDを生成できること",
+			input:  "01H2X5JMIN3P8T68PYHXXVK5XN",
+			errMsg: "",
+		},
+		{
+			name:   "Negative: 不正なULIDからAccountIDを生成できないこと",
+			input:  "invalid-ulid",
+			errMsg: "invalid account id: invalid ulid",
+		},
+		{
+			name:   "Negative: 空文字列からAccountIDを生成できないこと",
+			input:  "",
+			errMsg: "invalid account id: id must not be empty",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			id, err := idVO.AccountIDFromString(tt.input)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
+				return
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.input, id.String())
+			}
+		})
+	}
 }
 
 func TestNewAccountIDForTest(t *testing.T) {

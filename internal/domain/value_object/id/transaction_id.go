@@ -1,5 +1,7 @@
 package id
 
+import "fmt"
+
 type transactionIDType struct{}
 
 type TransactionID = ID[transactionIDType]
@@ -9,7 +11,11 @@ func NewTransactionID() TransactionID {
 }
 
 func TransactionIDFromString(value string) (TransactionID, error) {
-	return NewFromString[transactionIDType](value)
+	transactionID, err := NewFromString[transactionIDType](value)
+	if err != nil {
+		return TransactionID{}, fmt.Errorf("invalid transaction id: %w", err)
+	}
+	return transactionID, nil
 }
 
 // NewTransactionIDForTest テスト用のTransactionIDを生成します

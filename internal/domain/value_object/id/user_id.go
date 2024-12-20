@@ -1,5 +1,7 @@
 package id
 
+import "fmt"
+
 type userIDType struct{}
 
 type UserID = ID[userIDType]
@@ -9,7 +11,11 @@ func NewUserID() UserID {
 }
 
 func UserIDFromString(value string) (UserID, error) {
-	return NewFromString[userIDType](value)
+	userID, err := NewFromString[userIDType](value)
+	if err != nil {
+		return UserID{}, fmt.Errorf("invalid user id: %w", err)
+	}
+	return userID, nil
 }
 
 // NewUserIDForTest テスト用のUserIDを生成します

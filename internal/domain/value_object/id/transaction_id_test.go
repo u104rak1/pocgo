@@ -16,12 +16,44 @@ func TestNewTransactionID(t *testing.T) {
 }
 
 func TestTransactionIDFromString(t *testing.T) {
-	t.Run("有効なULIDからTransactionIDを生成できること", func(t *testing.T) {
-		input := "01H2X5JMIN3P8T68PYHXXVK5XN"
-		id, err := idVO.TransactionIDFromString(input)
-		assert.NoError(t, err)
-		assert.Equal(t, input, id.String())
-	})
+	tests := []struct {
+		name   string
+		input  string
+		errMsg string
+	}{
+		{
+			name:   "Positive: 有効なULIDからTransactionIDを生成できること",
+			input:  "01H2X5JMIN3P8T68PYHXXVK5XN",
+			errMsg: "",
+		},
+		{
+			name:   "Negative: 不正なULIDからTransactionIDを生成できないこと",
+			input:  "invalid-ulid",
+			errMsg: "invalid transaction id: invalid ulid",
+		},
+		{
+			name:   "Negative: 空文字列からTransactionIDを生成できないこと",
+			input:  "",
+			errMsg: "invalid transaction id: id must not be empty",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			id, err := idVO.TransactionIDFromString(tt.input)
+			if tt.errMsg != "" {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
+				return
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.input, id.String())
+			}
+		})
+	}
 }
 
 func TestNewTransactionIDForTest(t *testing.T) {
