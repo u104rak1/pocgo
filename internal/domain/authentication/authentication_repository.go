@@ -3,11 +3,11 @@ package authentication
 import (
 	"context"
 
-	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 type IAuthenticationRepository interface {
 	Save(ctx context.Context, authentication *Authentication) error
-	FindByUserID(ctx context.Context, userID userDomain.UserID) (*Authentication, error)
-	ExistsByUserID(ctx context.Context, userID userDomain.UserID) (bool, error)
+	FindByUserID(ctx context.Context, userID idVO.UserID) (*Authentication, error)
+	ExistsByUserID(ctx context.Context, userID idVO.UserID) (bool, error)
 }

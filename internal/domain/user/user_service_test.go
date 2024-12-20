@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
-	"github.com/u104rak1/pocgo/pkg/ulid"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 func TestVerifyEmailUniqueness(t *testing.T) {
@@ -75,13 +75,13 @@ func TestEnsureUserExists(t *testing.T) {
 
 	tests := []struct {
 		caseName string
-		id       userDomain.UserID
+		id       idVO.UserID
 		setup    func(mockUserRepo *mock.MockIUserRepository)
 		errMsg   string
 	}{
 		{
 			caseName: "Positive: ユーザーが存在する場合はエラーが返らない",
-			id:       userDomain.UserID(ulid.GenerateStaticULID("existing-user-id")),
+			id:       idVO.NewUserIDForTest("existing-user-id"),
 			setup: func(mockUserRepo *mock.MockIUserRepository) {
 				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(true, nil)
 			},
@@ -89,7 +89,7 @@ func TestEnsureUserExists(t *testing.T) {
 		},
 		{
 			caseName: "Negative: ユーザーが存在しない場合はエラーが返る",
-			id:       userDomain.UserID(ulid.GenerateStaticULID("non-existing-user-id")),
+			id:       idVO.NewUserIDForTest("non-existing-user-id"),
 			setup: func(mockUserRepo *mock.MockIUserRepository) {
 				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(false, nil)
 			},
@@ -97,7 +97,7 @@ func TestEnsureUserExists(t *testing.T) {
 		},
 		{
 			caseName: "Negative: ExistsByIDでエラーが返る場合はエラーが返る",
-			id:       userDomain.UserID(ulid.GenerateStaticULID("unknown-error-user-id")),
+			id:       idVO.NewUserIDForTest("unknown-error-user-id"),
 			setup: func(mockUserRepo *mock.MockIUserRepository) {
 				mockUserRepo.EXPECT().ExistsByID(arg, arg).Return(false, assert.AnError)
 			},

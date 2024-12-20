@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	user "github.com/u104rak1/pocgo/internal/domain/user"
+	id "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 // MockIAuthenticationService is a mock of IAuthenticationService interface.
@@ -36,10 +36,10 @@ func (m *MockIAuthenticationService) EXPECT() *MockIAuthenticationServiceMockRec
 }
 
 // Authenticate mocks base method.
-func (m *MockIAuthenticationService) Authenticate(ctx context.Context, email, password string) (*user.UserID, error) {
+func (m *MockIAuthenticationService) Authenticate(ctx context.Context, email, password string) (*id.UserID, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Authenticate", ctx, email, password)
-	ret0, _ := ret[0].(*user.UserID)
+	ret0, _ := ret[0].(*id.UserID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -50,38 +50,8 @@ func (mr *MockIAuthenticationServiceMockRecorder) Authenticate(ctx, email, passw
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Authenticate", reflect.TypeOf((*MockIAuthenticationService)(nil).Authenticate), ctx, email, password)
 }
 
-// GenerateAccessToken mocks base method.
-func (m *MockIAuthenticationService) GenerateAccessToken(ctx context.Context, userID user.UserID, jwtSecretKey []byte) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GenerateAccessToken", ctx, userID, jwtSecretKey)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GenerateAccessToken indicates an expected call of GenerateAccessToken.
-func (mr *MockIAuthenticationServiceMockRecorder) GenerateAccessToken(ctx, userID, jwtSecretKey interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateAccessToken", reflect.TypeOf((*MockIAuthenticationService)(nil).GenerateAccessToken), ctx, userID, jwtSecretKey)
-}
-
-// GetUserIDFromAccessToken mocks base method.
-func (m *MockIAuthenticationService) GetUserIDFromAccessToken(ctx context.Context, accessToken string, jwtSecretKey []byte) (*user.UserID, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserIDFromAccessToken", ctx, accessToken, jwtSecretKey)
-	ret0, _ := ret[0].(*user.UserID)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUserIDFromAccessToken indicates an expected call of GetUserIDFromAccessToken.
-func (mr *MockIAuthenticationServiceMockRecorder) GetUserIDFromAccessToken(ctx, accessToken, jwtSecretKey interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDFromAccessToken", reflect.TypeOf((*MockIAuthenticationService)(nil).GetUserIDFromAccessToken), ctx, accessToken, jwtSecretKey)
-}
-
 // VerifyUniqueness mocks base method.
-func (m *MockIAuthenticationService) VerifyUniqueness(ctx context.Context, userID user.UserID) error {
+func (m *MockIAuthenticationService) VerifyUniqueness(ctx context.Context, userID id.UserID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "VerifyUniqueness", ctx, userID)
 	ret0, _ := ret[0].(error)

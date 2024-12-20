@@ -5,20 +5,20 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
-	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
 	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestNew(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		password = "password"
 	)
 
 	tests := []struct {
 		caseName string
-		userID   userDomain.UserID
+		userID   idVO.UserID
 		password string
 		errMsg   string
 	}{
@@ -91,7 +91,7 @@ func TestReconstruct(t *testing.T) {
 
 func TestComparePassword(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		password = "password"
 	)
 

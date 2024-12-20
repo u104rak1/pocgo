@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/timer"
 	"github.com/u104rak1/pocgo/pkg/ulid"
@@ -14,8 +14,8 @@ import (
 
 func TestNewTransaction(t *testing.T) {
 	var (
-		accountID         = accountDomain.AccountID(ulid.GenerateStaticULID("account"))
-		receiverAccountID = accountDomain.AccountID(ulid.GenerateStaticULID("accountReceiver"))
+		accountID         = idVO.NewAccountIDForTest("account")
+		receiverAccountID = idVO.NewAccountIDForTest("accountReceiver")
 		amount            = 1000.0
 		currency          = moneyVO.JPY
 		transactionAt     = timer.GetFixedDate()
@@ -23,8 +23,8 @@ func TestNewTransaction(t *testing.T) {
 
 	tests := []struct {
 		caseName          string
-		accountID         accountDomain.AccountID
-		receiverAccountID *accountDomain.AccountID
+		accountID         idVO.AccountID
+		receiverAccountID *idVO.AccountID
 		operationType     string
 		amount            float64
 		currency          string

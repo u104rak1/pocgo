@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
-	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
 	"github.com/u104rak1/pocgo/pkg/timer"
@@ -16,7 +16,7 @@ import (
 
 func TestNew(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		name     = "For work"
 		password = "1234"
 		amount   = 1000.0
@@ -26,7 +26,7 @@ func TestNew(t *testing.T) {
 
 	tests := []struct {
 		caseName  string
-		userID    userDomain.UserID
+		userID    idVO.UserID
 		name      string
 		password  string
 		amount    float64
@@ -179,7 +179,7 @@ func TestReconstruct(t *testing.T) {
 
 func TestChangeName(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		name     = "For work"
 		password = "1234"
 		amount   = 1000.0
@@ -223,7 +223,7 @@ func TestChangeName(t *testing.T) {
 
 func TestChangePassword(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		name     = "For work"
 		password = "1234"
 		amount   = 1000.0
@@ -268,7 +268,7 @@ func TestChangePassword(t *testing.T) {
 
 func TestComparePassword(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		name     = "For work"
 		password = "1234"
 		amount   = 1000.0
@@ -310,7 +310,7 @@ func TestComparePassword(t *testing.T) {
 
 func TestWithdraw(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		name     = "For work"
 		password = "1234"
 		amount   = 1000.0
@@ -361,7 +361,7 @@ func TestWithdraw(t *testing.T) {
 
 func TestDeposit(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		name     = "For work"
 		password = "1234"
 		amount   = 1000.0
@@ -412,7 +412,7 @@ func TestDeposit(t *testing.T) {
 
 func TestChangeUpdatedAt(t *testing.T) {
 	var (
-		userID   = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID   = idVO.NewUserIDForTest("user")
 		name     = "For work"
 		password = "1234"
 		amount   = 1000.0

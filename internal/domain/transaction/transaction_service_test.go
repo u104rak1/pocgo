@@ -9,12 +9,11 @@ import (
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
 	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
-	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/numutil"
 	"github.com/u104rak1/pocgo/pkg/strutil"
 	"github.com/u104rak1/pocgo/pkg/timer"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestDeposit(t *testing.T) {
@@ -24,7 +23,7 @@ func TestDeposit(t *testing.T) {
 	}
 
 	var (
-		userID        = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID        = idVO.NewUserIDForTest("user")
 		name          = "account-name"
 		password      = "1234"
 		balance       = 100.0
@@ -120,7 +119,7 @@ func TestWithdraw(t *testing.T) {
 	}
 
 	var (
-		userID         = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID         = idVO.NewUserIDForTest("user")
 		name           = "account-name"
 		password       = "1234"
 		balance        = 100.0
@@ -215,7 +214,7 @@ func TestTransfer(t *testing.T) {
 	}
 
 	var (
-		userID         = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID         = idVO.NewUserIDForTest("user")
 		name           = "account-name"
 		password       = "1234"
 		balance        = 100.0
@@ -329,7 +328,7 @@ func TestListWithTotal(t *testing.T) {
 	}
 
 	var (
-		accountID = accountDomain.AccountID(ulid.GenerateStaticULID("account"))
+		accountID = idVO.NewAccountIDForTest("account")
 		arg       = gomock.Any()
 	)
 

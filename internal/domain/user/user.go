@@ -1,26 +1,29 @@
 package user
 
-import "github.com/u104rak1/pocgo/pkg/ulid"
-
-type UserID string
+import (
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
+)
 
 type User struct {
-	id    UserID
+	id    idVO.UserID
 	name  string
 	email string
 }
 
 func New(name, email string) (*User, error) {
-	id := UserID(ulid.New())
+	id := idVO.NewUserID()
 	return newUser(id, name, email)
 }
 
 func Reconstruct(id, name, email string) (*User, error) {
-	userID := UserID(id)
+	userID, err := idVO.UserIDFromString(id)
+	if err != nil {
+		return nil, err
+	}
 	return newUser(userID, name, email)
 }
 
-func newUser(id UserID, name, email string) (*User, error) {
+func newUser(id idVO.UserID, name, email string) (*User, error) {
 	if err := validName(name); err != nil {
 		return nil, err
 	}
@@ -36,12 +39,12 @@ func newUser(id UserID, name, email string) (*User, error) {
 	}, nil
 }
 
-func (u *User) ID() UserID {
+func (u *User) ID() idVO.UserID {
 	return u.id
 }
 
 func (u *User) IDString() string {
-	return string(u.id)
+	return u.id.String()
 }
 
 func (u *User) Name() string {

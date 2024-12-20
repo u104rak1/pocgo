@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
-	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 type ListTransactionsParams struct {
-	AccountID      accountDomain.AccountID
+	AccountID      idVO.AccountID
 	From           *time.Time
 	To             *time.Time
 	OperationTypes []string

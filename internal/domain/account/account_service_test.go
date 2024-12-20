@@ -8,21 +8,20 @@ import (
 	"github.com/stretchr/testify/assert"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
-	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/strutil"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestCheckLimit(t *testing.T) {
 	var (
-		userID = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		userID = idVO.NewUserIDForTest("user")
 		arg    = gomock.Any()
 	)
 
 	tests := []struct {
 		caseName string
-		userID   userDomain.UserID
+		userID   idVO.UserID
 		setup    func(mockAccountRepo *mock.MockIAccountRepository)
 		errMsg   string
 	}{
@@ -76,8 +75,8 @@ func TestCheckLimit(t *testing.T) {
 
 func TestGetAndAuthorize(t *testing.T) {
 	var (
-		accountID = accountDomain.AccountID(ulid.GenerateStaticULID("account"))
-		userID    = userDomain.UserID(ulid.GenerateStaticULID("user"))
+		accountID = idVO.NewAccountIDForTest("account")
+		userID    = idVO.NewUserIDForTest("user")
 		name      = "account-name"
 		password  = "1234"
 		amount    = 100.0
@@ -87,8 +86,8 @@ func TestGetAndAuthorize(t *testing.T) {
 
 	tests := []struct {
 		caseName  string
-		accountID accountDomain.AccountID
-		userID    *userDomain.UserID
+		accountID idVO.AccountID
+		userID    *idVO.UserID
 		password  *string
 		setup     func(mockAccountRepo *mock.MockIAccountRepository, account *accountDomain.Account)
 		errMsg    string
@@ -146,8 +145,8 @@ func TestGetAndAuthorize(t *testing.T) {
 		{
 			caseName:  "Negative: ユーザーIDが一致しない場合はエラーが返る",
 			accountID: accountID,
-			userID: func() *userDomain.UserID {
-				id := userDomain.UserID(ulid.GenerateStaticULID("unauthorized-user"))
+			userID: func() *idVO.UserID {
+				id := idVO.NewUserIDForTest("unauthorized-user")
 				return &id
 			}(),
 			password: nil,

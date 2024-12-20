@@ -3,18 +3,15 @@ package transaction
 import (
 	"time"
 
-	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/timer"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
-type TransactionID string
-
 type Transaction struct {
-	id                TransactionID
-	accountID         accountDomain.AccountID
-	receiverAccountID *accountDomain.AccountID
+	id                idVO.TransactionID
+	accountID         idVO.AccountID
+	receiverAccountID *idVO.AccountID
 	operationType     string
 	transferAmount    moneyVO.Money
 	transactionAt     time.Time
@@ -22,14 +19,14 @@ type Transaction struct {
 
 // 取引エンティティを作成します。transactionAtは口座の更新日と同じ値にしたいので、引数で受け取ります。
 func New(
-	accountID accountDomain.AccountID,
-	receiverAccountID *accountDomain.AccountID,
+	accountID idVO.AccountID,
+	receiverAccountID *idVO.AccountID,
 	operationType string,
 	amount float64,
 	currency string,
 	transactionAt time.Time,
 ) (*Transaction, error) {
-	id := TransactionID(ulid.New())
+	id := idVO.NewTransactionID()
 	return newTransaction(id, accountID, receiverAccountID, operationType, amount, currency, transactionAt)
 }
 
@@ -41,22 +38,32 @@ func Reconstruct(
 	currency string,
 	transactionAt time.Time,
 ) (*Transaction, error) {
-	transactionID := TransactionID(id)
-	aID := accountDomain.AccountID(accountID)
-
-	var raID *accountDomain.AccountID
-	if receiverAccountID != nil {
-		tempRaID := accountDomain.AccountID(*receiverAccountID)
-		raID = &tempRaID
+	tID, err := idVO.TransactionIDFromString(id)
+	if err != nil {
+		return nil, err
 	}
 
-	return newTransaction(transactionID, aID, raID, operationType, amount, currency, transactionAt)
+	aID, err := idVO.AccountIDFromString(accountID)
+	if err != nil {
+		return nil, err
+	}
+
+	var raID *idVO.AccountID
+	if receiverAccountID != nil {
+		tmpID, err := idVO.AccountIDFromString(*receiverAccountID)
+		if err != nil {
+			return nil, err
+		}
+		raID = &tmpID
+	}
+
+	return newTransaction(tID, aID, raID, operationType, amount, currency, transactionAt)
 }
 
 func newTransaction(
-	id TransactionID,
-	accountID accountDomain.AccountID,
-	receiverAccountID *accountDomain.AccountID,
+	id idVO.TransactionID,
+	accountID idVO.AccountID,
+	receiverAccountID *idVO.AccountID,
 	operationType string,
 	amount float64,
 	currency string,
@@ -81,23 +88,23 @@ func newTransaction(
 	}, nil
 }
 
-func (t *Transaction) ID() TransactionID {
+func (t *Transaction) ID() idVO.TransactionID {
 	return t.id
 }
 
 func (t *Transaction) IDString() string {
-	return string(t.id)
+	return t.id.String()
 }
 
-func (t *Transaction) AccountID() accountDomain.AccountID {
+func (t *Transaction) AccountID() idVO.AccountID {
 	return t.accountID
 }
 
 func (t *Transaction) AccountIDString() string {
-	return string(t.accountID)
+	return t.accountID.String()
 }
 
-func (t *Transaction) ReceiverAccountID() *accountDomain.AccountID {
+func (t *Transaction) ReceiverAccountID() *idVO.AccountID {
 	return t.receiverAccountID
 }
 
@@ -105,7 +112,7 @@ func (t *Transaction) ReceiverAccountIDString() string {
 	if t.receiverAccountID == nil {
 		return ""
 	}
-	return string(*t.receiverAccountID)
+	return t.receiverAccountID.String()
 }
 
 func (t *Transaction) OperationType() string {

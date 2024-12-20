@@ -10,7 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	account "github.com/u104rak1/pocgo/internal/domain/account"
-	user "github.com/u104rak1/pocgo/internal/domain/user"
+	id "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 // MockIAccountRepository is a mock of IAccountRepository interface.
@@ -37,7 +37,7 @@ func (m *MockIAccountRepository) EXPECT() *MockIAccountRepositoryMockRecorder {
 }
 
 // CountByUserID mocks base method.
-func (m *MockIAccountRepository) CountByUserID(ctx context.Context, userID user.UserID) (int, error) {
+func (m *MockIAccountRepository) CountByUserID(ctx context.Context, userID id.UserID) (int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CountByUserID", ctx, userID)
 	ret0, _ := ret[0].(int)
@@ -52,7 +52,7 @@ func (mr *MockIAccountRepositoryMockRecorder) CountByUserID(ctx, userID interfac
 }
 
 // FindByID mocks base method.
-func (m *MockIAccountRepository) FindByID(ctx context.Context, id account.AccountID) (*account.Account, error) {
+func (m *MockIAccountRepository) FindByID(ctx context.Context, id id.AccountID) (*account.Account, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", ctx, id)
 	ret0, _ := ret[0].(*account.Account)

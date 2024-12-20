@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	user "github.com/u104rak1/pocgo/internal/domain/user"
+	id "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 // MockIUserRepository is a mock of IUserRepository interface.
@@ -51,7 +52,7 @@ func (mr *MockIUserRepositoryMockRecorder) ExistsByEmail(ctx, email interface{})
 }
 
 // ExistsByID mocks base method.
-func (m *MockIUserRepository) ExistsByID(ctx context.Context, id user.UserID) (bool, error) {
+func (m *MockIUserRepository) ExistsByID(ctx context.Context, id id.UserID) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ExistsByID", ctx, id)
 	ret0, _ := ret[0].(bool)
@@ -81,7 +82,7 @@ func (mr *MockIUserRepositoryMockRecorder) FindByEmail(ctx, email interface{}) *
 }
 
 // FindByID mocks base method.
-func (m *MockIUserRepository) FindByID(ctx context.Context, id user.UserID) (*user.User, error) {
+func (m *MockIUserRepository) FindByID(ctx context.Context, id id.UserID) (*user.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", ctx, id)
 	ret0, _ := ret[0].(*user.User)

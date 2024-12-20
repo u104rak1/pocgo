@@ -10,6 +10,7 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	user "github.com/u104rak1/pocgo/internal/domain/user"
+	id "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 // MockIUserService is a mock of IUserService interface.
@@ -36,7 +37,7 @@ func (m *MockIUserService) EXPECT() *MockIUserServiceMockRecorder {
 }
 
 // EnsureUserExists mocks base method.
-func (m *MockIUserService) EnsureUserExists(ctx context.Context, id user.UserID) error {
+func (m *MockIUserService) EnsureUserExists(ctx context.Context, id id.UserID) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "EnsureUserExists", ctx, id)
 	ret0, _ := ret[0].(error)
@@ -47,6 +48,21 @@ func (m *MockIUserService) EnsureUserExists(ctx context.Context, id user.UserID)
 func (mr *MockIUserServiceMockRecorder) EnsureUserExists(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EnsureUserExists", reflect.TypeOf((*MockIUserService)(nil).EnsureUserExists), ctx, id)
+}
+
+// FindUser mocks base method.
+func (m *MockIUserService) FindUser(ctx context.Context, id id.UserID) (*user.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindUser", ctx, id)
+	ret0, _ := ret[0].(*user.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindUser indicates an expected call of FindUser.
+func (mr *MockIUserServiceMockRecorder) FindUser(ctx, id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUser", reflect.TypeOf((*MockIUserService)(nil).FindUser), ctx, id)
 }
 
 // VerifyEmailUniqueness mocks base method.
