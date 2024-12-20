@@ -6,6 +6,7 @@ import (
 	unitofwork "github.com/u104rak1/pocgo/internal/application/unit_of_work"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 type IExecuteTransactionUsecase interface {
@@ -51,7 +52,17 @@ type ExecuteTransactionDTO struct {
 }
 
 func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransactionCommand) (*ExecuteTransactionDTO, error) {
-	account, err := u.accountServ.GetAndAuthorize(ctx, cmd.AccountID, &cmd.UserID, &cmd.Password)
+	userID, err := idVO.UserIDFromString(cmd.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	accountID, err := idVO.AccountIDFromString(cmd.AccountID)
+	if err != nil {
+		return nil, err
+	}
+
+	account, err := u.accountServ.GetAndAuthorize(ctx, accountID, &userID, &cmd.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +85,11 @@ func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransact
 		}
 	case transactionDomain.Transfer:
 		transaction, err = u.unitOfWork.RunInTx(ctx, func(ctx context.Context) (*transactionDomain.Transaction, error) {
-			receiverAccount, err := u.accountServ.GetAndAuthorize(ctx, *cmd.ReceiverAccountID, nil, nil)
+			receiverAccountID, err := idVO.AccountIDFromString(*cmd.ReceiverAccountID)
+			if err != nil {
+				return nil, err
+			}
+			receiverAccount, err := u.accountServ.GetAndAuthorize(ctx, receiverAccountID, nil, nil)
 			if err != nil {
 				return nil, err
 			}
@@ -83,12 +98,14 @@ func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransact
 		if err != nil {
 			return nil, err
 		}
+	default:
+		return nil, transactionDomain.ErrUnsupportedType
 	}
 
 	return &ExecuteTransactionDTO{
 		ID:                transaction.IDString(),
-		AccountID:         transaction.AccountID(),
-		ReceiverAccountID: transaction.ReceiverAccountID(),
+		AccountID:         transaction.AccountIDString(),
+		ReceiverAccountID: transaction.ReceiverAccountIDString(),
 		OperationType:     transaction.OperationType(),
 		Amount:            transaction.TransferAmount().Amount(),
 		Currency:          transaction.TransferAmount().Currency(),

@@ -6,8 +6,8 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"github.com/u104rak1/pocgo/internal/application/authentication"
-	"github.com/u104rak1/pocgo/internal/config"
+	authApp "github.com/u104rak1/pocgo/internal/application/authentication"
+	appMock "github.com/u104rak1/pocgo/internal/application/mock"
 	domainMock "github.com/u104rak1/pocgo/internal/domain/mock"
 )
 
@@ -17,6 +17,7 @@ func TestSignupUsecase(t *testing.T) {
 		userServ *domainMock.MockIUserService
 		authRepo *domainMock.MockIAuthenticationRepository
 		authServ *domainMock.MockIAuthenticationService
+		jwtServ  *appMock.MockIJWTService
 	}
 
 	var (
@@ -24,10 +25,10 @@ func TestSignupUsecase(t *testing.T) {
 		userEmail    = "sato@example.com"
 		userPassword = "password"
 		accessToken  = "token"
-		jwtSecretKey = []byte(config.NewEnv().JWT_SECRET_KEY)
+		arg          = gomock.Any()
 	)
 
-	cmd := authentication.SignupCommand{
+	happyCmd := authApp.SignupCommand{
 		Name:     userName,
 		Email:    userEmail,
 		Password: userPassword,
@@ -35,69 +36,77 @@ func TestSignupUsecase(t *testing.T) {
 
 	tests := []struct {
 		caseName string
-		cmd      authentication.SignupCommand
-		prepare  func(ctx context.Context, mocks Mocks)
+		cmd      authApp.SignupCommand
+		prepare  func(mocks Mocks)
 		wantErr  bool
 	}{
 		{
-			caseName: "Signup is successfully done.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
-				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mocks.authServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
-				mocks.authRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mocks.authServ.EXPECT().GenerateAccessToken(ctx, gomock.Any(), jwtSecretKey).Return(accessToken, nil)
+			caseName: "Positive: サインアップが成功する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(arg, arg).Return(nil)
+				mocks.userRepo.EXPECT().Save(arg, arg).Return(nil)
+				mocks.authServ.EXPECT().VerifyUniqueness(arg, arg).Return(nil)
+				mocks.authRepo.EXPECT().Save(arg, arg).Return(nil)
+				mocks.jwtServ.EXPECT().GenerateAccessToken(arg).Return(accessToken, nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "Error occurs during email uniqueness verification.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(assert.AnError)
+			caseName: "Negative: メールアドレスの一意性検証に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(arg, arg).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "Error occurs during user save.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
-				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(assert.AnError)
+			caseName: "Negative: ユーザー作成に失敗する",
+			cmd:      authApp.SignupCommand{},
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(arg, arg).Return(nil)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "Error occurs during authentication uniqueness verification.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
-				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mocks.authServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(assert.AnError)
+			caseName: "Negative: ユーザー保存に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(arg, arg).Return(nil)
+				mocks.userRepo.EXPECT().Save(arg, arg).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "Error occurs during authentication save.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
-				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mocks.authServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
-				mocks.authRepo.EXPECT().Save(ctx, gomock.Any()).Return(assert.AnError)
+			caseName: "Negative: 認証の一意性検証に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(arg, arg).Return(nil)
+				mocks.userRepo.EXPECT().Save(arg, arg).Return(nil)
+				mocks.authServ.EXPECT().VerifyUniqueness(arg, arg).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "Error occurs during access token generation.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().VerifyEmailUniqueness(ctx, userEmail).Return(nil)
-				mocks.userRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mocks.authServ.EXPECT().VerifyUniqueness(ctx, gomock.Any()).Return(nil)
-				mocks.authRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
-				mocks.authServ.EXPECT().GenerateAccessToken(ctx, gomock.Any(), jwtSecretKey).Return("", assert.AnError)
+			caseName: "Negative: 認証保存に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(arg, arg).Return(nil)
+				mocks.userRepo.EXPECT().Save(arg, arg).Return(nil)
+				mocks.authServ.EXPECT().VerifyUniqueness(arg, arg).Return(nil)
+				mocks.authRepo.EXPECT().Save(arg, arg).Return(assert.AnError)
+			},
+			wantErr: true,
+		},
+		{
+			caseName: "Negative: アクセストークン生成に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().VerifyEmailUniqueness(arg, arg).Return(nil)
+				mocks.userRepo.EXPECT().Save(arg, arg).Return(nil)
+				mocks.authServ.EXPECT().VerifyUniqueness(arg, arg).Return(nil)
+				mocks.authRepo.EXPECT().Save(arg, arg).Return(nil)
+				mocks.jwtServ.EXPECT().GenerateAccessToken(arg).Return("", assert.AnError)
 			},
 			wantErr: true,
 		},
@@ -114,11 +123,12 @@ func TestSignupUsecase(t *testing.T) {
 				userServ: domainMock.NewMockIUserService(ctrl),
 				authRepo: domainMock.NewMockIAuthenticationRepository(ctrl),
 				authServ: domainMock.NewMockIAuthenticationService(ctrl),
+				jwtServ:  appMock.NewMockIJWTService(ctrl),
 			}
 
-			uc := authentication.NewSignupUsecase(mocks.userRepo, mocks.authRepo, mocks.userServ, mocks.authServ)
+			uc := authApp.NewSignupUsecase(mocks.userRepo, mocks.authRepo, mocks.userServ, mocks.authServ, mocks.jwtServ)
 			ctx := context.Background()
-			tt.prepare(ctx, mocks)
+			tt.prepare(mocks)
 
 			dto, err := uc.Run(ctx, tt.cmd)
 

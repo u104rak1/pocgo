@@ -7,7 +7,6 @@ import (
 	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
 	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestNew(t *testing.T) {
@@ -75,7 +74,7 @@ func TestNew(t *testing.T) {
 
 func TestReconstruct(t *testing.T) {
 	var (
-		userID   = ulid.GenerateStaticULID("user")
+		userID   = idVO.NewUserIDForTest("user").String()
 		password = "password"
 	)
 	t.Run("Positive: 認証情報を再構築できる", func(t *testing.T) {

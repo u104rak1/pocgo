@@ -3,10 +3,9 @@ package authentication
 import (
 	"context"
 
-	"github.com/u104rak1/pocgo/internal/config"
 	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
-	"github.com/u104rak1/pocgo/pkg/ulid"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 type ISignupUsecase interface {
@@ -18,6 +17,7 @@ type signupUsecase struct {
 	userServ userDomain.IUserService
 	authRepo authDomain.IAuthenticationRepository
 	authServ authDomain.IAuthenticationService
+	jwtServ  IJWTService
 }
 
 func NewSignupUsecase(
@@ -25,12 +25,14 @@ func NewSignupUsecase(
 	authRepository authDomain.IAuthenticationRepository,
 	userService userDomain.IUserService,
 	authService authDomain.IAuthenticationService,
+	jwtService IJWTService,
 ) ISignupUsecase {
 	return &signupUsecase{
 		userRepo: userRepository,
 		authRepo: authRepository,
 		userServ: userService,
 		authServ: authService,
+		jwtServ:  jwtService,
 	}
 }
 
@@ -52,8 +54,8 @@ type SignupUserDTO struct {
 }
 
 func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO, error) {
-	userID := ulid.New()
-	if err := u.createUser(ctx, userID, cmd); err != nil {
+	userID, err := u.createUser(ctx, cmd)
+	if err != nil {
 		return nil, err
 	}
 
@@ -61,15 +63,14 @@ func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO,
 		return nil, err
 	}
 
-	env := config.NewEnv()
-	accessToken, err := u.authServ.GenerateAccessToken(ctx, userID, []byte(env.JWT_SECRET_KEY))
+	accessToken, err := u.jwtServ.GenerateAccessToken(userID.String())
 	if err != nil {
 		return nil, err
 	}
 
 	return &SignupDTO{
 		User: SignupUserDTO{
-			ID:    userID,
+			ID:    userID.String(),
 			Name:  cmd.Name,
 			Email: cmd.Email,
 		},
@@ -77,29 +78,30 @@ func (u *signupUsecase) Run(ctx context.Context, cmd SignupCommand) (*SignupDTO,
 	}, nil
 }
 
-func (u *signupUsecase) createUser(ctx context.Context, userID string, cmd SignupCommand) (err error) {
-	if err = u.userServ.VerifyEmailUniqueness(ctx, cmd.Email); err != nil {
-		return err
+func (u *signupUsecase) createUser(ctx context.Context, cmd SignupCommand) (*idVO.UserID, error) {
+	if err := u.userServ.VerifyEmailUniqueness(ctx, cmd.Email); err != nil {
+		return nil, err
 	}
 
-	user, err := userDomain.New(userID, cmd.Name, cmd.Email)
+	user, err := userDomain.New(cmd.Name, cmd.Email)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err = u.userRepo.Save(ctx, user); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	userID := user.ID()
+	return &userID, nil
 }
 
-func (u *signupUsecase) createAuthentication(ctx context.Context, userID string, cmd SignupCommand) (err error) {
-	if err = u.authServ.VerifyUniqueness(ctx, userID); err != nil {
+func (u *signupUsecase) createAuthentication(ctx context.Context, userID *idVO.UserID, cmd SignupCommand) error {
+	if err := u.authServ.VerifyUniqueness(ctx, *userID); err != nil {
 		return err
 	}
 
-	authentication, err := authDomain.New(userID, cmd.Password)
+	authentication, err := authDomain.New(*userID, cmd.Password)
 	if err != nil {
 		return err
 	}

@@ -6,6 +6,7 @@ import (
 
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 type IListTransactionsUsecase interface {
@@ -54,13 +55,23 @@ type ListTransactionDTO struct {
 }
 
 func (u *listTransactionsUsecase) Run(ctx context.Context, cmd ListTransactionsCommand) (*ListTransactionsDTO, error) {
-	_, err := u.accountServ.GetAndAuthorize(ctx, cmd.AccountID, &cmd.UserID, nil)
+	userID, err := idVO.UserIDFromString(cmd.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	accountID, err := idVO.AccountIDFromString(cmd.AccountID)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = u.accountServ.GetAndAuthorize(ctx, accountID, &userID, nil)
 	if err != nil {
 		return nil, err
 	}
 
 	transactions, total, err := u.transactionServ.ListWithTotal(ctx, transactionDomain.ListTransactionsParams{
-		AccountID:      cmd.AccountID,
+		AccountID:      accountID,
 		From:           cmd.From,
 		To:             cmd.To,
 		OperationTypes: cmd.OperationTypes,
@@ -76,8 +87,8 @@ func (u *listTransactionsUsecase) Run(ctx context.Context, cmd ListTransactionsC
 	for i, t := range transactions {
 		transactionDTOs[i] = ListTransactionDTO{
 			ID:                t.IDString(),
-			AccountID:         t.AccountID(),
-			ReceiverAccountID: t.ReceiverAccountID(),
+			AccountID:         t.AccountIDString(),
+			ReceiverAccountID: t.ReceiverAccountIDString(),
 			OperationType:     t.OperationType(),
 			Amount:            t.TransferAmount().Amount(),
 			Currency:          t.TransferAmount().Currency(),

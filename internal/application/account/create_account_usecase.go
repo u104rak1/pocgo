@@ -6,7 +6,7 @@ import (
 	unitofwork "github.com/u104rak1/pocgo/internal/application/unit_of_work"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
-	"github.com/u104rak1/pocgo/pkg/timer"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 type ICreateAccountUsecase interface {
@@ -51,20 +51,25 @@ type CreateAccountDTO struct {
 }
 
 func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand) (*CreateAccountDTO, error) {
+	userID, err := idVO.UserIDFromString(cmd.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	balance := 0.0
 	account, err := accountDomain.New(
-		cmd.UserID, cmd.Name, cmd.Password,
-		0, cmd.Currency, timer.Now(),
+		userID, balance, cmd.Name, cmd.Password, cmd.Currency,
 	)
 	if err != nil {
 		return nil, err
 	}
 
 	err = u.unitOfWork.RunInTx(ctx, func(ctx context.Context) error {
-		if err := u.userServ.EnsureUserExists(ctx, cmd.UserID); err != nil {
+		if err := u.userServ.EnsureUserExists(ctx, userID); err != nil {
 			return err
 		}
 
-		if err := u.accountServ.CheckLimit(ctx, cmd.UserID); err != nil {
+		if err := u.accountServ.CheckLimit(ctx, userID); err != nil {
 			return err
 		}
 
@@ -79,8 +84,8 @@ func (u *createAccountUsecase) Run(ctx context.Context, cmd CreateAccountCommand
 	}
 
 	return &CreateAccountDTO{
-		ID:        account.ID(),
-		UserID:    account.UserID(),
+		ID:        account.IDString(),
+		UserID:    account.UserIDString(),
 		Name:      account.Name(),
 		Balance:   account.Balance().Amount(),
 		Currency:  account.Balance().Currency(),

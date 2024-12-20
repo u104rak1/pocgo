@@ -2,7 +2,6 @@ package user_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -10,17 +9,16 @@ import (
 	userApp "github.com/u104rak1/pocgo/internal/application/user"
 	"github.com/u104rak1/pocgo/internal/domain/mock"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
-	"github.com/u104rak1/pocgo/pkg/ulid"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 func TestReadUserUsecase(t *testing.T) {
 	var (
-		userID   = ulid.GenerateStaticULID("user")
-		userName = "Sato Taro"
-		email    = "sato@example.com"
+		userID = idVO.NewUserIDForTest("user").String()
+		name   = "Sato Taro"
+		email  = "sato@example.com"
+		arg    = gomock.Any()
 	)
-	user, err := userDomain.New(userID, userName, email)
-	assert.NoError(t, err)
 
 	cmd := userApp.ReadUserCommand{
 		ID: userID,
@@ -29,22 +27,30 @@ func TestReadUserUsecase(t *testing.T) {
 	tests := []struct {
 		caseName string
 		cmd      userApp.ReadUserCommand
-		prepare  func(ctx context.Context, mockUserRepo *mock.MockIUserRepository)
+		prepare  func(mockUserServ *mock.MockIUserService, user *userDomain.User)
 		wantErr  bool
 	}{
 		{
-			caseName: "User is successfully read.",
+			caseName: "Positive: ユーザー取得に成功する",
 			cmd:      cmd,
-			prepare: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository) {
-				mockUserRepo.EXPECT().FindByID(ctx, userID).Return(user, nil)
+			prepare: func(mockUserServ *mock.MockIUserService, user *userDomain.User) {
+				mockUserServ.EXPECT().FindUser(arg, arg).Return(user, nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "Error occurs during FindByID in userRepository.",
+			caseName: "Negative: ユーザーIDが不正な形式である	",
+			cmd: userApp.ReadUserCommand{
+				ID: "invalid",
+			},
+			prepare: func(mockUserServ *mock.MockIUserService, user *userDomain.User) {},
+			wantErr: true,
+		},
+		{
+			caseName: "Negative: ユーザー取得に失敗する",
 			cmd:      cmd,
-			prepare: func(ctx context.Context, mockUserRepo *mock.MockIUserRepository) {
-				mockUserRepo.EXPECT().FindByID(ctx, userID).Return(nil, errors.New("error"))
+			prepare: func(mockUserServ *mock.MockIUserService, user *userDomain.User) {
+				mockUserServ.EXPECT().FindUser(arg, arg).Return(nil, assert.AnError)
 			},
 			wantErr: true,
 		},
@@ -56,10 +62,12 @@ func TestReadUserUsecase(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			mockUserRepo := mock.NewMockIUserRepository(ctrl)
-			uc := userApp.NewReadUserUsecase(mockUserRepo)
+			mockUserServ := mock.NewMockIUserService(ctrl)
+			uc := userApp.NewReadUserUsecase(mockUserServ)
 			ctx := context.Background()
-			tt.prepare(ctx, mockUserRepo)
+			user, err := userDomain.Reconstruct(userID, name, email)
+			assert.NoError(t, err)
+			tt.prepare(mockUserServ, user)
 
 			dto, err := uc.Run(ctx, tt.cmd)
 
@@ -70,7 +78,7 @@ func TestReadUserUsecase(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, dto)
 				assert.Equal(t, userID, dto.ID)
-				assert.Equal(t, userName, dto.Name)
+				assert.Equal(t, name, dto.Name)
 				assert.Equal(t, email, dto.Email)
 			}
 		})

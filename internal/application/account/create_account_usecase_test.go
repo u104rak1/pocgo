@@ -8,72 +8,87 @@ import (
 	"github.com/stretchr/testify/assert"
 	accountUC "github.com/u104rak1/pocgo/internal/application/account"
 	appMock "github.com/u104rak1/pocgo/internal/application/mock"
-	"github.com/u104rak1/pocgo/internal/domain/mock"
-	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
-	"github.com/u104rak1/pocgo/pkg/ulid"
+	domainMock "github.com/u104rak1/pocgo/internal/domain/mock"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
+	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 )
 
 func TestCreateAccountUsecase(t *testing.T) {
 	type Mocks struct {
-		accountRepo *mock.MockIAccountRepository
-		accountServ *mock.MockIAccountService
-		userServ    *mock.MockIUserService
+		accountRepo *domainMock.MockIAccountRepository
+		accountServ *domainMock.MockIAccountService
+		userServ    *domainMock.MockIUserService
 	}
 
-	userID := ulid.GenerateStaticULID("user")
-	cmd := accountUC.CreateAccountCommand{
-		UserID:   userID,
-		Name:     "For work",
-		Password: "1234",
-		Currency: money.JPY,
+	var (
+		userID   = idVO.NewUserIDForTest("user")
+		name     = "For work"
+		password = "1234"
+		currency = moneyVO.JPY
+		arg      = gomock.Any()
+	)
+
+	happyCmd := accountUC.CreateAccountCommand{
+		UserID:   userID.String(),
+		Name:     name,
+		Password: password,
+		Currency: currency,
 	}
 
 	tests := []struct {
 		caseName string
 		cmd      accountUC.CreateAccountCommand
-		prepare  func(ctx context.Context, mocks Mocks)
+		prepare  func(mocks Mocks)
 		wantErr  bool
 	}{
 		{
-			caseName: "Account is successfully created.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().EnsureUserExists(ctx, userID).Return(nil)
-				mocks.accountServ.EXPECT().CheckLimit(ctx, userID).Return(nil)
-				mocks.accountRepo.EXPECT().Save(ctx, gomock.Any()).Return(nil)
+			caseName: "Positive: 口座作成が成功する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().EnsureUserExists(arg, arg).Return(nil)
+				mocks.accountServ.EXPECT().CheckLimit(arg, arg).Return(nil)
+				mocks.accountRepo.EXPECT().Save(arg, arg).Return(nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "An error occurs during account creation.",
+			caseName: "Negative: ユーザーIDが不正な形式である",
+			cmd: accountUC.CreateAccountCommand{
+				UserID: "invalid",
+			},
+			prepare: func(mocks Mocks) {},
+			wantErr: true,
+		},
+		{
+			caseName: "Negative: 口座作成に失敗する",
 			cmd:      accountUC.CreateAccountCommand{},
-			prepare:  func(ctx context.Context, mocks Mocks) {},
+			prepare:  func(mocks Mocks) {},
 			wantErr:  true,
 		},
 		{
-			caseName: "An error occurs when the user not found.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().EnsureUserExists(ctx, userID).Return(assert.AnError)
+			caseName: "Negative: ユーザーの存在確認に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().EnsureUserExists(arg, arg).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "An error occurs if the user has reached the limit of accounts.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().EnsureUserExists(ctx, userID).Return(nil)
-				mocks.accountServ.EXPECT().CheckLimit(ctx, userID).Return(assert.AnError)
+			caseName: "Negative: ユーザーの所持口座上限確認に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().EnsureUserExists(arg, arg).Return(nil)
+				mocks.accountServ.EXPECT().CheckLimit(arg, arg).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "An error occurs during Save in accountRepository.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, mocks Mocks) {
-				mocks.userServ.EXPECT().EnsureUserExists(ctx, userID).Return(nil)
-				mocks.accountServ.EXPECT().CheckLimit(ctx, userID).Return(nil)
-				mocks.accountRepo.EXPECT().Save(ctx, gomock.Any()).Return(assert.AnError)
+			caseName: "Negative: 口座保存に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.userServ.EXPECT().EnsureUserExists(arg, arg).Return(nil)
+				mocks.accountServ.EXPECT().CheckLimit(arg, arg).Return(nil)
+				mocks.accountRepo.EXPECT().Save(arg, arg).Return(assert.AnError)
 			},
 			wantErr: true,
 		},
@@ -86,9 +101,9 @@ func TestCreateAccountUsecase(t *testing.T) {
 			defer ctrl.Finish()
 
 			mocks := Mocks{
-				accountRepo: mock.NewMockIAccountRepository(ctrl),
-				accountServ: mock.NewMockIAccountService(ctrl),
-				userServ:    mock.NewMockIUserService(ctrl),
+				accountRepo: domainMock.NewMockIAccountRepository(ctrl),
+				accountServ: domainMock.NewMockIAccountService(ctrl),
+				userServ:    domainMock.NewMockIUserService(ctrl),
 			}
 			mockUnitOfWork := &appMock.MockIUnitOfWork{}
 
@@ -96,7 +111,7 @@ func TestCreateAccountUsecase(t *testing.T) {
 				mocks.accountRepo, mocks.accountServ, mocks.userServ, mockUnitOfWork,
 			)
 			ctx := context.Background()
-			tt.prepare(ctx, mocks)
+			tt.prepare(mocks)
 
 			dto, err := uc.Run(ctx, tt.cmd)
 

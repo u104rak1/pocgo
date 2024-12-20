@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
-	"github.com/u104rak1/pocgo/pkg/ulid"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 func TestNew(t *testing.T) {
@@ -81,7 +81,7 @@ func TestNew(t *testing.T) {
 
 func TestReconstruct(t *testing.T) {
 	var (
-		id    = ulid.GenerateStaticULID("user")
+		id    = idVO.NewUserIDForTest("user").String()
 		name  = "sato taro"
 		email = "sato@example.com"
 	)

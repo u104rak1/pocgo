@@ -4,6 +4,7 @@ import (
 	"context"
 
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 type IReadUserUsecase interface {
@@ -11,12 +12,12 @@ type IReadUserUsecase interface {
 }
 
 type readUserUsecase struct {
-	userRepo userDomain.IUserRepository
+	userServ userDomain.IUserService
 }
 
-func NewReadUserUsecase(userRepository userDomain.IUserRepository) IReadUserUsecase {
+func NewReadUserUsecase(userService userDomain.IUserService) IReadUserUsecase {
 	return &readUserUsecase{
-		userRepo: userRepository,
+		userServ: userService,
 	}
 }
 
@@ -31,17 +32,18 @@ type ReadUserDTO struct {
 }
 
 func (u *readUserUsecase) Run(ctx context.Context, cmd ReadUserCommand) (*ReadUserDTO, error) {
-	//TODO: エラーメッセージがユースケースに出てくる場合はdomain serviceに書く
-	user, err := u.userRepo.FindByID(ctx, cmd.ID)
+	userID, err := idVO.UserIDFromString(cmd.ID)
 	if err != nil {
 		return nil, err
 	}
-	if user == nil {
-		return nil, userDomain.ErrNotFound
+
+	user, err := u.userServ.FindUser(ctx, userID)
+	if err != nil {
+		return nil, err
 	}
 
 	return &ReadUserDTO{
-		ID:    user.ID(),
+		ID:    user.IDString(),
 		Name:  user.Name(),
 		Email: user.Email(),
 	}, nil

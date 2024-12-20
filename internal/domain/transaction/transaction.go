@@ -108,11 +108,12 @@ func (t *Transaction) ReceiverAccountID() *idVO.AccountID {
 	return t.receiverAccountID
 }
 
-func (t *Transaction) ReceiverAccountIDString() string {
+func (t *Transaction) ReceiverAccountIDString() *string {
 	if t.receiverAccountID == nil {
-		return ""
+		return nil
 	}
-	return t.receiverAccountID.String()
+	receiverAccountID := t.receiverAccountID.String()
+	return &receiverAccountID
 }
 
 func (t *Transaction) OperationType() string {

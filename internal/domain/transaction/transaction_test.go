@@ -9,7 +9,6 @@ import (
 	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/pkg/timer"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestNewTransaction(t *testing.T) {
@@ -122,21 +121,22 @@ func TestNewTransaction(t *testing.T) {
 
 func TestReconstruct(t *testing.T) {
 	var (
-		transactionID     = ulid.GenerateStaticULID("transaction")
-		accountID         = ulid.GenerateStaticULID("account")
-		receiverAccountID = ulid.GenerateStaticULID("accountReceiver")
+		transactionID     = idVO.NewTransactionIDForTest("transaction").String()
+		accountID         = idVO.NewAccountIDForTest("account").String()
+		receiverAccountID = idVO.NewAccountIDForTest("accountReceiver").String()
 		operationType     = "TRANSFER"
 		amount            = 1000.0
 		currency          = moneyVO.JPY
 		transactionAt     = timer.GetFixedDate()
 	)
+
 	t.Run("Positive: 取引を再構築できる", func(t *testing.T) {
 		tx, err := transactionDomain.Reconstruct(transactionID, accountID, &receiverAccountID, operationType, amount, currency, transactionAt)
 		assert.NoError(t, err)
 		assert.NotNil(t, tx)
 		assert.Equal(t, transactionID, tx.IDString())
 		assert.Equal(t, accountID, tx.AccountIDString())
-		assert.Equal(t, receiverAccountID, tx.ReceiverAccountIDString())
+		assert.Equal(t, &receiverAccountID, tx.ReceiverAccountIDString())
 		assert.Equal(t, operationType, tx.OperationType())
 		assert.Equal(t, amount, tx.TransferAmount().Amount())
 		assert.Equal(t, currency, tx.TransferAmount().Currency())

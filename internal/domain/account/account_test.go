@@ -11,7 +11,6 @@ import (
 	moneyVO "github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
 	"github.com/u104rak1/pocgo/pkg/timer"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestNew(t *testing.T) {
@@ -153,8 +152,8 @@ func TestNew(t *testing.T) {
 
 func TestReconstruct(t *testing.T) {
 	var (
-		accountID = ulid.GenerateStaticULID("account")
-		userID    = ulid.GenerateStaticULID("user")
+		accountID = idVO.NewAccountIDForTest("account").String()
+		userID    = idVO.NewUserIDForTest("user").String()
 		name      = "For work"
 		password  = "1234"
 		amount    = 1000.0

@@ -42,24 +42,37 @@ run: ## Run application
 clean: ## Delete cache
 	@go clean -cache -modcache
 
-unit_test: ## Run unit test (Specify CASE to run only a specific test, e.g. CASE=TestSignup)
+unit_test: ## Run unit test (Specify CASE to run only a specific test, e.g. CASE=TestSignup | Use FAILONLY=1 to show only failures)
 	@mkdir -p tmp
 	@if [ -z "$(CASE)" ]; then \
-		go test ./internal/... ./pkg/... -v -coverprofile=tmp/unit_coverage.out 2>&1 | tee tmp/unit_test.log; \
+		if [ "$(FAILONLY)" = "1" ]; then \
+			go test -quiet ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out 2>&1 | tee tmp/unit_test.log; \
+		else \
+			go test ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out 2>&1 | tee tmp/unit_test.log; \
+		fi \
 	else \
-		go test ./internal/... ./pkg/... -v -coverprofile=tmp/unit_coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log; \
+		if [ "$(FAILONLY)" = "1" ]; then \
+			go test -quiet ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log; \
+		else \
+			go test ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log; \
+		fi \
 	fi
 	@go tool cover -html=tmp/unit_coverage.out -o tmp/unit_test.cover.html
 
-unit_coverage: ## Show unit test coverage report in terminal
-	@go tool cover -func=tmp/unit_coverage.out
-
-integration_test: ## Run integration tests (Specify CASE to run only a specific test, e.g., CASE=TestSignup | Use UPDATE=-update to refresh golden files)
+integration_test: ## Run integration tests (Specify CASE to run only a specific test, e.g., CASE=TestSignup | Use UPDATE=-update to refresh golden files | Use FAILONLY=1 to show only failures)
 	@mkdir -p tmp
 	@if [ -z "$(CASE)" ]; then \
-		go test ./test/... -v -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
+		if [ "$(FAILONLY)" = "1" ]; then \
+			go test -quiet ./test/... -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
+		else \
+			go test ./test/... -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
+		fi \
 	else \
-		go test ./test/... -v -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
+		if [ "$(FAILONLY)" = "1" ]; then \
+			go test -quiet ./test/... -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
+		else \
+			go test ./test/... -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
+		fi \
 	fi
 	@go tool cover -html=tmp/integration_coverage.out -o tmp/integration_test.cover.html
 

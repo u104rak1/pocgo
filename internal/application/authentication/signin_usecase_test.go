@@ -2,25 +2,31 @@ package authentication_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	authApp "github.com/u104rak1/pocgo/internal/application/authentication"
+	appMock "github.com/u104rak1/pocgo/internal/application/mock"
 	domainMock "github.com/u104rak1/pocgo/internal/domain/mock"
-	"github.com/u104rak1/pocgo/pkg/ulid"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 func TestSigninUsecase(t *testing.T) {
+	type Mocks struct {
+		authServ *domainMock.MockIAuthenticationService
+		jwtServ  *appMock.MockIJWTService
+	}
+
 	var (
-		userID      = ulid.GenerateStaticULID("user")
+		userID      = idVO.NewUserIDForTest("user")
 		email       = "sato@example.com"
 		password    = "password"
 		accessToken = "token"
+		arg         = gomock.Any()
 	)
 
-	cmd := authApp.SigninCommand{
+	happyCmd := authApp.SigninCommand{
 		Email:    email,
 		Password: password,
 	}
@@ -28,32 +34,32 @@ func TestSigninUsecase(t *testing.T) {
 	tests := []struct {
 		caseName string
 		cmd      authApp.SigninCommand
-		prepare  func(ctx context.Context, authServ *domainMock.MockIAuthenticationService)
+		prepare  func(mocks Mocks)
 		wantErr  bool
 	}{
 		{
-			caseName: "Signin is successfully done.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, authServ *domainMock.MockIAuthenticationService) {
-				authServ.EXPECT().Authenticate(ctx, email, password).Return(userID, nil)
-				authServ.EXPECT().GenerateAccessToken(ctx, userID, gomock.Any()).Return(accessToken, nil)
+			caseName: "Positive: サインインが成功する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.authServ.EXPECT().Authenticate(arg, arg, arg).Return(&userID, nil)
+				mocks.jwtServ.EXPECT().GenerateAccessToken(arg).Return(accessToken, nil)
 			},
 			wantErr: false,
 		},
 		{
-			caseName: "Error occurs when authentication fails.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, authServ *domainMock.MockIAuthenticationService) {
-				authServ.EXPECT().Authenticate(ctx, email, password).Return("", errors.New("error"))
+			caseName: "Negative: 認証に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.authServ.EXPECT().Authenticate(arg, arg, arg).Return(nil, assert.AnError)
 			},
 			wantErr: true,
 		},
 		{
-			caseName: "Error occurs when generating an access token fails.",
-			cmd:      cmd,
-			prepare: func(ctx context.Context, authServ *domainMock.MockIAuthenticationService) {
-				authServ.EXPECT().Authenticate(ctx, email, password).Return(userID, nil)
-				authServ.EXPECT().GenerateAccessToken(ctx, userID, gomock.Any()).Return("", errors.New("error"))
+			caseName: "Negative: アクセストークンの生成に失敗する",
+			cmd:      happyCmd,
+			prepare: func(mocks Mocks) {
+				mocks.authServ.EXPECT().Authenticate(arg, arg, arg).Return(&userID, nil)
+				mocks.jwtServ.EXPECT().GenerateAccessToken(arg).Return("", assert.AnError)
 			},
 			wantErr: true,
 		},
@@ -65,10 +71,13 @@ func TestSigninUsecase(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			authServ := domainMock.NewMockIAuthenticationService(ctrl)
-			uc := authApp.NewSigninUsecase(authServ)
+			mocks := Mocks{
+				authServ: domainMock.NewMockIAuthenticationService(ctrl),
+				jwtServ:  appMock.NewMockIJWTService(ctrl),
+			}
+			uc := authApp.NewSigninUsecase(mocks.authServ, mocks.jwtServ)
 			ctx := context.Background()
-			tt.prepare(ctx, authServ)
+			tt.prepare(mocks)
 
 			dto, err := uc.Run(ctx, tt.cmd)
 

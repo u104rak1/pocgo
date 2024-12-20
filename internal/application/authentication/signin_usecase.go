@@ -3,7 +3,6 @@ package authentication
 import (
 	"context"
 
-	"github.com/u104rak1/pocgo/internal/config"
 	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
 )
 
@@ -13,13 +12,16 @@ type ISigninUsecase interface {
 
 type signinUsecase struct {
 	authServ authDomain.IAuthenticationService
+	jwtServ  IJWTService
 }
 
 func NewSigninUsecase(
 	authenticationService authDomain.IAuthenticationService,
+	jwtService IJWTService,
 ) ISigninUsecase {
 	return &signinUsecase{
 		authServ: authenticationService,
+		jwtServ:  jwtService,
 	}
 }
 
@@ -38,8 +40,7 @@ func (u *signinUsecase) Run(ctx context.Context, cmd SigninCommand) (*SigninDTO,
 		return nil, err
 	}
 
-	env := config.NewEnv()
-	token, err := u.authServ.GenerateAccessToken(ctx, userID, []byte(env.JWT_SECRET_KEY))
+	token, err := u.jwtServ.GenerateAccessToken(userID.String())
 	if err != nil {
 		return nil, err
 	}
