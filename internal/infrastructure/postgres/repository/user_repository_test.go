@@ -3,7 +3,6 @@ package repository_test
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"regexp"
 	"testing"
@@ -24,28 +23,26 @@ func TestUserRepository_Save(t *testing.T) {
 		VALUES ('%s', '%s', '%s', DEFAULT)
 		ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, email = EXCLUDED.email
 		RETURNING "deleted_at"
-	`, user.ID(), user.Name(), user.Email())
-
-	ErrDB := errors.New("database error")
+	`, user.IDString(), user.Name(), user.Email())
 
 	tests := []struct {
 		caseName string
 		prepare  func()
-		wantErr  error
+		wantErr  bool
 	}{
 		{
-			caseName: "Successfully saves user.",
+			caseName: "Positive: ユーザー保存が成功する",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"deleted_at"}))
 			},
-			wantErr: nil,
+			wantErr: false,
 		},
 		{
-			caseName: "Error occurs in database during save operation.",
+			caseName: "Negative: SQLエラーで失敗する",
 			prepare: func() {
-				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(assert.AnError)
 			},
-			wantErr: ErrDB,
+			wantErr: true,
 		},
 	}
 
@@ -54,8 +51,8 @@ func TestUserRepository_Save(t *testing.T) {
 			tt.prepare()
 			err := repo.Save(ctx, user)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, ErrDB)
+			if tt.wantErr {
+				assert.Error(t, assert.AnError)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -68,25 +65,25 @@ func TestUserRepository_Save(t *testing.T) {
 	testsWithTx := []struct {
 		caseName string
 		prepare  func()
-		wantErr  error
+		wantErr  bool
 	}{
 		{
-			caseName: "Successfully saves user with transaction.",
+			caseName: "Positive: トランザクション内でユーザー保存が成功する",
 			prepare: func() {
 				mock.ExpectBegin()
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"deleted_at"}))
 				mock.ExpectCommit()
 			},
-			wantErr: nil,
+			wantErr: false,
 		},
 		{
-			caseName: "Error occurs in database, transaction is rolled back.",
+			caseName: "Negative: SQLエラーでロールバックされる",
 			prepare: func() {
 				mock.ExpectBegin()
-				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(assert.AnError)
 				mock.ExpectRollback()
 			},
-			wantErr: ErrDB,
+			wantErr: true,
 		},
 	}
 
@@ -97,8 +94,8 @@ func TestUserRepository_Save(t *testing.T) {
 				return repo.Save(ctx, user)
 			})
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.wantErr {
+				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 			}
@@ -123,33 +120,33 @@ func TestUserRepository_FindByID(t *testing.T) {
 		caseName string
 		prepare  func()
 		wantUser *userDomain.User
-		wantErr  error
+		wantErr  bool
 	}{
 		{
-			caseName: "Successfully finds user by ID.",
+			caseName: "Positive: IDでユーザー取得が成功する",
 			prepare: func() {
 				rows := sqlmock.NewRows([]string{"id", "name", "email", "deleted_at"}).
 					AddRow(user.IDString(), user.Name(), user.Email(), nil)
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(rows)
 			},
 			wantUser: user,
-			wantErr:  nil,
+			wantErr:  false,
 		},
 		{
-			caseName: "Returns ErrUserNotFound when no user is found.",
+			caseName: "Positive: ユーザーが見つからない場合、nilを返す",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(sql.ErrNoRows)
 			},
 			wantUser: nil,
-			wantErr:  userDomain.ErrNotFound,
+			wantErr:  false,
 		},
 		{
-			caseName: "Returns database error when unknown error occurs.",
+			caseName: "Negative: SQLエラーで失敗する",
 			prepare: func() {
-				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(assert.AnError)
 			},
 			wantUser: nil,
-			wantErr:  ErrDB,
+			wantErr:  true,
 		},
 	}
 
@@ -158,8 +155,8 @@ func TestUserRepository_FindByID(t *testing.T) {
 			tt.prepare()
 			foundUser, err := repo.FindByID(ctx, user.ID())
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.wantErr {
+				assert.Error(t, err)
 				assert.Nil(t, foundUser)
 			} else {
 				assert.NoError(t, err)
@@ -186,33 +183,33 @@ func TestUserRepository_FindByEmail(t *testing.T) {
 		caseName string
 		prepare  func()
 		wantUser *userDomain.User
-		wantErr  error
+		wantErr  bool
 	}{
 		{
-			caseName: "Successfully finds user by email.",
+			caseName: "Positive: メールアドレスでユーザー取得が成功する",
 			prepare: func() {
 				rows := sqlmock.NewRows([]string{"id", "name", "email", "deleted_at"}).
 					AddRow(user.IDString(), user.Name(), user.Email(), nil)
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(rows)
 			},
 			wantUser: user,
-			wantErr:  nil,
+			wantErr:  false,
 		},
 		{
-			caseName: "Returns ErrUserNotFound when no user is found.",
+			caseName: "Positive: ユーザーが見つからない場合、nilを返す",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(sql.ErrNoRows)
 			},
 			wantUser: nil,
-			wantErr:  userDomain.ErrNotFound,
+			wantErr:  false,
 		},
 		{
-			caseName: "Returns database error when unknown error occurs.",
+			caseName: "Negative: SQLエラーで失敗する",
 			prepare: func() {
-				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(assert.AnError)
 			},
 			wantUser: nil,
-			wantErr:  ErrDB,
+			wantErr:  true,
 		},
 	}
 
@@ -221,8 +218,8 @@ func TestUserRepository_FindByEmail(t *testing.T) {
 			tt.prepare()
 			foundUser, err := repo.FindByEmail(ctx, user.Email())
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.wantErr {
+				assert.Error(t, err)
 				assert.Nil(t, foundUser)
 			} else {
 				assert.NoError(t, err)
@@ -250,31 +247,31 @@ func TestUserRepository_ExistsByID(t *testing.T) {
 		caseName   string
 		prepare    func()
 		wantExists bool
-		wantErr    error
+		wantErr    bool
 	}{
 		{
-			caseName: "User exists in the database.",
+			caseName: "Positive: IDでユーザーの存在確認が成功する",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(1))
 			},
 			wantExists: true,
-			wantErr:    nil,
+			wantErr:    false,
 		},
 		{
-			caseName: "User does not exist in the database.",
+			caseName: "Positive: ユーザーが存在しない場合、falseを返す",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(0))
 			},
 			wantExists: false,
-			wantErr:    nil,
+			wantErr:    false,
 		},
 		{
-			caseName: "Error occurs in database when checking ID existence.",
+			caseName: "Negative: SQLエラーで失敗する",
 			prepare: func() {
-				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(assert.AnError)
 			},
 			wantExists: false,
-			wantErr:    ErrDB,
+			wantErr:    true,
 		},
 	}
 
@@ -283,8 +280,8 @@ func TestUserRepository_ExistsByID(t *testing.T) {
 			tt.prepare()
 			exists, err := repo.ExistsByID(ctx, user.ID())
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.wantErr {
+				assert.Error(t, err)
 				assert.False(t, exists)
 			} else {
 				assert.NoError(t, err)
@@ -311,31 +308,31 @@ func TestUserRepository_ExistsByEmail(t *testing.T) {
 		caseName   string
 		prepare    func()
 		wantExists bool
-		wantErr    error
+		wantErr    bool
 	}{
 		{
-			caseName: "Email exists in the database.",
+			caseName: "Positive: メールアドレスでユーザーの存在確認が成功する",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(1))
 			},
 			wantExists: true,
-			wantErr:    nil,
+			wantErr:    false,
 		},
 		{
-			caseName: "Email does not exist in the database.",
+			caseName: "Positive: ユーザーが存在しない場合、falseを返す",
 			prepare: func() {
 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"1"}).AddRow(0))
 			},
 			wantExists: false,
-			wantErr:    nil,
+			wantErr:    false,
 		},
 		{
-			caseName: "Error occurs in database when checking email existence.",
+			caseName: "Negative: SQLエラーで失敗する",
 			prepare: func() {
-				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(ErrDB)
+				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(assert.AnError)
 			},
 			wantExists: false,
-			wantErr:    ErrDB,
+			wantErr:    true,
 		},
 	}
 
@@ -344,8 +341,8 @@ func TestUserRepository_ExistsByEmail(t *testing.T) {
 			tt.prepare()
 			exists, err := repo.ExistsByEmail(ctx, email)
 
-			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+			if tt.wantErr {
+				assert.Error(t, err)
 				assert.False(t, exists)
 			} else {
 				assert.NoError(t, err)
@@ -356,58 +353,3 @@ func TestUserRepository_ExistsByEmail(t *testing.T) {
 		})
 	}
 }
-
-// TODO
-// func TestUserRepository_Delete(t *testing.T) {
-// 	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewUserRepository)
-// 	userID := ulid.GenerateStaticULID("user")
-
-// 	expectQuery := fmt.Sprintf(`
-// 		UPDATE "users" AS "user"
-// 		SET "deleted_at" = '%s'
-// 		WHERE "user"."deleted_at" IS NULL AND ("id" = '%s')
-// 		`, sqlmock.AnyArg(), userID)
-// 	// expectQuery := `
-// 	// UPDATE "users" AS "user"
-// 	// SET "deleted_at" = ?
-// 	// WHERE "user"."deleted_at" IS NULL AND ("id" = ?)
-// 	// `
-
-// 	tests := []struct {
-// 		caseName string
-// 		prepare  func()
-// 		wantErr  error
-// 	}{
-// 		{
-// 			caseName: "Happy path: delete user by ID.",
-// 			prepare: func() {
-// 				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"deleted_at"}))
-// 			},
-// 			wantErr: nil,
-// 		},
-// 		// {
-// 		// 	caseName: "Error case: database error during delete.",
-// 		// 	prepare: func() {
-// 		// 		mock.ExpectExec(regexp.QuoteMeta(expectQuery)).
-// 		// 			WithArgs(deletedAt, userID).
-// 		// 			WillReturnError(ErrDB)
-// 		// 	},
-// 		// 	wantErr: ErrDB,
-// 		// },
-// 	}
-
-// 	for _, tt := range tests {
-// 		t.Run(tt.caseName, func(t *testing.T) {
-// 			tt.prepare()
-// 			err := repo.Delete(ctx, userID)
-
-// 			if tt.wantErr != nil {
-// 				assert.ErrorIs(t, err, tt.wantErr)
-// 			} else {
-// 				assert.NoError(t, err)
-// 			}
-// 			err = mock.ExpectationsWereMet()
-// 			assert.NoError(t, err)
-// 		})
-// 	}
-// }

@@ -2,7 +2,6 @@ package repository_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -11,10 +10,7 @@ import (
 	"github.com/uptrace/bun/dialect/pgdialect"
 )
 
-var (
-	ErrDB = errors.New("database error")
-)
-
+// テスト用のリポジトリを作成するためのヘルパー関数です。
 func PrepareTestRepository[T any](t *testing.T, newRepo func(db *bun.DB) T) (T, sqlmock.Sqlmock, context.Context, *bun.DB) {
 	ctx := context.Background()
 	db, mock, err := sqlmock.New()

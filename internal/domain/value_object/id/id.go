@@ -47,7 +47,7 @@ func (id ID[T]) IsValid() bool {
 }
 
 func NewForTest[T any](seed string) ID[T] {
-	return ID[T]{value: generateStaticULID(seed)}
+	return ID[T]{value: GenerateStaticULID(seed)}
 }
 
 func isValid(s string) bool {
@@ -55,9 +55,9 @@ func isValid(s string) bool {
 	return err == nil
 }
 
-// generateStaticULID は引数の文字列に基づいて固定のULIDを生成します
+// GenerateStaticULID は引数の文字列に基づいて固定のULIDを生成します
 // 同じ引数からは常に同じULIDが生成されます
-func generateStaticULID(seed string) string {
+func GenerateStaticULID(seed string) string {
 	hash := md5.Sum([]byte(seed))
 	seedInt := binary.BigEndian.Uint64(hash[:8])
 	source := rand.NewSource(int64(seedInt))

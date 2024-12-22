@@ -14,7 +14,7 @@ func NewRepository[T any](db *bun.DB) *Repository[T] {
 	return &Repository[T]{db: db}
 }
 
-func (r *Repository[T]) execDB(ctx context.Context) bun.IDB {
+func (r *Repository[T]) ExecDB(ctx context.Context) bun.IDB {
 	tx := getTx(ctx)
 	if tx != nil {
 		return tx

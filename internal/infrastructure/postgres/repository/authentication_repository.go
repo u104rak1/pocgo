@@ -6,7 +6,7 @@ import (
 	"errors"
 
 	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
-	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
 	"github.com/uptrace/bun"
 )
@@ -21,28 +21,28 @@ func NewAuthenticationRepository(db *bun.DB) authDomain.IAuthenticationRepositor
 
 func (r *authenticationRepository) Save(ctx context.Context, authentication *authDomain.Authentication) error {
 	authModel := &model.Authentication{
-		UserID:       authentication.UserID(),
+		UserID:       authentication.UserIDString(),
 		PasswordHash: authentication.PasswordHash(),
 	}
-	_, err := r.execDB(ctx).NewInsert().Model(authModel).On("CONFLICT (user_id) DO UPDATE").
+	_, err := r.ExecDB(ctx).NewInsert().Model(authModel).On("CONFLICT (user_id) DO UPDATE").
 		Set("password_hash = EXCLUDED.password_hash").
 		Exec(ctx)
 	return err
 }
 
-func (r *authenticationRepository) FindByUserID(ctx context.Context, userID userDomain.UserID) (*authDomain.Authentication, error) {
+func (r *authenticationRepository) FindByUserID(ctx context.Context, userID idVO.UserID) (*authDomain.Authentication, error) {
 	authModel := &model.Authentication{}
-	if err := r.execDB(ctx).NewSelect().Model(authModel).Where("user_id = ?", userID).Scan(ctx); err != nil {
+	if err := r.ExecDB(ctx).NewSelect().Model(authModel).Where("user_id = ?", userID.String()).Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		return nil, err
 	}
-	return authDomain.Reconstruct(userID, authModel.PasswordHash)
+	return authDomain.Reconstruct(userID.String(), authModel.PasswordHash)
 }
 
-func (r *authenticationRepository) ExistsByUserID(ctx context.Context, userID userDomain.UserID) (bool, error) {
-	exists, err := r.execDB(ctx).NewSelect().Model((*model.Authentication)(nil)).Where("user_id = ?", userID).Exists(ctx)
+func (r *authenticationRepository) ExistsByUserID(ctx context.Context, userID idVO.UserID) (bool, error) {
+	exists, err := r.ExecDB(ctx).NewSelect().Model((*model.Authentication)(nil)).Where("user_id = ?", userID.String()).Exists(ctx)
 	if err != nil {
 		return false, err
 	}

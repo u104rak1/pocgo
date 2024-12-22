@@ -21,7 +21,7 @@ func (r *transactionRepository) Save(ctx context.Context, transaction *transacti
 	currencyCode := transaction.TransferAmount().Currency()
 
 	var currencyID string
-	err := r.execDB(ctx).NewSelect().
+	err := r.ExecDB(ctx).NewSelect().
 		Model((*model.CurrencyMaster)(nil)).
 		Column("id").
 		Where("code = ?", currencyCode).
@@ -33,19 +33,19 @@ func (r *transactionRepository) Save(ctx context.Context, transaction *transacti
 
 	transactionModel := &model.Transaction{
 		ID:                transaction.IDString(),
-		AccountID:         transaction.AccountID(),
-		ReceiverAccountID: transaction.ReceiverAccountID(),
+		AccountID:         transaction.AccountIDString(),
+		ReceiverAccountID: transaction.ReceiverAccountIDString(),
 		OperationType:     transaction.OperationType(),
 		Amount:            transaction.TransferAmount().Amount(),
 		CurrencyID:        currencyID,
 		TransactionAt:     transaction.TransactionAt(),
 	}
-	_, err = r.execDB(ctx).NewInsert().Model(transactionModel).Exec(ctx)
+	_, err = r.ExecDB(ctx).NewInsert().Model(transactionModel).Exec(ctx)
 	return err
 }
 
-func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, params transactionDomain.ListTransactionsParams) (transactions []*transactionDomain.Transaction, total int, err error) {
-	totalCountQuery := r.execDB(ctx).NewSelect().Model(&model.Transaction{})
+func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, params transactionDomain.ListTransactionsParams) (transactions []transactionDomain.Transaction, total int, err error) {
+	totalCountQuery := r.ExecDB(ctx).NewSelect().Model(&model.Transaction{})
 	r.buildListQuery(totalCountQuery, params)
 
 	total, err = totalCountQuery.Count(ctx)
@@ -54,7 +54,7 @@ func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, pa
 	}
 
 	var transactionModels = []model.Transaction{}
-	getQuery := r.execDB(ctx).NewSelect().Model(&transactionModels)
+	getQuery := r.ExecDB(ctx).NewSelect().Model(&transactionModels)
 	r.buildListQuery(getQuery, params)
 
 	if *params.Sort == "ASC" {
@@ -73,7 +73,7 @@ func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, pa
 		return nil, 0, fmt.Errorf("failed to retrieve transactions: %w", err)
 	}
 
-	transactions = make([]*transactionDomain.Transaction, len(transactionModels))
+	transactions = make([]transactionDomain.Transaction, len(transactionModels))
 	for i, m := range transactionModels {
 		transaction, err := transactionDomain.Reconstruct(
 			m.ID,
@@ -87,7 +87,7 @@ func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, pa
 		if err != nil {
 			return nil, 0, err
 		}
-		transactions[i] = transaction
+		transactions[i] = *transaction
 	}
 
 	return transactions, total, nil

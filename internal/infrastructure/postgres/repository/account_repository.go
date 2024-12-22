@@ -6,8 +6,8 @@ import (
 	"errors"
 
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
-	"github.com/u104rak1/pocgo/pkg/timer"
 	"github.com/uptrace/bun"
 )
 
@@ -23,7 +23,7 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 	currencyCode := account.Balance().Currency()
 
 	var currencyID string
-	err := r.execDB(ctx).NewSelect().
+	err := r.ExecDB(ctx).NewSelect().
 		Model((*model.CurrencyMaster)(nil)).
 		Column("id").
 		Where("code = ?", currencyCode).
@@ -34,9 +34,9 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 	}
 
 	accountModel := &model.Account{
-		ID:           account.ID(),
+		ID:           account.IDString(),
 		Name:         account.Name(),
-		UserID:       account.UserID(),
+		UserID:       account.UserIDString(),
 		PasswordHash: account.PasswordHash(),
 		Balance:      account.Balance().Amount(),
 		CurrencyID:   currencyID,
@@ -45,7 +45,7 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 
 	// TODO: If use a subquery, the following error will occur, so first get the current_id and then update it.
 	// pgdriver.Error: ERROR: insert or update on table "accounts" violates foreign key constraint "fk_account_currency_id" (SQLSTATE=23503)
-	_, err = r.execDB(ctx).NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
+	_, err = r.ExecDB(ctx).NewInsert().Model(accountModel).On("CONFLICT (id) DO UPDATE").
 		Set("name = EXCLUDED.name").
 		Set("user_id = EXCLUDED.user_id").
 		Set("password_hash = EXCLUDED.password_hash").
@@ -57,13 +57,13 @@ func (r *accountRepository) Save(ctx context.Context, account *accountDomain.Acc
 	return err
 }
 
-func (r *accountRepository) FindByID(ctx context.Context, id string) (*accountDomain.Account, error) {
+func (r *accountRepository) FindByID(ctx context.Context, id idVO.AccountID) (*accountDomain.Account, error) {
 	accountModel := &model.Account{}
 
-	if err := r.execDB(ctx).NewSelect().
+	if err := r.ExecDB(ctx).NewSelect().
 		Model(accountModel).
 		Relation("Currency").
-		Where("account.id = ?", id).
+		Where("account.id = ?", id.String()).
 		Scan(ctx); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
@@ -76,55 +76,12 @@ func (r *accountRepository) FindByID(ctx context.Context, id string) (*accountDo
 		accountModel.UserID,
 		accountModel.Name,
 		accountModel.PasswordHash,
-		accountModel.Balance,
 		accountModel.Currency.Code,
+		accountModel.Balance,
 		accountModel.UpdatedAt,
 	)
 }
 
-func (r *accountRepository) ListByUserID(ctx context.Context, userID string) ([]*accountDomain.Account, error) {
-	var accountModels []*model.Account
-	var currencyCodes []string
-
-	if err := r.execDB(ctx).NewSelect().
-		Model(&accountModels).
-		ColumnExpr("account.*, currency_master.code AS currency_code").
-		Join("JOIN currency_master ON currency_master.id = account.currency_id").
-		Where("account.user_id = ?", userID).
-		Scan(ctx, &currencyCodes); err != nil {
-		return nil, err
-	}
-
-	accounts := make([]*accountDomain.Account, len(accountModels))
-
-	for i, accountModel := range accountModels {
-		account, err := accountDomain.Reconstruct(
-			accountModel.ID,
-			accountModel.UserID,
-			accountModel.Name,
-			accountModel.PasswordHash,
-			accountModel.Balance,
-			currencyCodes[i],
-			accountModel.UpdatedAt,
-		)
-		if err != nil {
-			return nil, err
-		}
-		accounts[i] = account
-	}
-
-	return accounts, nil
-}
-
-func (r *accountRepository) CountByUserID(ctx context.Context, userID string) (int, error) {
-	return r.execDB(ctx).NewSelect().Model((*model.Account)(nil)).Where("user_id = ?", userID).Count(ctx)
-}
-
-func (r *accountRepository) Delete(ctx context.Context, id string) error {
-	_, err := r.execDB(ctx).NewUpdate().
-		Model(&model.Account{ID: id, DeletedAt: timer.Now()}).
-		Column("deleted_at").
-		WherePK().
-		Exec(ctx)
-	return err
+func (r *accountRepository) CountByUserID(ctx context.Context, userID idVO.UserID) (int, error) {
+	return r.ExecDB(ctx).NewSelect().Model((*model.Account)(nil)).Where("user_id = ?", userID.String()).Count(ctx)
 }
