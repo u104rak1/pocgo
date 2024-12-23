@@ -88,7 +88,7 @@ type AccountID = ID[accountIDType]
 
 3. 振る舞い (メソッド):
     - エンティティが持つビジネスロジックや振る舞いを定義します。エンティティの状態を変更する操作や、データを計算・比較するロジックを含みます。
-    - 例: Withdraw, ChangeName, ComparePassword など。
+    - 例: Withdrawal, ChangeName, ComparePassword など。
 
 ### {domainName}_specification.go
 このファイルではその名の通り仕様を定義します。エンティティの生成や操作時に必要なドメイン固有のバリデーションルールや定数、エラー定義を管理します。主な役割は次の通りです。

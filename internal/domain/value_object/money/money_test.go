@@ -100,7 +100,7 @@ func TestAdd(t *testing.T) {
 			money1: m1,
 			money2: m3,
 			want:   0,
-			errMsg: "cannot add different currencies",
+			errMsg: "operation cannot be performed on different currencies",
 		},
 	}
 
@@ -152,7 +152,7 @@ func TestSub(t *testing.T) {
 			money1: m1,
 			money2: m4,
 			want:   0,
-			errMsg: "cannot subtract different currencies",
+			errMsg: "operation cannot be performed on different currencies",
 		},
 	}
 

@@ -25,15 +25,14 @@ import (
 
 func TestCreateAccountHandler(t *testing.T) {
 	var (
-		accountID       = idVO.NewAccountIDForTest("account")
-		userID          = idVO.NewUserIDForTest("user")
-		name            = "For work"
-		password        = "1234"
-		currency        = money.JPY
-		updatedAt       = timer.Now().String()
-		invalidJSONBody = "invalid json"
-		uri             = "/api/v1/me/accounts"
-		arg             = gomock.Any()
+		accountID = idVO.NewAccountIDForTest("account")
+		userID    = idVO.NewUserIDForTest("user")
+		name      = "For work"
+		password  = "1234"
+		currency  = money.JPY
+		updatedAt = timer.Now().String()
+		uri       = "/api/v1/me/accounts"
+		arg       = gomock.Any()
 	)
 
 	var happyRequestBody = accounts.CreateAccountRequestBody{
@@ -78,7 +77,7 @@ func TestCreateAccountHandler(t *testing.T) {
 		},
 		{
 			caseName:    "Negative: リクエストボディが無効なJSONの場合、Bad Request を返す",
-			requestBody: invalidJSONBody,
+			requestBody: "invalid json",
 			setupContext: func() context.Context {
 				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx

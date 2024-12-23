@@ -307,7 +307,7 @@ func TestComparePassword(t *testing.T) {
 	}
 }
 
-func TestWithdraw(t *testing.T) {
+func TestWithdrawal(t *testing.T) {
 	var (
 		userID   = idVO.NewUserIDForTest("user")
 		name     = "For work"
@@ -345,7 +345,7 @@ func TestWithdraw(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.caseName, func(t *testing.T) {
 			acc, _ := accountDomain.New(userID, amount, name, password, currency)
-			err := acc.Withdraw(tt.amount, tt.currency)
+			err := acc.Withdrawal(tt.amount, tt.currency)
 
 			if tt.errMsg != "" {
 				assert.Error(t, err)
@@ -389,7 +389,7 @@ func TestDeposit(t *testing.T) {
 			caseName: "Negative: money値オブジェクトのAddメソッドが失敗した場合、エラーが返る",
 			amount:   300,
 			currency: moneyVO.USD,
-			errMsg:   moneyVO.ErrAddDifferentCurrency.Error(),
+			errMsg:   moneyVO.ErrDifferentCurrencyOperation.Error(),
 		},
 	}
 

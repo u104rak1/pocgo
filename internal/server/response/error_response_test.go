@@ -11,33 +11,35 @@ import (
 )
 
 func TestValidationFailed(t *testing.T) {
-	e := echo.New()
-	path := "/path/to/resource"
-	req := httptest.NewRequest(http.MethodPost, path, nil)
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(req, rec)
+	t.Run("Positive: ValidationFailed が正常に動作する", func(t *testing.T) {
+		e := echo.New()
+		path := "/path/to/resource"
+		req := httptest.NewRequest(http.MethodPost, path, nil)
+		rec := httptest.NewRecorder()
+		ctx := e.NewContext(req, rec)
 
-	validationErrors := []response.ValidationError{
-		{Field: "username", Message: "Username is required"},
-		{Field: "email", Message: "Email format is invalid"},
-	}
+		validationErrors := []response.ValidationError{
+			{Field: "username", Message: "Username is required"},
+			{Field: "email", Message: "Email format is invalid"},
+		}
 
-	err := response.ValidationFailed(ctx, validationErrors)
-	he, ok := err.(*echo.HTTPError)
-	assert.True(t, ok)
+		err := response.ValidationFailed(ctx, validationErrors)
+		he, ok := err.(*echo.HTTPError)
+		assert.True(t, ok)
 
-	resp, ok := he.Message.(response.ValidationProblemDetail)
-	assert.True(t, ok)
-	assert.Equal(t, response.ValidationProblemDetail{
-		ProblemDetail: response.ProblemDetail{
-			Type:     response.TypeURLValidationFailed,
-			Title:    response.TitleValidationFailed,
-			Status:   http.StatusBadRequest,
-			Detail:   response.DetailValidationFailed,
-			Instance: path,
-		},
-		Errors: validationErrors,
-	}, resp)
+		resp, ok := he.Message.(response.ValidationProblemDetail)
+		assert.True(t, ok)
+		assert.Equal(t, response.ValidationProblemDetail{
+			ProblemDetail: response.ProblemDetail{
+				Type:     response.TypeURLValidationFailed,
+				Title:    response.TitleValidationFailed,
+				Status:   http.StatusBadRequest,
+				Detail:   response.DetailValidationFailed,
+				Instance: path,
+			},
+			Errors: validationErrors,
+		}, resp)
+	})
 }
 
 func TestErrorResponses(t *testing.T) {
@@ -50,7 +52,7 @@ func TestErrorResponses(t *testing.T) {
 		expectedResponse response.ProblemDetail
 	}{
 		{
-			caseName: "BadRequest",
+			caseName: "Positive: Bad Request が正常に動作する",
 			function: response.BadRequest,
 			expectedResponse: response.ProblemDetail{
 				Type:     response.TypeURLBadRequest,
@@ -61,7 +63,7 @@ func TestErrorResponses(t *testing.T) {
 			},
 		},
 		{
-			caseName: "Unauthorized",
+			caseName: "Positive: Unauthorized が正常に動作する",
 			function: response.Unauthorized,
 			expectedResponse: response.ProblemDetail{
 				Type:     response.TypeURLUnauthorized,
@@ -72,7 +74,7 @@ func TestErrorResponses(t *testing.T) {
 			},
 		},
 		{
-			caseName: "Forbidden",
+			caseName: "Positive: Forbidden が正常に動作する",
 			function: response.Forbidden,
 			expectedResponse: response.ProblemDetail{
 				Type:     response.TypeURLForbidden,
@@ -83,7 +85,7 @@ func TestErrorResponses(t *testing.T) {
 			},
 		},
 		{
-			caseName: "NotFound",
+			caseName: "Positive: Not Found が正常に動作する",
 			function: response.NotFound,
 			expectedResponse: response.ProblemDetail{
 				Type:     response.TypeURLNotFound,
@@ -94,7 +96,7 @@ func TestErrorResponses(t *testing.T) {
 			},
 		},
 		{
-			caseName: "Conflict",
+			caseName: "Positive: Conflict が正常に動作する",
 			function: response.Conflict,
 			expectedResponse: response.ProblemDetail{
 				Type:     response.TypeURLConflict,
@@ -105,7 +107,18 @@ func TestErrorResponses(t *testing.T) {
 			},
 		},
 		{
-			caseName: "InternalServerError",
+			caseName: "Positive: Unprocessable Entity が正常に動作する",
+			function: response.UnprocessableEntity,
+			expectedResponse: response.ProblemDetail{
+				Type:     response.TypeURLUnprocessableEntity,
+				Title:    response.TitleUnprocessableEntity,
+				Status:   http.StatusUnprocessableEntity,
+				Detail:   assert.AnError.Error(),
+				Instance: path,
+			},
+		},
+		{
+			caseName: "Positive: Internal Server Error が正常に動作する",
 			function: response.InternalServerError,
 			expectedResponse: response.ProblemDetail{
 				Type:     response.TypeURLInternalServerError,

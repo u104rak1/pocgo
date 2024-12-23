@@ -9,7 +9,7 @@ import (
 
 type ITransactionService interface {
 	Deposit(ctx context.Context, account *accountDomain.Account, amount float64, currency string) (*Transaction, error)
-	Withdraw(ctx context.Context, account *accountDomain.Account, amount float64, currency string) (*Transaction, error)
+	Withdrawal(ctx context.Context, account *accountDomain.Account, amount float64, currency string) (*Transaction, error)
 	Transfer(ctx context.Context, senderAccount *accountDomain.Account, receiverAccount *accountDomain.Account, amount float64, currency string) (*Transaction, error)
 	ListWithTotal(ctx context.Context, params ListTransactionsParams) (transactions []*Transaction, total int, err error)
 }
@@ -53,13 +53,13 @@ func (s *transactionService) Deposit(
 	return transaction, nil
 }
 
-func (s *transactionService) Withdraw(
+func (s *transactionService) Withdrawal(
 	ctx context.Context,
 	account *accountDomain.Account,
 	amount float64,
 	currency string,
 ) (*Transaction, error) {
-	if err := account.Withdraw(amount, currency); err != nil {
+	if err := account.Withdrawal(amount, currency); err != nil {
 		return nil, err
 	}
 	updatedAt := timer.Now()
@@ -88,7 +88,7 @@ func (s *transactionService) Transfer(
 	if err := receiverAccount.Deposit(amount, currency); err != nil {
 		return nil, err
 	}
-	if err := senderAccount.Withdraw(amount, currency); err != nil {
+	if err := senderAccount.Withdrawal(amount, currency); err != nil {
 		return nil, err
 	}
 

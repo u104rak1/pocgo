@@ -61,6 +61,9 @@ const (
 	TitleConflict   = "Conflict"
 	TypeURLConflict = problemURL + "conflict"
 
+	TitleUnprocessableEntity   = "Unprocessable Entity"
+	TypeURLUnprocessableEntity = problemURL + "unprocessable-entity"
+
 	TitleInternalServerError   = "Internal Server Error"
 	TypeURLInternalServerError = problemURL + "internal-server-error"
 )
@@ -132,6 +135,17 @@ func Conflict(ctx echo.Context, err error) error {
 		TypeURLConflict,
 	)
 	return echo.NewHTTPError(http.StatusConflict, problem)
+}
+
+func UnprocessableEntity(ctx echo.Context, err error) error {
+	problem := NewProblemDetail(
+		http.StatusUnprocessableEntity,
+		TitleUnprocessableEntity,
+		err.Error(),
+		ctx.Request().URL.Path,
+		TypeURLUnprocessableEntity,
+	)
+	return echo.NewHTTPError(http.StatusUnprocessableEntity, problem)
 }
 
 func InternalServerError(ctx echo.Context, err error) error {

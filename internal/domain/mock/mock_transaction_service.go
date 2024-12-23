@@ -82,17 +82,17 @@ func (mr *MockITransactionServiceMockRecorder) Transfer(ctx, senderAccount, rece
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transfer", reflect.TypeOf((*MockITransactionService)(nil).Transfer), ctx, senderAccount, receiverAccount, amount, currency)
 }
 
-// Withdraw mocks base method.
-func (m *MockITransactionService) Withdraw(ctx context.Context, account *account.Account, amount float64, currency string) (*transaction.Transaction, error) {
+// Withdrawal mocks base method.
+func (m *MockITransactionService) Withdrawal(ctx context.Context, account *account.Account, amount float64, currency string) (*transaction.Transaction, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Withdraw", ctx, account, amount, currency)
+	ret := m.ctrl.Call(m, "Withdrawal", ctx, account, amount, currency)
 	ret0, _ := ret[0].(*transaction.Transaction)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Withdraw indicates an expected call of Withdraw.
-func (mr *MockITransactionServiceMockRecorder) Withdraw(ctx, account, amount, currency interface{}) *gomock.Call {
+// Withdrawal indicates an expected call of Withdrawal.
+func (mr *MockITransactionServiceMockRecorder) Withdrawal(ctx, account, amount, currency interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Withdraw", reflect.TypeOf((*MockITransactionService)(nil).Withdraw), ctx, account, amount, currency)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Withdrawal", reflect.TypeOf((*MockITransactionService)(nil).Withdrawal), ctx, account, amount, currency)
 }

@@ -36,10 +36,10 @@ func (m *MockIExecuteTransactionUsecase) EXPECT() *MockIExecuteTransactionUsecas
 }
 
 // Run mocks base method.
-func (m *MockIExecuteTransactionUsecase) Run(ctx context.Context, cmd transaction.ExecuteTransactionCommand) (*transaction.ListTransactionDTO, error) {
+func (m *MockIExecuteTransactionUsecase) Run(ctx context.Context, cmd transaction.ExecuteTransactionCommand) (*transaction.ExecuteTransactionDTO, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Run", ctx, cmd)
-	ret0, _ := ret[0].(*transaction.ListTransactionDTO)
+	ret0, _ := ret[0].(*transaction.ExecuteTransactionDTO)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

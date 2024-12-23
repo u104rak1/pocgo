@@ -47,7 +47,7 @@ func TestExecuteTransactionUsecase(t *testing.T) {
 		Currency:      currency,
 	}
 
-	happyWithdrawCmd := transactionUC.ExecuteTransactionCommand{
+	happyWithdrawalCmd := transactionUC.ExecuteTransactionCommand{
 		UserID:        userID.String(),
 		AccountID:     accountID.String(),
 		Password:      password,
@@ -87,13 +87,13 @@ func TestExecuteTransactionUsecase(t *testing.T) {
 		},
 		{
 			caseName: "Positive: 出金取引が成功する",
-			cmd:      happyWithdrawCmd,
+			cmd:      happyWithdrawalCmd,
 			prepare: func(mocks Mocks, account *accountDomain.Account) {
 				mocks.accountServ.EXPECT().GetAndAuthorize(arg, arg, arg, arg).Return(account, nil)
 
 				tx, err := transactionDomain.New(account.ID(), nil, transactionDomain.Withdrawal, amount, currency, time)
 				assert.NoError(t, err)
-				mocks.transactionServ.EXPECT().Withdraw(arg, arg, arg, arg).Return(tx, nil)
+				mocks.transactionServ.EXPECT().Withdrawal(arg, arg, arg, arg).Return(tx, nil)
 			},
 			wantErr: false,
 		},
@@ -152,10 +152,10 @@ func TestExecuteTransactionUsecase(t *testing.T) {
 		},
 		{
 			caseName: "Negative: 出金処理に失敗する",
-			cmd:      happyWithdrawCmd,
+			cmd:      happyWithdrawalCmd,
 			prepare: func(mocks Mocks, account *accountDomain.Account) {
 				mocks.accountServ.EXPECT().GetAndAuthorize(arg, arg, arg, arg).Return(account, nil)
-				mocks.transactionServ.EXPECT().Withdraw(arg, arg, arg, arg).Return(nil, assert.AnError)
+				mocks.transactionServ.EXPECT().Withdrawal(arg, arg, arg, arg).Return(nil, assert.AnError)
 			},
 			wantErr: true,
 		},

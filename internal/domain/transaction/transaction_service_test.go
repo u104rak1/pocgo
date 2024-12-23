@@ -55,7 +55,7 @@ func TestDeposit(t *testing.T) {
 			amount:   depositAmount,
 			currency: moneyVO.USD,
 			setup:    func(mocks Mocks) {},
-			errMsg:   moneyVO.ErrAddDifferentCurrency.Error(),
+			errMsg:   moneyVO.ErrDifferentCurrencyOperation.Error(),
 		},
 		{
 			caseName: "Negative: 口座の保存が失敗した場合はエラーが返る",
@@ -112,20 +112,20 @@ func TestDeposit(t *testing.T) {
 	}
 }
 
-func TestWithdraw(t *testing.T) {
+func TestWithdrawal(t *testing.T) {
 	type Mocks struct {
 		accountRepo     *mock.MockIAccountRepository
 		transactionRepo *mock.MockITransactionRepository
 	}
 
 	var (
-		userID         = idVO.NewUserIDForTest("user")
-		name           = "account-name"
-		password       = "1234"
-		balance        = 100.0
-		currency       = moneyVO.JPY
-		withdrawAmount = 50.0
-		arg            = gomock.Any()
+		userID           = idVO.NewUserIDForTest("user")
+		name             = "account-name"
+		password         = "1234"
+		balance          = 100.0
+		currency         = moneyVO.JPY
+		withdrawalAmount = 50.0
+		arg              = gomock.Any()
 	)
 
 	tests := []struct {
@@ -138,7 +138,7 @@ func TestWithdraw(t *testing.T) {
 	}{
 		{
 			caseName: "Positive: 出金が成功する",
-			amount:   withdrawAmount,
+			amount:   withdrawalAmount,
 			currency: moneyVO.JPY,
 			setup: func(mocks Mocks) {
 				mocks.accountRepo.EXPECT().Save(arg, arg).Return(nil)
@@ -147,15 +147,15 @@ func TestWithdraw(t *testing.T) {
 			errMsg: "",
 		},
 		{
-			caseName: "Negative: money.Withdrawが失敗した場合はエラーが返る（通貨単位が異なる）",
-			amount:   withdrawAmount,
+			caseName: "Negative: 出勤が失敗した場合はエラーが返る（通貨単位が異なる）",
+			amount:   withdrawalAmount,
 			currency: moneyVO.USD,
 			setup:    func(mocks Mocks) {},
-			errMsg:   moneyVO.ErrSubDifferentCurrency.Error(),
+			errMsg:   moneyVO.ErrDifferentCurrencyOperation.Error(),
 		},
 		{
 			caseName: "Negative: 口座の保存が失敗した場合はエラーが返る",
-			amount:   withdrawAmount,
+			amount:   withdrawalAmount,
 			currency: moneyVO.JPY,
 			setup: func(mocks Mocks) {
 				mocks.accountRepo.EXPECT().Save(arg, arg).Return(assert.AnError)
@@ -164,7 +164,7 @@ func TestWithdraw(t *testing.T) {
 		},
 		{
 			caseName: "Negative: 取引の保存が失敗した場合はエラーが返る",
-			amount:   withdrawAmount,
+			amount:   withdrawalAmount,
 			currency: moneyVO.JPY,
 			setup: func(mocks Mocks) {
 				mocks.accountRepo.EXPECT().Save(arg, arg).Return(nil)
@@ -190,7 +190,7 @@ func TestWithdraw(t *testing.T) {
 			account, err := accountDomain.New(userID, balance, name, password, currency)
 			assert.NoError(t, err)
 
-			transaction, err := service.Withdraw(ctx, account, tt.amount, tt.currency)
+			transaction, err := service.Withdrawal(ctx, account, tt.amount, tt.currency)
 
 			if tt.errMsg != "" {
 				assert.Error(t, err)
@@ -201,7 +201,7 @@ func TestWithdraw(t *testing.T) {
 				assert.Equal(t, account.ID(), transaction.AccountID())
 				assert.Equal(t, tt.amount, transaction.TransferAmount().Amount())
 				assert.Equal(t, tt.currency, transaction.TransferAmount().Currency())
-				assert.Equal(t, "WITHDRAW", transaction.OperationType())
+				assert.Equal(t, "WITHDRAWAL", transaction.OperationType())
 			}
 		})
 	}
@@ -245,7 +245,7 @@ func TestTransfer(t *testing.T) {
 			amount:   transferAmount,
 			currency: moneyVO.USD,
 			setup:    func(mocks Mocks) {},
-			errMsg:   moneyVO.ErrAddDifferentCurrency.Error(),
+			errMsg:   moneyVO.ErrDifferentCurrencyOperation.Error(),
 		},
 		{
 			caseName: "Negative: money.Withdrawが失敗した場合はエラーが返る（送金元の残高不足）",

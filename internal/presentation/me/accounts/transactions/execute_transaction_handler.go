@@ -100,14 +100,15 @@ func (h *ExecuteTransactionHandler) Run(ctx echo.Context) error {
 	})
 	if err != nil {
 		switch err {
-		case moneyVO.ErrAddDifferentCurrency:
+		case moneyVO.ErrDifferentCurrencyOperation:
 			return response.BadRequest(ctx, err)
-		case moneyVO.ErrInsufficientBalance,
-			accountDomain.ErrUnmatchedPassword:
+		case accountDomain.ErrUnmatchedPassword:
 			return response.Forbidden(ctx, err)
 		case accountDomain.ErrNotFound,
 			accountDomain.ErrReceiverNotFound:
 			return response.NotFound(ctx, err)
+		case moneyVO.ErrInsufficientBalance:
+			return response.UnprocessableEntity(ctx, err)
 		default:
 			return response.InternalServerError(ctx, err)
 		}

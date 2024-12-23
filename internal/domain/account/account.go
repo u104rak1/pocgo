@@ -131,13 +131,13 @@ func (a *Account) ComparePassword(password string) error {
 	return nil
 }
 
-func (a *Account) Withdraw(amount float64, currency string) error {
-	withdrawMoney, err := moneyVO.New(amount, currency)
+func (a *Account) Withdrawal(amount float64, currency string) error {
+	money, err := moneyVO.New(amount, currency)
 	if err != nil {
 		return err
 	}
 
-	newBalance, err := a.balance.Sub(*withdrawMoney)
+	newBalance, err := a.balance.Sub(*money)
 	if err != nil {
 		return err
 	}
