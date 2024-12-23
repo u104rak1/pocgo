@@ -42,33 +42,42 @@ type ListTransactionsRequest struct {
 }
 
 type ListTransactionsResponse struct {
-	Total        int                           `json:"total" example:"1"`
+	// 取引件数
+	Total int `json:"total" example:"1"`
+	// 取引一覧
 	Transactions []ListTransactionsTransaction `json:"transactions"`
 }
 
 type ListTransactionsTransaction struct {
-	ID                string  `json:"id" example:"01J9R8AJ1Q2YDH1X9836GS9E89"`
-	AccountID         string  `json:"accountId" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
+	// 取引ID
+	ID string `json:"id" example:"01J9R8AJ1Q2YDH1X9836GS9E89"`
+	// 口座ID
+	AccountID string `json:"accountId" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
+	// 受取口座ID
 	ReceiverAccountID *string `json:"receiverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
-	OperationType     string  `json:"operationType" example:"DEPOSIT"`
-	Amount            float64 `json:"amount" example:"1000"`
-	Currency          string  `json:"currency" example:"JPY"`
-	TransactionAt     string  `json:"transactionAt" example:"2024-03-20T15:00:00Z"`
+	// 取引種別
+	OperationType string `json:"operationType" example:"DEPOSIT"`
+	// 取引金額
+	Amount float64 `json:"amount" example:"1000"`
+	// 通貨
+	Currency string `json:"currency" example:"JPY"`
+	// 取引日時
+	TransactionAt string `json:"transactionAt" example:"2024-03-20T15:00:00Z"`
 }
 
-// @Summary List Transactions
-// @Description This endpoint retrieves the transaction history of the specified account.
+// @Summary 取引一覧取得
+// @Description 指定された口座の取引履歴を取得します。
 // @Tags Transaction API
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param account_id path string true "Account ID to be operated."
-// @Param from query string false "The start date for filtering transactions (format: YYYYMMDD)."
-// @Param to query string false "The end date for filtering transactions (format: YYYYMMDD)."
-// @Param operationTypes query string false "Comma-separated transaction types to filter by. Valid values are DEPOSIT, WITHDRAW, and TRANSFER. If not specified, all transaction types are included."
-// @Param sort query string false "The sorting order of transactions based on transactionAt. Valid values are ASC or DESC. Defaults to DESC."
-// @Param limit query int false "The maximum number of transaction histories per page. Can be specified between 1 and 100."
-// @Param page query int false "The page number for paginated results."
+// @Param account_id path string true "操作する口座ID"
+// @Param from query string false "取引日の開始日（YYYYMMDD）"
+// @Param to query string false "取引日の終了日（YYYYMMDD）"
+// @Param operationTypes query string false "取引種別（DEPOSIT, WITHDRAW, TRANSFER カンマ区切りで複数指定可）"
+// @Param sort query string false "ソート順（ASC, DESC）"
+// @Param limit query int false "ページサイズ（1~100）"
+// @Param page query int false "ページ番号（1~）"
 // @Success 200 {object} ListTransactionsResponse
 // @Failure 400 {object} response.ValidationProblemDetail "Validation Failed or Bad Request"
 // @Failure 401 {object} response.ProblemDetail "Unauthorized"

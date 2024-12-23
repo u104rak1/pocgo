@@ -13,61 +13,61 @@ func TestValidAmount(t *testing.T) {
 		caseName string
 		currency string
 		amount   float64
-		wantErr  string
+		errMsg   string
 	}{
 		{
-			caseName: "A negative JPY is invalid.",
+			caseName: "Negative: 負のJPYは無効",
 			currency: moneyVO.JPY,
 			amount:   -1.0,
-			wantErr:  "must be no less than 0",
+			errMsg:   "must be no less than 0",
 		},
 		{
-			caseName: "0 JPY is valid.",
+			caseName: "Positive: 0 JPYは有効",
 			currency: moneyVO.JPY,
 			amount:   0.0,
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "A positive JPY is valid.",
+			caseName: "Positive: 正のJPYは有効",
 			currency: moneyVO.JPY,
 			amount:   1.0,
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "A JPY amount with invalid precision is invalid.",
+			caseName: "Negative: JPYの精度が無効",
 			currency: moneyVO.JPY,
 			amount:   100.5,
-			wantErr:  moneyVO.ErrInvalidJPYPrecision.Error(),
+			errMsg:   moneyVO.ErrInvalidJPYPrecision.Error(),
 		},
 		{
-			caseName: "A negative USD is invalid.",
+			caseName: "Negative: 負のUSDは無効",
 			currency: moneyVO.USD,
 			amount:   -1.0,
-			wantErr:  "must be no less than 0",
+			errMsg:   "must be no less than 0",
 		},
 		{
-			caseName: "0 USD is valid.",
+			caseName: "Positive: 0 USDは有効",
 			currency: moneyVO.USD,
 			amount:   0.0,
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "A positive USD is valid.",
+			caseName: "Positive: 正のUSDは有効",
 			currency: moneyVO.USD,
 			amount:   1.0,
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "A USD is allowed up to 2 decimal places.",
+			caseName: "Positive: USDは2桁まで有効",
 			currency: moneyVO.USD,
 			amount:   100.12,
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "A USD is not allowed more than 2 decimal places.",
+			caseName: "Negative: USDは3桁以上は無効",
 			currency: moneyVO.USD,
 			amount:   100.123,
-			wantErr:  moneyVO.ErrInvalidUSDPrecision.Error(),
+			errMsg:   moneyVO.ErrInvalidUSDPrecision.Error(),
 		},
 	}
 
@@ -75,11 +75,11 @@ func TestValidAmount(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidAmount(tt.currency, tt.amount)
-			if tt.wantErr == "" {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
 			} else {
 				assert.Error(t, err)
-				assert.Equal(t, tt.wantErr, err.Error())
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}
@@ -89,27 +89,27 @@ func TestValidCurrency(t *testing.T) {
 	tests := []struct {
 		caseName string
 		input    string
-		wantErr  string
+		errMsg   string
 	}{
 		{
-			caseName: "An empty currency is invalid.",
-			input:    "",
-			wantErr:  "cannot be blank",
-		},
-		{
-			caseName: "An unsupported currency is invalid.",
-			input:    "EUR",
-			wantErr:  "must be a valid value",
-		},
-		{
-			caseName: "A valid currency (JPY) is accepted.",
+			caseName: "Positive: JPYは有効",
 			input:    moneyVO.JPY,
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "A valid currency (USD) is accepted.",
+			caseName: "Positive: USDは有効",
 			input:    moneyVO.USD,
-			wantErr:  "",
+			errMsg:   "",
+		},
+		{
+			caseName: "Negative: 空文字列は無効",
+			input:    "",
+			errMsg:   "cannot be blank",
+		},
+		{
+			caseName: "Negative: サポートされていない通貨は無効",
+			input:    "EUR",
+			errMsg:   "must be a valid value",
 		},
 	}
 
@@ -117,11 +117,11 @@ func TestValidCurrency(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidCurrency(tt.input)
-			if tt.wantErr == "" {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
 			} else {
 				assert.Error(t, err)
-				assert.Equal(t, err.Error(), tt.wantErr)
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}

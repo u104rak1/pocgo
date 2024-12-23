@@ -13,54 +13,54 @@ import (
 	appMock "github.com/u104rak1/pocgo/internal/application/mock"
 	userApp "github.com/u104rak1/pocgo/internal/application/user"
 	"github.com/u104rak1/pocgo/internal/config"
-
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/presentation/me"
 	"github.com/u104rak1/pocgo/internal/server/response"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestReadMyProfileHandler(t *testing.T) {
 	var (
-		userID    = ulid.GenerateStaticULID("user")
+		userID    = idVO.NewUserIDForTest("user")
 		userName  = "Sato Taro"
 		userEmail = "sato@example.com"
 		uri       = "/api/v1/me"
+		arg       = gomock.Any()
 	)
 
 	tests := []struct {
 		caseName             string
 		setupContext         func() context.Context
-		prepare              func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase)
+		prepare              func(mockReadUserUC *appMock.MockIReadUserUsecase)
 		expectedCode         int
 		expectedResponseBody interface{}
 	}{
 		{
-			caseName: "Successful profile retrieval.",
+			caseName: "Positive: マイプロフィールの取得に成功する",
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
-			prepare: func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {
-				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(&userApp.ReadUserDTO{
-					ID:    userID,
+			prepare: func(mockReadUserUC *appMock.MockIReadUserUsecase) {
+				mockReadUserUC.EXPECT().Run(arg, arg).Return(&userApp.ReadUserDTO{
+					ID:    userID.String(),
 					Name:  userName,
 					Email: userEmail,
 				}, nil)
 			},
 			expectedCode: http.StatusOK,
 			expectedResponseBody: me.ReadMyProfileResponse{
-				ID:    userID,
+				ID:    userID.String(),
 				Name:  userName,
 				Email: userEmail,
 			},
 		},
 		{
-			caseName: "Error occurs when user id is missing in context.",
+			caseName: "Negative: ユーザーIDがコンテキストに存在しない場合、Unauthorized を返す",
 			setupContext: func() context.Context {
 				return context.Background()
 			},
-			prepare:      func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {},
+			prepare:      func(mockReadUserUC *appMock.MockIReadUserUsecase) {},
 			expectedCode: http.StatusUnauthorized,
 			expectedResponseBody: response.ProblemDetail{
 				Type:     response.TypeURLUnauthorized,
@@ -71,13 +71,13 @@ func TestReadMyProfileHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName: "Error occurs during profile retrieval because user not found.",
+			caseName: "Negative: ユーザーが見つからない場合、Not Found を返す",
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
-			prepare: func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {
-				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, userDomain.ErrNotFound)
+			prepare: func(mockReadUserUC *appMock.MockIReadUserUsecase) {
+				mockReadUserUC.EXPECT().Run(arg, arg).Return(nil, userDomain.ErrNotFound)
 			},
 			expectedCode: http.StatusNotFound,
 			expectedResponseBody: response.ProblemDetail{
@@ -89,13 +89,13 @@ func TestReadMyProfileHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName: "Unknown error occurs during profile retrieval.",
+			caseName: "Negative: 未知のエラーが発生した場合、Internal Server Error を返す",
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
-			prepare: func(ctx context.Context, mockReadUserUC *appMock.MockIReadUserUsecase) {
-				mockReadUserUC.EXPECT().Run(ctx, userApp.ReadUserCommand{ID: userID}).Return(nil, assert.AnError)
+			prepare: func(mockReadUserUC *appMock.MockIReadUserUsecase) {
+				mockReadUserUC.EXPECT().Run(arg, arg).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ProblemDetail{
@@ -121,7 +121,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 			ctx.SetRequest(req.WithContext(tt.setupContext()))
 
 			mockReadUserUC := appMock.NewMockIReadUserUsecase(ctrl)
-			tt.prepare(tt.setupContext(), mockReadUserUC)
+			tt.prepare(mockReadUserUC)
 
 			h := me.NewReadMyProfileHandler(mockReadUserUC)
 			err := h.Run(ctx)

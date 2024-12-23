@@ -21,13 +21,18 @@ func NewReadMyProfileHandler(userReadUsecase userApp.IReadUserUsecase) *ReadMyPr
 }
 
 type ReadMyProfileResponse struct {
-	ID    string `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
-	Name  string `json:"name" example:"Sato Taro"`
+	// ユーザーのID
+	ID string `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
+
+	// ユーザーの名前
+	Name string `json:"name" example:"Sato Taro"`
+
+	// ユーザーのメールアドレス
 	Email string `json:"email" example:"sato@example.com"`
 }
 
-// @Summary Read My Profile
-// @Description This endpoint returns the profile of the authenticated user.
+// @Summary プロフィールの取得
+// @Description 認証済みのユーザーのプロフィールを返します。
 // @Tags User API
 // @Security BearerAuth
 // @Accept json

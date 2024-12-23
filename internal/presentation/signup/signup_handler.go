@@ -22,29 +22,37 @@ func NewSignupHandler(signupUsecase authApp.ISignupUsecase) *SignupHandler {
 }
 
 type SignupRequest struct {
-	// The name of the user. Must be 3-20 characters long.
+	// 3 ～ 20 文字のユーザー名
 	Name string `json:"name" example:"Sato Taro"`
 
-	// The email address of the user, used for login.
+	// ログイン用メールアドレス
 	Email string `json:"email" example:"sato@example.com"`
 
-	// The password associated with the email address, required for login. Must be 8-20 characters long.
+	// 8 ～ 20 文字のログイン用パスワード
 	Password string `json:"password" example:"password"`
 }
 
 type SignupResponse struct {
-	User        SignupResponseBodyUser `json:"user"`
-	AccessToken string                 `json:"accessToken" example:"eyJhb..."`
+	// ユーザー
+	User SignupResponseBodyUser `json:"user"`
+
+	// アクセストークン
+	AccessToken string `json:"accessToken" example:"eyJhb..."`
 }
 
 type SignupResponseBodyUser struct {
-	ID    string `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
-	Name  string `json:"name" example:"Sato Taro"`
+	// ユーザーID
+	ID string `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
+
+	// ユーザー名
+	Name string `json:"name" example:"Sato Taro"`
+
+	// ユーザーのメールアドレス
 	Email string `json:"email" example:"sato@example.com"`
 }
 
-// @Summary Signup
-// @Description This endpoint creates a new user and issues an access token.
+// @Summary サインアップ
+// @Description 新しいユーザーを作成し、アクセストークンを発行します。
 // @Tags Authentication API
 // @Accept json
 // @Produce json

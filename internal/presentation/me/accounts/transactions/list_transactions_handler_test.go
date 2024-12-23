@@ -15,26 +15,27 @@ import (
 	"github.com/u104rak1/pocgo/internal/config"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/internal/presentation/me/accounts/transactions"
 	"github.com/u104rak1/pocgo/internal/server/response"
-	"github.com/u104rak1/pocgo/pkg/ulid"
+	"github.com/u104rak1/pocgo/pkg/timer"
 )
 
 func TestListTransactionsHandler(t *testing.T) {
 	var (
 		mockAny        = gomock.Any()
-		userID         = ulid.GenerateStaticULID("user")
-		accountID      = ulid.GenerateStaticULID("account")
+		userID         = idVO.NewUserIDForTest("user")
+		accountID      = idVO.NewAccountIDForTest("account")
 		from           = "20240101"
 		to             = "20241231"
-		operationTypes = "DEPOSIT,WITHDRAW,TRANSFER"
+		operationTypes = transactionDomain.Deposit + "," + transactionDomain.Withdrawal + "," + transactionDomain.Transfer
 		sort           = "DESC"
 		limit          = "10"
 		page           = "1"
-		transactionID  = ulid.GenerateStaticULID("transaction")
-		transactionAt  = "2024-03-20T15:00:00Z"
-		uri            = "/api/v1/me/accounts/" + accountID + "/transactions"
+		transactionID  = idVO.NewTransactionIDForTest("transaction")
+		transactionAt  = timer.GetFixedDateString()
+		uri            = "/api/v1/me/accounts/" + accountID.String() + "/transactions"
 	)
 
 	tests := []struct {
@@ -46,10 +47,10 @@ func TestListTransactionsHandler(t *testing.T) {
 		expectedResponseBody interface{}
 	}{
 		{
-			caseName:     "Successful transactions retrieval.",
+			caseName:     "Positive: 取引一覧取得に成功する",
 			requestQuery: "?from=" + from + "&to=" + to + "&operation_types=" + operationTypes + "&sort=" + sort + "&limit=" + limit + "&page=" + page,
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
 			prepare: func(mockListTransactionsUC *appMock.MockIListTransactionsUsecase) {
@@ -57,8 +58,8 @@ func TestListTransactionsHandler(t *testing.T) {
 					Total: 1,
 					Transactions: []transactionApp.ListTransactionDTO{
 						{
-							ID:                transactionID,
-							AccountID:         accountID,
+							ID:                transactionID.String(),
+							AccountID:         accountID.String(),
 							ReceiverAccountID: nil,
 							OperationType:     transactionDomain.Deposit,
 							Amount:            1000,
@@ -73,8 +74,8 @@ func TestListTransactionsHandler(t *testing.T) {
 				Total: 1,
 				Transactions: []transactions.ListTransactionsTransaction{
 					{
-						ID:            transactionID,
-						AccountID:     accountID,
+						ID:            transactionID.String(),
+						AccountID:     accountID.String(),
 						OperationType: transactionDomain.Deposit,
 						Amount:        1000,
 						Currency:      money.JPY,
@@ -84,10 +85,11 @@ func TestListTransactionsHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:     "Validation error occurs when query parameter is invalid.",
+			caseName:     "Negative: クエリパラメータが無効な場合、Validation Failed を返す",
 			requestQuery: "?from=invalid&to=invalid&operation_types=invalid&sort=invalid&limit=-1&page=-1",
 			setupContext: func() context.Context {
-				return context.Background()
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
+				return ctx
 			},
 			prepare:      func(mockListTransactionsUC *appMock.MockIListTransactionsUsecase) {},
 			expectedCode: http.StatusBadRequest,
@@ -102,7 +104,7 @@ func TestListTransactionsHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName: "Error occurs when user id is missing in context.",
+			caseName: "Negative: ユーザーIDがコンテキストに存在しない場合、Unauthorized を返す",
 			setupContext: func() context.Context {
 				return context.Background()
 			},
@@ -117,9 +119,9 @@ func TestListTransactionsHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName: "Error occurs during transactions retrieval because account not found.",
+			caseName: "Negative: 口座が存在しない場合、Not Found を返す",
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
 			prepare: func(mockListTransactionsUC *appMock.MockIListTransactionsUsecase) {
@@ -135,9 +137,9 @@ func TestListTransactionsHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName: "Unknown error occurs during transactions retrieval.",
+			caseName: "Negative: 未知のエラーが発生した場合、Internal Server Error を返す",
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
 			prepare: func(mockListTransactionsUC *appMock.MockIListTransactionsUsecase) {
@@ -165,7 +167,7 @@ func TestListTransactionsHandler(t *testing.T) {
 			rec := httptest.NewRecorder()
 			ctx := e.NewContext(req, rec)
 			ctx.SetParamNames("account_id")
-			ctx.SetParamValues(accountID)
+			ctx.SetParamValues(accountID.String())
 			ctx.SetRequest(req.WithContext(tt.setupContext()))
 
 			mockListTransactionsUC := appMock.NewMockIListTransactionsUsecase(ctrl)

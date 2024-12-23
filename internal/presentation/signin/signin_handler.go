@@ -21,19 +21,20 @@ func NewSigninHandler(signinUsecase authApp.ISigninUsecase) *SigninHandler {
 }
 
 type SigninRequest struct {
-	// The email address of the user, used for login.
+	// ログイン用メールアドレス
 	Email string `json:"email" example:"sato@example.com"`
 
-	// The password associated with the email address, required for login. Must be 8-20 characters long.
+	// ログイン用パスワード
 	Password string `json:"password" example:"password"`
 }
 
 type SigninResponse struct {
+	// アクセストークン
 	AccessToken string `json:"accessToken" example:"eyJhb..."`
 }
 
-// @Summary Signin
-// @Description This endpoint authenticates the user using their email and password, and issues an access token.
+// @Summary サインイン
+// @Description ユーザーのメールアドレスとパスワードを使用してユーザーを認証し、アクセストークンを発行します。
 // @Tags Authentication API
 // @Accept json
 // @Produce json

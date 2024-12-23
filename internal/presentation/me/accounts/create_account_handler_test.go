@@ -16,26 +16,27 @@ import (
 	"github.com/u104rak1/pocgo/internal/config"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/internal/presentation/me/accounts"
 	"github.com/u104rak1/pocgo/internal/server/response"
 	"github.com/u104rak1/pocgo/pkg/timer"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestCreateAccountHandler(t *testing.T) {
 	var (
-		accountID          = ulid.GenerateStaticULID("account")
-		userID             = ulid.GenerateStaticULID("user")
-		name               = "For work"
-		password           = "1234"
-		currency           = money.JPY
-		updatedAt          = timer.Now().String()
-		invalidRequestBody = "invalid json"
-		uri                = "/api/v1/me/accounts"
+		accountID       = idVO.NewAccountIDForTest("account")
+		userID          = idVO.NewUserIDForTest("user")
+		name            = "For work"
+		password        = "1234"
+		currency        = money.JPY
+		updatedAt       = timer.Now().String()
+		invalidJSONBody = "invalid json"
+		uri             = "/api/v1/me/accounts"
+		arg             = gomock.Any()
 	)
 
-	var requestBody = accounts.CreateAccountRequestBody{
+	var happyRequestBody = accounts.CreateAccountRequestBody{
 		Name:     name,
 		Password: password,
 		Currency: currency,
@@ -45,22 +46,22 @@ func TestCreateAccountHandler(t *testing.T) {
 		caseName             string
 		requestBody          interface{}
 		setupContext         func() context.Context
-		prepare              func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase)
+		prepare              func(mockCreateAccountUC *appMock.MockICreateAccountUsecase)
 		expectedCode         int
 		expectedReason       string
 		expectedResponseBody interface{}
 	}{
 		{
-			caseName:    "Successful account creation.",
-			requestBody: requestBody,
+			caseName:    "Positive: 口座の作成に成功する",
+			requestBody: happyRequestBody,
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
-			prepare: func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {
-				mockCreateAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(&accountApp.CreateAccountDTO{
-					ID:        accountID,
-					UserID:    userID,
+			prepare: func(mockCreateAccountUC *appMock.MockICreateAccountUsecase) {
+				mockCreateAccountUC.EXPECT().Run(arg, arg).Return(&accountApp.CreateAccountDTO{
+					ID:        accountID.String(),
+					UserID:    userID.String(),
 					Name:      name,
 					Currency:  currency,
 					UpdatedAt: updatedAt,
@@ -68,7 +69,7 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 			expectedCode: http.StatusCreated,
 			expectedResponseBody: accounts.CreateAccountResponse{
-				ID:        accountID,
+				ID:        accountID.String(),
 				Name:      name,
 				Balance:   0,
 				Currency:  currency,
@@ -76,12 +77,13 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "An error occurs during account creation when request body is invalid json.",
-			requestBody: invalidRequestBody,
+			caseName:    "Negative: リクエストボディが無効なJSONの場合、Bad Request を返す",
+			requestBody: invalidJSONBody,
 			setupContext: func() context.Context {
-				return context.Background()
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
+				return ctx
 			},
-			prepare:      func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
+			prepare:      func(mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ProblemDetail{
 				Type:     response.TypeURLBadRequest,
@@ -92,12 +94,13 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "An error occurs during account creation when validation failed.",
+			caseName:    "Negative: バリデーションエラーが発生した場合、Bad Request を返す",
 			requestBody: accounts.CreateAccountRequest{},
 			setupContext: func() context.Context {
-				return context.Background()
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
+				return ctx
 			},
-			prepare:      func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
+			prepare:      func(mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ValidationProblemDetail{
 				ProblemDetail: response.ProblemDetail{
@@ -110,12 +113,12 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "If the context does not have a user id, an authentication error will be returned.",
-			requestBody: requestBody,
+			caseName:    "Negative: コンテキストにユーザーIDがない場合、Unauthorized を返す",
+			requestBody: happyRequestBody,
 			setupContext: func() context.Context {
 				return context.Background()
 			},
-			prepare:      func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
+			prepare:      func(mockCreateAccountUC *appMock.MockICreateAccountUsecase) {},
 			expectedCode: http.StatusUnauthorized,
 			expectedResponseBody: response.ProblemDetail{
 				Type:     response.TypeURLUnauthorized,
@@ -126,14 +129,14 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "If the user is not found, a not-found error will occur.",
-			requestBody: requestBody,
+			caseName:    "Negative: ユーザーが見つからない場合、Not Found を返す",
+			requestBody: happyRequestBody,
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
-			prepare: func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {
-				mockCreateAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, userDomain.ErrNotFound)
+			prepare: func(mockCreateAccountUC *appMock.MockICreateAccountUsecase) {
+				mockCreateAccountUC.EXPECT().Run(arg, arg).Return(nil, userDomain.ErrNotFound)
 			},
 			expectedCode: http.StatusNotFound,
 			expectedResponseBody: response.ProblemDetail{
@@ -145,14 +148,14 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "If account creation limit is reached, a conflict error will be returned.",
-			requestBody: requestBody,
+			caseName:    "Negative: 口座作成制限に達した場合、Conflict を返す",
+			requestBody: happyRequestBody,
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
-			prepare: func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {
-				mockCreateAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, accountDomain.ErrLimitReached)
+			prepare: func(mockCreateAccountUC *appMock.MockICreateAccountUsecase) {
+				mockCreateAccountUC.EXPECT().Run(arg, arg).Return(nil, accountDomain.ErrLimitReached)
 			},
 			expectedCode: http.StatusConflict,
 			expectedResponseBody: response.ProblemDetail{
@@ -164,14 +167,14 @@ func TestCreateAccountHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "If an unknown error occurs, an internal server error is returned.",
-			requestBody: requestBody,
+			caseName:    "Negative: 未知のエラーが発生した場合、Internal Server Error を返す",
+			requestBody: happyRequestBody,
 			setupContext: func() context.Context {
-				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID)
+				ctx := context.WithValue(context.Background(), config.CtxUserIDKey(), userID.String())
 				return ctx
 			},
-			prepare: func(ctx context.Context, mockCreateAccountUC *appMock.MockICreateAccountUsecase) {
-				mockCreateAccountUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, assert.AnError)
+			prepare: func(mockCreateAccountUC *appMock.MockICreateAccountUsecase) {
+				mockCreateAccountUC.EXPECT().Run(arg, arg).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ProblemDetail{
@@ -200,7 +203,7 @@ func TestCreateAccountHandler(t *testing.T) {
 			ctx.SetRequest(req.WithContext(tt.setupContext()))
 
 			mockCreateAccountUC := appMock.NewMockICreateAccountUsecase(ctrl)
-			tt.prepare(ctx.Request().Context(), mockCreateAccountUC)
+			tt.prepare(mockCreateAccountUC)
 
 			h := accounts.NewCreateAccountHandler(mockCreateAccountUC)
 			err = h.Run(ctx)

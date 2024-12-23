@@ -23,13 +23,13 @@ func NewCreateAccountHandler(createAccountUsecase accountApp.ICreateAccountUseca
 }
 
 type CreateAccountRequestBody struct {
-	// The name of the account. Must be 3-20 characters long.
+	// 3 ～ 20 文字のアカウント名
 	Name string `json:"name" example:"For work"`
 
-	// A 4-digit password for securing the account.
+	// 4 桁のパスワード
 	Password string `json:"password" example:"1234"`
 
-	// The currency for the account. Supported values are JPY or USD.
+	// 通貨（JPY または USD）
 	Currency string `json:"currency" example:"JPY"`
 }
 
@@ -38,24 +38,24 @@ type CreateAccountRequest struct {
 }
 
 type CreateAccountResponse struct {
-	// The ID of the account.
+	// 口座ID
 	ID string `json:"id" example:"01J9R7YPV1FH1V0PPKVSB5C7LE"`
 
-	// The name of the account.
+	// 口座名
 	Name string `json:"name" example:"For work"`
 
-	// The current balance of the account.
+	// 口座残高
 	Balance float64 `json:"balance" example:"0"`
 
-	// The currency for the account.
+	// 通貨
 	Currency string `json:"currency" example:"JPY"`
 
-	// The date and time the account was last updated.
+	// 口座の更新日時
 	UpdatedAt string `json:"updatedAt" example:"2021-08-01T00:00:00Z"`
 }
 
-// @Summary Create Account
-// @Description This endpoint creates a new account.
+// @Summary 口座の作成
+// @Description 新しい口座を作成します。
 // @Tags Account API
 // @Security BearerAuth
 // @Accept json

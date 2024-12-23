@@ -1,6 +1,8 @@
 package validation
 
 import (
+	"errors"
+	"strconv"
 	"strings"
 
 	v "github.com/go-ozzo/ozzo-validation/v4"
@@ -12,7 +14,7 @@ func ValidTransactionOperationType(operationType string) error {
 		transactionDomain.Deposit, transactionDomain.Withdrawal, transactionDomain.Transfer))
 }
 
-// ValidTransactionOperationTypes validates a comma-separated string of transaction operation types.
+// 取引操作タイプのカンマ区切り文字列を検証します。
 func ValidTransactionOperationTypes(operationTypes string) error {
 	types := strings.Split(operationTypes, ",")
 	var errors []string
@@ -34,5 +36,11 @@ func ValidTransactionOperationTypes(operationTypes string) error {
 }
 
 func ValidListTransactionsLimit(limit int) error {
-	return v.Validate(limit, v.Min(1), v.Max(transactionDomain.ListTransactionsLimit))
+	if limit <= 0 {
+		return errors.New("limit must be greater than 0")
+	}
+	if limit > transactionDomain.ListTransactionsLimit {
+		return errors.New("limit must be less than or equal to " + strconv.Itoa(transactionDomain.ListTransactionsLimit))
+	}
+	return nil
 }

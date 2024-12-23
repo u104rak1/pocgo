@@ -28,7 +28,7 @@ func NewFromString[T any](value string) (ID[T], error) {
 	if value == "" {
 		return ID[T]{}, ErrEmptyID
 	}
-	if !isValid(value) {
+	if !IsValid(value) {
 		return ID[T]{}, ErrInvalidULID
 	}
 	return ID[T]{value: value}, nil
@@ -43,14 +43,14 @@ func (id ID[T]) Equals(other ID[T]) bool {
 }
 
 func (id ID[T]) IsValid() bool {
-	return id.value != "" && isValid(id.value)
+	return id.value != "" && IsValid(id.value)
 }
 
 func NewForTest[T any](seed string) ID[T] {
 	return ID[T]{value: GenerateStaticULID(seed)}
 }
 
-func isValid(s string) bool {
+func IsValid(s string) bool {
 	_, err := ulid.Parse(s)
 	return err == nil
 }

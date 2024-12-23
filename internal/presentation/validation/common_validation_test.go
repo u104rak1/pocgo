@@ -4,40 +4,40 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/presentation/validation"
-	ulidUtil "github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestInvalidULID(t *testing.T) {
 	tests := []struct {
 		caseName string
 		input    string
-		wantErr  string
+		errMsg   string
 	}{
 		{
-			caseName: "Valid ULID",
+			caseName: "Positive: 有効なULID",
 			input:    "01FZ7TYX2X5JYZR9DYZXQSTB4H",
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "Empty string is invalid",
+			caseName: "Negative: 空文字列は無効",
 			input:    "",
-			wantErr:  ulidUtil.ErrInvalidULID.Error(),
+			errMsg:   idVO.ErrInvalidULID.Error(),
 		},
 		{
-			caseName: "Invalid ULID format",
+			caseName: "Negative: 無効なULID形式",
 			input:    "invalid-ulid",
-			wantErr:  ulidUtil.ErrInvalidULID.Error(),
+			errMsg:   idVO.ErrInvalidULID.Error(),
 		},
 		{
-			caseName: "Too short ULID (25 characters)",
+			caseName: "Negative: 25文字のULIDは無効",
 			input:    "01FZ7TYX2X5JYZR9DYZXQSTB4",
-			wantErr:  ulidUtil.ErrInvalidULID.Error(),
+			errMsg:   idVO.ErrInvalidULID.Error(),
 		},
 		{
-			caseName: "Too long ULID (27 characters)",
+			caseName: "Negative: 27文字のULIDは無効",
 			input:    "01FZ7TYX2X5JYZR9DYZXQSTB4H1",
-			wantErr:  ulidUtil.ErrInvalidULID.Error(),
+			errMsg:   idVO.ErrInvalidULID.Error(),
 		},
 	}
 
@@ -45,11 +45,11 @@ func TestInvalidULID(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidULID(tt.input)
-			if tt.wantErr == "" {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
 			} else {
 				assert.Error(t, err)
-				assert.Equal(t, tt.wantErr, err.Error())
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}
@@ -59,27 +59,32 @@ func TestValidYYYYMMDD(t *testing.T) {
 	tests := []struct {
 		caseName string
 		input    string
-		wantErr  bool
+		errMsg   string
 	}{
 		{
-			caseName: "Valid date",
+			caseName: "Positive: 有効な日付",
 			input:    "20240301",
-			wantErr:  false,
+			errMsg:   "",
 		},
 		{
-			caseName: "Invalid format (non-numeric)",
+			caseName: "Negative: 非数値の日付は無効",
 			input:    "2024030a",
-			wantErr:  true,
+			errMsg:   "must be in a valid format",
 		},
 		{
-			caseName: "Invalid date (non-existent date)",
+			caseName: "Negative: 存在しない日付は無効",
 			input:    "20240231",
-			wantErr:  true,
+			errMsg:   "parsing time \"20240231\": day out of range",
 		},
 		{
-			caseName: "Insufficient length",
+			caseName: "Negative: 8桁未満の日付は無効",
 			input:    "2024030",
-			wantErr:  true,
+			errMsg:   "must be in a valid format",
+		},
+		{
+			caseName: "Negative: 8桁より多い日付は無効",
+			input:    "202403010",
+			errMsg:   "must be in a valid format",
 		},
 	}
 
@@ -87,10 +92,11 @@ func TestValidYYYYMMDD(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidYYYYMMDD(tt.input)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}
@@ -101,37 +107,37 @@ func TestValidateDateRange(t *testing.T) {
 		caseName string
 		from     string
 		to       string
-		wantErr  bool
+		errMsg   string
 	}{
 		{
-			caseName: "Valid date range",
+			caseName: "Positive: 有効な日付範囲",
 			from:     "20240301",
 			to:       "20240302",
-			wantErr:  false,
+			errMsg:   "",
 		},
 		{
-			caseName: "Same date",
+			caseName: "Positive: 同じ日付は有効",
 			from:     "20240301",
 			to:       "20240301",
-			wantErr:  false,
+			errMsg:   "",
 		},
 		{
-			caseName: "Invalid range (end date before start date)",
+			caseName: "Negative: 終了日が開始日より前の日付は無効",
 			from:     "20240302",
 			to:       "20240301",
-			wantErr:  true,
+			errMsg:   "to date cannot be before from date",
 		},
 		{
-			caseName: "Invalid date format (from)",
+			caseName: "Negative: 開始日が無効な日付形式の場合は無効",
 			from:     "2024030",
 			to:       "20240301",
-			wantErr:  true,
+			errMsg:   "parsing time \"2024030\" as \"20060102\": cannot parse \"0\" as \"02\"",
 		},
 		{
-			caseName: "Invalid date format (to)",
+			caseName: "Negative: 終了日が無効な日付形式の場合は無効",
 			from:     "20240301",
 			to:       "2024030",
-			wantErr:  true,
+			errMsg:   "parsing time \"2024030\" as \"20060102\": cannot parse \"0\" as \"02\"",
 		},
 	}
 
@@ -139,10 +145,11 @@ func TestValidateDateRange(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidateDateRange(tt.from, tt.to)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}
@@ -152,22 +159,22 @@ func TestValidPage(t *testing.T) {
 	tests := []struct {
 		caseName string
 		input    int
-		wantErr  bool
+		errMsg   string
 	}{
 		{
-			caseName: "Valid page number",
+			caseName: "Positive: 有効なページ番号",
 			input:    1,
-			wantErr:  false,
+			errMsg:   "",
 		},
 		{
-			caseName: "Invalid page number (zero)",
+			caseName: "Negative: 0は無効",
 			input:    0,
-			wantErr:  true,
+			errMsg:   "page must be greater than 0",
 		},
 		{
-			caseName: "Invalid page number (negative)",
+			caseName: "Negative: 負のページ番号は無効",
 			input:    -1,
-			wantErr:  true,
+			errMsg:   "page must be greater than 0",
 		},
 	}
 
@@ -175,10 +182,11 @@ func TestValidPage(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidPage(tt.input)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}
@@ -188,27 +196,32 @@ func TestValidSort(t *testing.T) {
 	tests := []struct {
 		caseName string
 		input    string
-		wantErr  bool
+		errMsg   string
 	}{
 		{
-			caseName: "Valid sort order (ASC)",
+			caseName: "Positive: ASCは有効",
 			input:    "ASC",
-			wantErr:  false,
+			errMsg:   "",
 		},
 		{
-			caseName: "Valid sort order (DESC)",
+			caseName: "Positive: DESCは有効",
 			input:    "DESC",
-			wantErr:  false,
+			errMsg:   "",
 		},
 		{
-			caseName: "Invalid sort order (lowercase)",
+			caseName: "Negative: 小文字のASCは無効",
 			input:    "asc",
-			wantErr:  true,
+			errMsg:   "must be a valid value",
 		},
 		{
-			caseName: "Invalid sort order (invalid value)",
+			caseName: "Negative: 小文字のDESCは無効",
+			input:    "desc",
+			errMsg:   "must be a valid value",
+		},
+		{
+			caseName: "Negative: 無効なソート順は無効",
 			input:    "INVALID",
-			wantErr:  true,
+			errMsg:   "must be a valid value",
 		},
 	}
 
@@ -216,10 +229,11 @@ func TestValidSort(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidSort(tt.input)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}

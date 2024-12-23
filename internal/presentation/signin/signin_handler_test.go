@@ -2,7 +2,6 @@ package signin_test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -20,12 +19,13 @@ import (
 
 func TestSigninHandler(t *testing.T) {
 	var (
-		accessToken        = "token"
-		invalidRequestBody = "invalid json"
-		uri                = "/api/v1/signin"
+		accessToken     = "token"
+		invalidJSONBody = "invalid json"
+		uri             = "/api/v1/signin"
+		arg             = gomock.Any()
 	)
 
-	var requestBody = signin.SigninRequest{
+	var happyRequestBody = signin.SigninRequest{
 		Email:    "sato@example.com",
 		Password: "password",
 	}
@@ -33,15 +33,15 @@ func TestSigninHandler(t *testing.T) {
 	tests := []struct {
 		caseName             string
 		requestBody          interface{}
-		prepare              func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase)
+		prepare              func(mockSigninUC *appMock.MockISigninUsecase)
 		expectedCode         int
 		expectedResponseBody interface{}
 	}{
 		{
-			caseName:    "Successful signin.",
-			requestBody: requestBody,
-			prepare: func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {
-				mockSigninUC.EXPECT().Run(ctx, gomock.Any()).Return(&authApp.SigninDTO{
+			caseName:    "Positive: サインインに成功する",
+			requestBody: happyRequestBody,
+			prepare: func(mockSigninUC *appMock.MockISigninUsecase) {
+				mockSigninUC.EXPECT().Run(arg, arg).Return(&authApp.SigninDTO{
 					AccessToken: accessToken,
 				}, nil)
 			},
@@ -51,9 +51,9 @@ func TestSigninHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:     "Error occurs during signin when request body is invalid json.",
-			requestBody:  invalidRequestBody,
-			prepare:      func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {},
+			caseName:     "Negative: リクエストボディが無効なJSONの場合、Bad Request を返す",
+			requestBody:  invalidJSONBody,
+			prepare:      func(mockSigninUC *appMock.MockISigninUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ProblemDetail{
 				Type:     response.TypeURLBadRequest,
@@ -64,9 +64,9 @@ func TestSigninHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:     "Error occurs during signin when validation failed.",
+			caseName:     "Negative: バリデーションが無効な場合、Validation Failed を返す",
 			requestBody:  signin.SigninRequest{},
-			prepare:      func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {},
+			prepare:      func(mockSigninUC *appMock.MockISigninUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ValidationProblemDetail{
 				ProblemDetail: response.ProblemDetail{
@@ -79,10 +79,10 @@ func TestSigninHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "Error occurs during signin when authentication failed.",
-			requestBody: requestBody,
-			prepare: func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {
-				mockSigninUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, authDomain.ErrAuthenticationFailed)
+			caseName:    "Negative: 認証に失敗した場合、Unauthorized を返す",
+			requestBody: happyRequestBody,
+			prepare: func(mockSigninUC *appMock.MockISigninUsecase) {
+				mockSigninUC.EXPECT().Run(arg, arg).Return(nil, authDomain.ErrAuthenticationFailed)
 			},
 			expectedCode: http.StatusUnauthorized,
 			expectedResponseBody: response.ProblemDetail{
@@ -94,10 +94,10 @@ func TestSigninHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "Unknown error occurs during signin.",
-			requestBody: requestBody,
-			prepare: func(ctx context.Context, mockSigninUC *appMock.MockISigninUsecase) {
-				mockSigninUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, assert.AnError)
+			caseName:    "Negative: 未知のエラーが発生した場合、Internal Server Error を返す",
+			requestBody: happyRequestBody,
+			prepare: func(mockSigninUC *appMock.MockISigninUsecase) {
+				mockSigninUC.EXPECT().Run(arg, arg).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ProblemDetail{
@@ -125,7 +125,7 @@ func TestSigninHandler(t *testing.T) {
 			ctx := e.NewContext(req, rec)
 
 			mockSigninUC := appMock.NewMockISigninUsecase(ctrl)
-			tt.prepare(ctx.Request().Context(), mockSigninUC)
+			tt.prepare(mockSigninUC)
 
 			h := signin.NewSigninHandler(mockSigninUC)
 			err = h.Run(ctx)

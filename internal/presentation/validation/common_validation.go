@@ -6,13 +6,13 @@ import (
 	"time"
 
 	v "github.com/go-ozzo/ozzo-validation/v4"
-	ulidUtil "github.com/u104rak1/pocgo/pkg/ulid"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 )
 
 func ValidULID(ulid string) error {
-	valid := ulidUtil.IsValid(ulid)
+	valid := idVO.IsValid(ulid)
 	if !valid {
-		return ulidUtil.ErrInvalidULID
+		return idVO.ErrInvalidULID
 	}
 	return nil
 }

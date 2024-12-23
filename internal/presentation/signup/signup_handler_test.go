@@ -2,7 +2,6 @@ package signup_test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -15,23 +14,24 @@ import (
 	appMock "github.com/u104rak1/pocgo/internal/application/mock"
 	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/presentation/signup"
 	"github.com/u104rak1/pocgo/internal/server/response"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 )
 
 func TestSignupHandler(t *testing.T) {
 	var (
-		userID             = ulid.GenerateStaticULID("user")
-		userName           = "sato taro"
-		userEmail          = "sato@example.com"
-		userPassword       = "password"
-		accessToken        = "token"
-		invalidRequestBody = "invalid json"
-		uri                = "/api/v1/signup"
+		userID          = idVO.NewUserIDForTest("user")
+		userName        = "sato taro"
+		userEmail       = "sato@example.com"
+		userPassword    = "password"
+		accessToken     = "token"
+		invalidJSONBody = "invalid json"
+		uri             = "/api/v1/signup"
+		arg             = gomock.Any()
 	)
 
-	var requestBody = signup.SignupRequest{
+	var happyRequestBody = signup.SignupRequest{
 		Name:     userName,
 		Email:    userEmail,
 		Password: userPassword,
@@ -40,21 +40,17 @@ func TestSignupHandler(t *testing.T) {
 	tests := []struct {
 		caseName             string
 		requestBody          interface{}
-		prepare              func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase)
+		prepare              func(mockSignupUC *appMock.MockISignupUsecase)
 		expectedCode         int
 		expectedResponseBody interface{}
 	}{
 		{
-			caseName:    "Successful signup.",
-			requestBody: requestBody,
-			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, authApp.SignupCommand{
-					Name:     userName,
-					Email:    userEmail,
-					Password: userPassword,
-				}).Return(&authApp.SignupDTO{
+			caseName:    "Positive: サインアップに成功する",
+			requestBody: happyRequestBody,
+			prepare: func(mockSignupUC *appMock.MockISignupUsecase) {
+				mockSignupUC.EXPECT().Run(arg, arg).Return(&authApp.SignupDTO{
 					User: authApp.SignupUserDTO{
-						ID:    userID,
+						ID:    userID.String(),
 						Name:  userName,
 						Email: userEmail,
 					},
@@ -64,7 +60,7 @@ func TestSignupHandler(t *testing.T) {
 			expectedCode: http.StatusCreated,
 			expectedResponseBody: signup.SignupResponse{
 				User: signup.SignupResponseBodyUser{
-					ID:    userID,
+					ID:    userID.String(),
 					Name:  userName,
 					Email: userEmail,
 				},
@@ -72,9 +68,9 @@ func TestSignupHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:     "Error occurs during signup when request body is invalid json.",
-			requestBody:  invalidRequestBody,
-			prepare:      func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
+			caseName:     "Negative: リクエストボディが無効なJSONの場合、Bad Request を返す",
+			requestBody:  invalidJSONBody,
+			prepare:      func(mockSignupUC *appMock.MockISignupUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ProblemDetail{
 				Type:     response.TypeURLBadRequest,
@@ -85,9 +81,9 @@ func TestSignupHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:     "Error occurs during signup when validation failed.",
+			caseName:     "Negative: バリデーションが無効な場合、Validation Failed を返す",
 			requestBody:  signup.SignupRequest{},
-			prepare:      func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {},
+			prepare:      func(mockSignupUC *appMock.MockISignupUsecase) {},
 			expectedCode: http.StatusBadRequest,
 			expectedResponseBody: response.ValidationProblemDetail{
 				ProblemDetail: response.ProblemDetail{
@@ -100,10 +96,10 @@ func TestSignupHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "Error occurs during signup when user email already exists.",
-			requestBody: requestBody,
-			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, userDomain.ErrEmailAlreadyExists)
+			caseName:    "Negative: ユーザーのメールアドレスが既に存在する場合、Conflict を返す",
+			requestBody: happyRequestBody,
+			prepare: func(mockSignupUC *appMock.MockISignupUsecase) {
+				mockSignupUC.EXPECT().Run(arg, arg).Return(nil, userDomain.ErrEmailAlreadyExists)
 			},
 			expectedCode: http.StatusConflict,
 			expectedResponseBody: response.ProblemDetail{
@@ -115,10 +111,10 @@ func TestSignupHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "Error occurs during signup when authentication already exists.",
-			requestBody: requestBody,
-			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, authDomain.ErrAlreadyExists)
+			caseName:    "Negative: 認証情報が既に存在する場合、Conflict を返す",
+			requestBody: happyRequestBody,
+			prepare: func(mockSignupUC *appMock.MockISignupUsecase) {
+				mockSignupUC.EXPECT().Run(arg, arg).Return(nil, authDomain.ErrAlreadyExists)
 			},
 			expectedCode: http.StatusConflict,
 			expectedResponseBody: response.ProblemDetail{
@@ -130,10 +126,10 @@ func TestSignupHandler(t *testing.T) {
 			},
 		},
 		{
-			caseName:    "Unknown error occurs during signup.",
-			requestBody: requestBody,
-			prepare: func(ctx context.Context, mockSignupUC *appMock.MockISignupUsecase) {
-				mockSignupUC.EXPECT().Run(ctx, gomock.Any()).Return(nil, assert.AnError)
+			caseName:    "Negative: 未知のエラーが発生した場合、Internal Server Error を返す",
+			requestBody: happyRequestBody,
+			prepare: func(mockSignupUC *appMock.MockISignupUsecase) {
+				mockSignupUC.EXPECT().Run(arg, arg).Return(nil, assert.AnError)
 			},
 			expectedCode: http.StatusInternalServerError,
 			expectedResponseBody: response.ProblemDetail{
@@ -160,7 +156,7 @@ func TestSignupHandler(t *testing.T) {
 			ctx := e.NewContext(req, rec)
 
 			mockSignupUC := appMock.NewMockISignupUsecase(ctrl)
-			tt.prepare(ctx.Request().Context(), mockSignupUC)
+			tt.prepare(mockSignupUC)
 
 			h := signup.NewSignupHandler(mockSignupUC)
 			err := h.Run(ctx)

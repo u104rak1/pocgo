@@ -13,32 +13,37 @@ func TestValidAccountName(t *testing.T) {
 	tests := []struct {
 		caseName string
 		input    string
-		wantErr  string
+		errMsg   string
 	}{
 		{
-			caseName: "An empty name is invalid.",
+			caseName: "Positive: 有効な口座名",
+			input:    "test",
+			errMsg:   "",
+		},
+		{
+			caseName: "Negative: 空文字列は無効",
 			input:    "",
-			wantErr:  "cannot be blank",
+			errMsg:   "cannot be blank",
 		},
 		{
-			caseName: "A name less than 2-characters are invalid.",
+			caseName: "Negative: 2文字未満は無効",
 			input:    strings.Repeat("a", accountDomain.NameMinLength-1),
-			wantErr:  "the length must be between 3 and 20",
+			errMsg:   "the length must be between 3 and 20",
 		},
 		{
-			caseName: "Valid name must be a minimum 3-characters.",
+			caseName: "Positive: 3文字以上は有効",
 			input:    strings.Repeat("a", accountDomain.NameMinLength),
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "Valid name must be a maximum of 20-characters.",
+			caseName: "Positive: 20文字以下は有効",
 			input:    strings.Repeat("a", accountDomain.NameMaxLength),
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "A name longer than 21-characters are invalid.",
+			caseName: "Negative: 21文字以上は無効",
 			input:    strings.Repeat("a", accountDomain.NameMaxLength+1),
-			wantErr:  "the length must be between 3 and 20",
+			errMsg:   "the length must be between 3 and 20",
 		},
 	}
 
@@ -46,11 +51,11 @@ func TestValidAccountName(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidAccountName(tt.input)
-			if tt.wantErr == "" {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
 			} else {
 				assert.Error(t, err)
-				assert.Equal(t, tt.wantErr, err.Error())
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}
@@ -60,27 +65,27 @@ func TestValidAccountPassword(t *testing.T) {
 	tests := []struct {
 		caseName string
 		input    string
-		wantErr  string
+		errMsg   string
 	}{
 		{
-			caseName: "An empty password is invalid.",
+			caseName: "Negative: 空文字列は無効",
 			input:    "",
-			wantErr:  "cannot be blank",
+			errMsg:   "cannot be blank",
 		},
 		{
-			caseName: "A password less than 3-characters are invalid.",
+			caseName: "Negative: 3文字未満は無効",
 			input:    strings.Repeat("a", accountDomain.PasswordLength-1),
-			wantErr:  "the length must be exactly 4",
+			errMsg:   "the length must be exactly 4",
 		},
 		{
-			caseName: "A password must be 4-characters.",
+			caseName: "Positive: 4文字は有効なパスワード",
 			input:    strings.Repeat("a", accountDomain.PasswordLength),
-			wantErr:  "",
+			errMsg:   "",
 		},
 		{
-			caseName: "A password longer than 5-characters are invalid.",
+			caseName: "Negative: 5文字以上は無効",
 			input:    strings.Repeat("a", accountDomain.PasswordLength+1),
-			wantErr:  "the length must be exactly 4",
+			errMsg:   "the length must be exactly 4",
 		},
 	}
 
@@ -88,11 +93,11 @@ func TestValidAccountPassword(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			t.Parallel()
 			err := validation.ValidAccountPassword(tt.input)
-			if tt.wantErr == "" {
+			if tt.errMsg == "" {
 				assert.NoError(t, err)
 			} else {
 				assert.Error(t, err)
-				assert.Equal(t, tt.wantErr, err.Error())
+				assert.Equal(t, tt.errMsg, err.Error())
 			}
 		})
 	}
