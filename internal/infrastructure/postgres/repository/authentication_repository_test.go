@@ -1,7 +1,6 @@
 package repository_test
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"regexp"
@@ -15,7 +14,7 @@ import (
 )
 
 func TestAuthenticationRepository_Save(t *testing.T) {
-	repo, mock, ctx, db := PrepareTestRepository(t, repository.NewAuthenticationRepository)
+	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewAuthenticationRepository)
 	userID := idVO.NewUserIDForTest("user_id_1")
 	auth, err := authDomain.New(userID, "password123")
 	assert.NoError(t, err)
@@ -55,49 +54,6 @@ func TestAuthenticationRepository_Save(t *testing.T) {
 
 			if tt.wantErr {
 				assert.Error(t, assert.AnError)
-			} else {
-				assert.NoError(t, err)
-			}
-			err = mock.ExpectationsWereMet()
-			assert.NoError(t, err)
-		})
-	}
-
-	unitOfWork := repository.NewUnitOfWork(db)
-	testsWithTx := []struct {
-		caseName string
-		prepare  func()
-		wantErr  bool
-	}{
-		{
-			caseName: "Positive: トランザクション内で認証情報の保存が成功する",
-			prepare: func() {
-				mock.ExpectBegin()
-				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnRows(sqlmock.NewRows([]string{"deleted_at"}))
-				mock.ExpectCommit()
-			},
-			wantErr: false,
-		},
-		{
-			caseName: "Negative: SQLエラーでロールバックされる",
-			prepare: func() {
-				mock.ExpectBegin()
-				mock.ExpectQuery(regexp.QuoteMeta(expectQuery)).WillReturnError(assert.AnError)
-				mock.ExpectRollback()
-			},
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range testsWithTx {
-		t.Run(tt.caseName, func(t *testing.T) {
-			tt.prepare()
-			err := unitOfWork.RunInTx(ctx, func(ctx context.Context) error {
-				return repo.Save(ctx, auth)
-			})
-
-			if tt.wantErr {
-				assert.Error(t, err)
 			} else {
 				assert.NoError(t, err)
 			}

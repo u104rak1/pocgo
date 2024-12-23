@@ -9,7 +9,7 @@ import (
 
 func ValidTransactionOperationType(operationType string) error {
 	return v.Validate(operationType, v.Required, v.In(
-		transactionDomain.Deposit, transactionDomain.Withdraw, transactionDomain.Transfer))
+		transactionDomain.Deposit, transactionDomain.Withdrawal, transactionDomain.Transfer))
 }
 
 // ValidTransactionOperationTypes validates a comma-separated string of transaction operation types.

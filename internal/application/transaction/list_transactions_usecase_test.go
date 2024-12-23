@@ -43,7 +43,7 @@ func TestListTransactionsUsecase(t *testing.T) {
 		AccountID:      accountID.String(),
 		From:           &time,
 		To:             &time,
-		OperationTypes: []string{transactionDomain.Deposit, transactionDomain.Withdraw},
+		OperationTypes: []string{transactionDomain.Deposit, transactionDomain.Withdrawal},
 		Sort:           &sort,
 		Limit:          &limit,
 		Page:           &page,
@@ -64,7 +64,7 @@ func TestListTransactionsUsecase(t *testing.T) {
 				tx1, err := transactionDomain.New(account.ID(), nil, transactionDomain.Deposit, amount, currency, time)
 				assert.NoError(t, err)
 
-				transactions := []transactionDomain.Transaction{*tx1}
+				transactions := []*transactionDomain.Transaction{tx1}
 				total := len(transactions)
 
 				mocks.transactionServ.EXPECT().ListWithTotal(arg, arg).Return(transactions, total, nil)

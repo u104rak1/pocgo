@@ -76,7 +76,7 @@ func (u *executeTransactionUsecase) Run(ctx context.Context, cmd ExecuteTransact
 		if err != nil {
 			return nil, err
 		}
-	case transactionDomain.Withdraw:
+	case transactionDomain.Withdrawal:
 		transaction, err = u.unitOfWork.RunInTx(ctx, func(ctx context.Context) (*transactionDomain.Transaction, error) {
 			return u.transactionServ.Withdraw(ctx, account, cmd.Amount, cmd.Currency)
 		})

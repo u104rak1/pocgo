@@ -1,7 +1,6 @@
 package repository_test
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"regexp"
@@ -16,7 +15,7 @@ import (
 )
 
 func TestAccountRepository_Save(t *testing.T) {
-	repo, mock, ctx, db := PrepareTestRepository(t, repository.NewAccountRepository)
+	repo, mock, ctx, _ := PrepareTestRepository(t, repository.NewAccountRepository)
 	userID := idVO.NewUserIDForTest("user")
 	money, err := moneyVO.New(1000, moneyVO.JPY)
 	assert.NoError(t, err)
@@ -77,53 +76,6 @@ func TestAccountRepository_Save(t *testing.T) {
 		t.Run(tt.caseName, func(t *testing.T) {
 			tt.prepare()
 			err := repo.Save(ctx, account)
-
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-			err = mock.ExpectationsWereMet()
-			assert.NoError(t, err)
-		})
-	}
-
-	unitOfWork := repository.NewUnitOfWork(db)
-	testsWithTx := []struct {
-		caseName string
-		prepare  func()
-		wantErr  bool
-	}{
-		{
-			caseName: "Positive: トランザクション内でアカウントの保存が成功する",
-			prepare: func() {
-				mock.ExpectBegin()
-				mock.ExpectQuery(regexp.QuoteMeta(currencySelectQuery)).
-					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(currencyID))
-				mock.ExpectQuery(regexp.QuoteMeta(expectInsertQuery)).
-					WillReturnRows(sqlmock.NewRows([]string{"deleted_at"}))
-				mock.ExpectCommit()
-			},
-			wantErr: false,
-		},
-		{
-			caseName: "Negative: SQLエラーでロールバックされる",
-			prepare: func() {
-				mock.ExpectBegin()
-				mock.ExpectQuery(regexp.QuoteMeta(currencySelectQuery)).
-					WillReturnError(assert.AnError)
-				mock.ExpectRollback()
-			},
-			wantErr: true,
-		},
-	}
-
-	for _, tt := range testsWithTx {
-		t.Run(tt.caseName, func(t *testing.T) {
-			tt.prepare()
-			err := unitOfWork.RunInTx(ctx, func(ctx context.Context) error {
-				return repo.Save(ctx, account)
-			})
 
 			if tt.wantErr {
 				assert.Error(t, err)

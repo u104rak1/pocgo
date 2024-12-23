@@ -31,7 +31,7 @@ func TestValidTransactionOperationType(t *testing.T) {
 		},
 		{
 			caseName: "A valid operation type (Withdraw) is accepted",
-			input:    transaction.Withdraw,
+			input:    transaction.Withdrawal,
 			wantErr:  "",
 		},
 		{

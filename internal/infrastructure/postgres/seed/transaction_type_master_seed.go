@@ -11,7 +11,7 @@ import (
 func saveOperationTypeMaster(db *bun.DB) error {
 	data := []model.OperationTypeMaster{
 		{Type: transactionDomain.Deposit},
-		{Type: transactionDomain.Withdraw},
+		{Type: transactionDomain.Withdrawal},
 		{Type: transactionDomain.Transfer},
 	}
 	if _, err := db.NewInsert().Model(&data).Exec(context.Background()); err != nil {

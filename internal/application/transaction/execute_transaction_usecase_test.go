@@ -51,7 +51,7 @@ func TestExecuteTransactionUsecase(t *testing.T) {
 		UserID:        userID.String(),
 		AccountID:     accountID.String(),
 		Password:      password,
-		OperationType: transactionDomain.Withdraw,
+		OperationType: transactionDomain.Withdrawal,
 		Amount:        amount,
 		Currency:      currency,
 	}
@@ -91,7 +91,7 @@ func TestExecuteTransactionUsecase(t *testing.T) {
 			prepare: func(mocks Mocks, account *accountDomain.Account) {
 				mocks.accountServ.EXPECT().GetAndAuthorize(arg, arg, arg, arg).Return(account, nil)
 
-				tx, err := transactionDomain.New(account.ID(), nil, transactionDomain.Withdraw, amount, currency, time)
+				tx, err := transactionDomain.New(account.ID(), nil, transactionDomain.Withdrawal, amount, currency, time)
 				assert.NoError(t, err)
 				mocks.transactionServ.EXPECT().Withdraw(arg, arg, arg, arg).Return(tx, nil)
 			},

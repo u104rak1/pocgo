@@ -64,7 +64,7 @@ func TestNewTransaction(t *testing.T) {
 			caseName:          "Positive: 出金取引を作成できる",
 			accountID:         accountID,
 			receiverAccountID: nil,
-			operationType:     transactionDomain.Withdraw,
+			operationType:     transactionDomain.Withdrawal,
 			amount:            amount,
 			currency:          currency,
 			transactionAt:     transactionAt,

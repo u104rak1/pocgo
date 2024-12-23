@@ -31,7 +31,7 @@ type ExecuteTransactionRequestBody struct {
 	// The account password.
 	Password string `json:"password" example:"1234"`
 
-	// Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or TRANSFER.
+	// Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAWAL, or TRANSFER.
 	OperationType string `json:"operationType" example:"DEPOSIT"`
 
 	// The transaction amount.

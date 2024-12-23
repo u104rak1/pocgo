@@ -44,7 +44,7 @@ func (r *transactionRepository) Save(ctx context.Context, transaction *transacti
 	return err
 }
 
-func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, params transactionDomain.ListTransactionsParams) (transactions []transactionDomain.Transaction, total int, err error) {
+func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, params transactionDomain.ListTransactionsParams) (transactions []*transactionDomain.Transaction, total int, err error) {
 	totalCountQuery := r.ExecDB(ctx).NewSelect().Model(&model.Transaction{})
 	r.buildListQuery(totalCountQuery, params)
 
@@ -73,7 +73,7 @@ func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, pa
 		return nil, 0, fmt.Errorf("failed to retrieve transactions: %w", err)
 	}
 
-	transactions = make([]transactionDomain.Transaction, len(transactionModels))
+	transactions = make([]*transactionDomain.Transaction, len(transactionModels))
 	for i, m := range transactionModels {
 		transaction, err := transactionDomain.Reconstruct(
 			m.ID,
@@ -87,14 +87,14 @@ func (r *transactionRepository) ListWithTotalByAccountID(ctx context.Context, pa
 		if err != nil {
 			return nil, 0, err
 		}
-		transactions[i] = *transaction
+		transactions[i] = transaction
 	}
 
 	return transactions, total, nil
 }
 
 func (r *transactionRepository) buildListQuery(query *bun.SelectQuery, params transactionDomain.ListTransactionsParams) {
-	query.Relation("Currency").Where("account_id = ?", params.AccountID)
+	query.Relation("Currency").Where("account_id = ?", params.AccountID.String())
 
 	if params.From != nil {
 		query.Where("transaction_at >= ?", *params.From)

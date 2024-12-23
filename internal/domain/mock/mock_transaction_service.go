@@ -52,10 +52,10 @@ func (mr *MockITransactionServiceMockRecorder) Deposit(ctx, account, amount, cur
 }
 
 // ListWithTotal mocks base method.
-func (m *MockITransactionService) ListWithTotal(ctx context.Context, params transaction.ListTransactionsParams) ([]transaction.Transaction, int, error) {
+func (m *MockITransactionService) ListWithTotal(ctx context.Context, params transaction.ListTransactionsParams) ([]*transaction.Transaction, int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListWithTotal", ctx, params)
-	ret0, _ := ret[0].([]transaction.Transaction)
+	ret0, _ := ret[0].([]*transaction.Transaction)
 	ret1, _ := ret[1].(int)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

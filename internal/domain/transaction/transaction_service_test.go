@@ -348,7 +348,7 @@ func TestListWithTotal(t *testing.T) {
 				To:        timer.TimePointer(timer.GetFixedDate()),
 				OperationTypes: []string{
 					transactionDomain.Deposit,
-					transactionDomain.Withdraw,
+					transactionDomain.Withdrawal,
 					transactionDomain.Transfer,
 				},
 				Sort:  strutil.StrPointer("ASC"),
@@ -414,7 +414,7 @@ func TestListWithTotal(t *testing.T) {
 			tx2, err := transactionDomain.New(
 				accountID,
 				nil,
-				transactionDomain.Withdraw,
+				transactionDomain.Withdrawal,
 				500.0,
 				moneyVO.JPY,
 				timer.GetFixedDate(),

@@ -6,9 +6,9 @@ import (
 
 // Operation types
 const (
-	Deposit  = "DEPOSIT"
-	Withdraw = "WITHDRAW"
-	Transfer = "TRANSFER"
+	Deposit    = "DEPOSIT"
+	Withdrawal = "WITHDRAWAL"
+	Transfer   = "TRANSFER"
 )
 
 const (
@@ -22,7 +22,7 @@ var (
 func validOperationType(operationType string) error {
 	var validOperationTypes = []string{
 		Deposit,
-		Withdraw,
+		Withdrawal,
 		Transfer,
 	}
 	for _, validType := range validOperationTypes {
