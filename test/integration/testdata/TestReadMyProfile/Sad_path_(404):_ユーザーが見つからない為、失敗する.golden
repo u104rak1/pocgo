@@ -19,8 +19,11 @@
   "response": {
     "statusCode": 404,
     "body": {
-      "message": "user not found",
-      "reason": "not found"
+      "detail": "user not found",
+      "instance": "/api/v1/me",
+      "status": 404,
+      "title": "Not Found",
+      "type": "https://example.com/probs/not-found"
     }
   }
 }

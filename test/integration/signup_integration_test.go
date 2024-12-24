@@ -37,7 +37,7 @@ func TestSignup(t *testing.T) {
 			wantCode: http.StatusCreated,
 		},
 		{
-			caseName: "Sad path (409): 指定したメールアドレスが既に使用されている為、失敗する",
+			caseName: "Sad path (409): メールアドレスが既に使用されている為、失敗する",
 			requestBody: signup.SignupRequest{
 				Name:     maxLenUserName,
 				Email:    "conflict@example.com",

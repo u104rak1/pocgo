@@ -40,8 +40,11 @@
   "response": {
     "statusCode": 409,
     "body": {
-      "message": "user email already exists",
-      "reason": "conflict"
+      "detail": "user email already exists",
+      "instance": "/api/v1/signup",
+      "status": 409,
+      "title": "Conflict",
+      "type": "https://example.com/probs/conflict"
     }
   }
 }

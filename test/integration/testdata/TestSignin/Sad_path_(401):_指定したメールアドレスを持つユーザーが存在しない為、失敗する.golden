@@ -35,8 +35,11 @@
   "response": {
     "statusCode": 401,
     "body": {
-      "message": "email or password is incorrect",
-      "reason": "unauthorized"
+      "detail": "email or password is incorrect",
+      "instance": "/api/v1/signin",
+      "status": 401,
+      "title": "Unauthorized",
+      "type": "https://example.com/probs/unauthorized"
     }
   }
 }

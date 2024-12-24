@@ -10,7 +10,7 @@ import (
 	"github.com/uptrace/bun"
 )
 
-func TestReadMyProfileHandler(t *testing.T) {
+func TestReadMyProfile(t *testing.T) {
 	var (
 		userID         = idVO.NewUserIDForTest("user")
 		maxLenUserName = "Sato Taro"
