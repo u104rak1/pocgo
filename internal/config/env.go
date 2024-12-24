@@ -8,6 +8,7 @@ import (
 
 type Env struct {
 	APP_PORT          string `env:"APP_PORT" envDefault:"58080"`
+	USE_INMEMORY      bool   `env:"USE_INMEMORY" envDefault:"false"`
 	POSTGRES_HOST     string `env:"POSTGRES_HOST" envDefault:"localhost"`
 	POSTGRES_DBNAME   string `env:"POSTGRES_DBNAME" envDefault:"POCGO_LOCAL_DB"`
 	POSTGRES_USER     string `env:"POSTGRES_USER" envDefault:"local_user"`

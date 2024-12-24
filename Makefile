@@ -36,8 +36,11 @@ seed: ## テーブルを削除してからすべてのマイグレーション�
 	make migrate_up
 	@go run ./cmd/postgres/main.go insert seed
 
-run: ## アプリケーションを実行
+run: ## PostgreSQLを使用してアプリケーションを実行
 	@go run ./cmd/pocgo/main.go
+
+run_inmemory: ## インメモリを使用してアプリケーションを実行
+	USE_INMEMORY=true go run ./cmd/pocgo/main.go
 
 clean: ## キャッシュを削除
 	@go clean -cache -modcache

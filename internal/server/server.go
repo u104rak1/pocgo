@@ -13,12 +13,14 @@ import (
 	accountApp "github.com/u104rak1/pocgo/internal/application/account"
 	authApp "github.com/u104rak1/pocgo/internal/application/authentication"
 	transactionApp "github.com/u104rak1/pocgo/internal/application/transaction"
+	unitofwork "github.com/u104rak1/pocgo/internal/application/unit_of_work"
 	userApp "github.com/u104rak1/pocgo/internal/application/user"
 	"github.com/u104rak1/pocgo/internal/config"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
 	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
 	transactionDomain "github.com/u104rak1/pocgo/internal/domain/transaction"
 	userDomain "github.com/u104rak1/pocgo/internal/domain/user"
+	"github.com/u104rak1/pocgo/internal/infrastructure/inmemory"
 	"github.com/u104rak1/pocgo/internal/infrastructure/jwt"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/repository"
 	healthPre "github.com/u104rak1/pocgo/internal/presentation/health"
@@ -32,11 +34,18 @@ import (
 )
 
 func Start() {
-	db, err := config.LoadDB()
-	if err != nil {
-		panic(err)
+	env := config.NewEnv()
+
+	var db *bun.DB
+	var err error
+
+	if !env.USE_INMEMORY {
+		db, err = config.LoadDB()
+		if err != nil {
+			panic(err)
+		}
+		defer config.CloseDB(db)
 	}
-	defer config.CloseDB(db)
 
 	e := SetupEcho(db)
 
@@ -70,6 +79,12 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 	handlers := setupHandlers(usecases)
 
 	/** Middleware */
+	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
+		AllowOrigins:     []string{"*"},
+		AllowCredentials: true,
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodPut, http.MethodDelete},
+	}))
 	e.Use(echoMiddleware.RequestID())
 	myMiddleware.SetLoggerMiddleware(e)
 	authMiddleware := myMiddleware.AuthorizationMiddleware(repositories.jwt)
@@ -98,12 +113,22 @@ type Repositories struct {
 func setupRepository(db *bun.DB) (repositories Repositories) {
 	env := config.NewEnv()
 
-	return Repositories{
-		user:        repository.NewUserRepository(db),
-		auth:        repository.NewAuthenticationRepository(db),
-		account:     repository.NewAccountRepository(db),
-		transaction: repository.NewTransactionRepository(db),
-		jwt:         jwt.NewService([]byte(env.JWT_SECRET_KEY)),
+	if env.USE_INMEMORY {
+		return Repositories{
+			user:        inmemory.NewUserInMemoryRepository(),
+			auth:        inmemory.NewAuthenticationInMemoryRepository(),
+			account:     inmemory.NewAccountInMemoryRepository(),
+			transaction: inmemory.NewTransactionInMemoryRepository(),
+			jwt:         jwt.NewService([]byte(env.JWT_SECRET_KEY)),
+		}
+	} else {
+		return Repositories{
+			user:        repository.NewUserRepository(db),
+			auth:        repository.NewAuthenticationRepository(db),
+			account:     repository.NewAccountRepository(db),
+			transaction: repository.NewTransactionRepository(db),
+			jwt:         jwt.NewService([]byte(env.JWT_SECRET_KEY)),
+		}
 	}
 }
 
@@ -133,8 +158,18 @@ type Usecases struct {
 }
 
 func setupUsecases(db *bun.DB, r Repositories, ds DomainServices) Usecases {
-	uow := repository.NewUnitOfWork(db)
-	transactionUOW := repository.NewUnitOfWorkWithResult[transactionDomain.Transaction](db)
+	var uow unitofwork.IUnitOfWork
+	var transactionUOW unitofwork.IUnitOfWorkWithResult[transactionDomain.Transaction]
+
+	if db == nil {
+		// インメモリ用のUOWを設定
+		uow = inmemory.NewUnitOfWorkInMemory()
+		transactionUOW = inmemory.NewUnitOfWorkInMemoryWithResult[transactionDomain.Transaction]()
+	} else {
+		// データベース用のUOWを設定
+		uow = repository.NewUnitOfWork(db)
+		transactionUOW = repository.NewUnitOfWorkWithResult[transactionDomain.Transaction](db)
+	}
 
 	return Usecases{
 		signupUC:           authApp.NewSignupUsecase(r.user, r.auth, ds.user, ds.auth, r.jwt),

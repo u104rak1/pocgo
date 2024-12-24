@@ -9,6 +9,18 @@
       "program": "./cmd/pocgo/main.go",
       "showLog": true,
       "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Launch API Server (InMemory)",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "./cmd/pocgo/main.go",
+      "showLog": true,
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "USE_INMEMORY": "true"
+      }
     }
   ]
 }
