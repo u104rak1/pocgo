@@ -5,16 +5,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
 	"github.com/u104rak1/pocgo/internal/presentation/signin"
 	"github.com/u104rak1/pocgo/pkg/password"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 	"github.com/uptrace/bun"
 )
 
 func TestSignin(t *testing.T) {
 	var (
-		userID         = ulid.GenerateStaticULID("user")
+		userID         = idVO.NewUserIDForTest("user")
 		maxLenUserName = "Sato Taro12345678901"
 		email          = "sato@example.com"
 		maxLenPassword = "password123456789012"
@@ -22,7 +22,7 @@ func TestSignin(t *testing.T) {
 
 	prepareNormal := func(t *testing.T, db *bun.DB) {
 		user := &model.User{
-			ID:    userID,
+			ID:    userID.String(),
 			Name:  maxLenUserName,
 			Email: email,
 		}
@@ -42,7 +42,7 @@ func TestSignin(t *testing.T) {
 		wantCode    int
 	}{
 		{
-			caseName: "Happy path (201): Signin successfully",
+			caseName: "Happy path (201): ログインに成功する",
 			requestBody: signin.SigninRequest{
 				Email:    email,
 				Password: maxLenPassword,
@@ -51,7 +51,7 @@ func TestSignin(t *testing.T) {
 			wantCode: http.StatusCreated,
 		},
 		{
-			caseName: "Sad path (401): Authentication fails because email not found",
+			caseName: "Sad path (401): 指定したメールアドレスを持つユーザーが存在しない為、失敗する",
 			requestBody: signin.SigninRequest{
 				Email:    "diff@example.com",
 				Password: maxLenPassword,
@@ -60,14 +60,14 @@ func TestSignin(t *testing.T) {
 			wantCode: http.StatusUnauthorized,
 		},
 		{
-			caseName: "Sad path (401): Authentication fails because authentication not found",
+			caseName: "Sad path (401): 認証情報が見つからない為、失敗する",
 			requestBody: signin.SigninRequest{
 				Email:    email,
 				Password: maxLenPassword,
 			},
 			prepare: func(t *testing.T, db *bun.DB) {
 				user := &model.User{
-					ID:    userID,
+					ID:    userID.String(),
 					Name:  maxLenUserName,
 					Email: email,
 				}
@@ -76,7 +76,7 @@ func TestSignin(t *testing.T) {
 			wantCode: http.StatusUnauthorized,
 		},
 		{
-			caseName: "Sad path (401): Authentication fails because password is incorrect",
+			caseName: "Sad path (401): パスワードが異なる為、失敗する",
 			requestBody: signin.SigninRequest{
 				Email:    email,
 				Password: "diffPassword",

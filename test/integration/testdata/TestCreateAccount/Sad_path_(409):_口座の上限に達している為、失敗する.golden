@@ -1,0 +1,113 @@
+{
+  "beforeDB": {
+    "accounts": [
+      {
+        "balance": 0,
+        "currency_id": "01J9R7YPV1FH1V0PPKVSB5C9TQ",
+        "deleted_at": null,
+        "id": "ANY",
+        "name": "Account0",
+        "password_hash": "ANY",
+        "updated_at": "ANY",
+        "user_id": "0000000000C33CRTH0X5AC3R6P"
+      },
+      {
+        "balance": 0,
+        "currency_id": "01J9R7YPV1FH1V0PPKVSB5C9TQ",
+        "deleted_at": null,
+        "id": "ANY",
+        "name": "Account1",
+        "password_hash": "ANY",
+        "updated_at": "ANY",
+        "user_id": "0000000000C33CRTH0X5AC3R6P"
+      },
+      {
+        "balance": 0,
+        "currency_id": "01J9R7YPV1FH1V0PPKVSB5C9TQ",
+        "deleted_at": null,
+        "id": "ANY",
+        "name": "Account2",
+        "password_hash": "ANY",
+        "updated_at": "ANY",
+        "user_id": "0000000000C33CRTH0X5AC3R6P"
+      }
+    ],
+    "users": [
+      {
+        "deleted_at": null,
+        "email": "sata@example.com",
+        "id": "ANY",
+        "name": "sato taro"
+      }
+    ]
+  },
+  "afterDB": {
+    "accounts": [
+      {
+        "balance": 0,
+        "currency_id": "01J9R7YPV1FH1V0PPKVSB5C9TQ",
+        "deleted_at": null,
+        "id": "ANY",
+        "name": "Account0",
+        "password_hash": "ANY",
+        "updated_at": "ANY",
+        "user_id": "0000000000C33CRTH0X5AC3R6P"
+      },
+      {
+        "balance": 0,
+        "currency_id": "01J9R7YPV1FH1V0PPKVSB5C9TQ",
+        "deleted_at": null,
+        "id": "ANY",
+        "name": "Account1",
+        "password_hash": "ANY",
+        "updated_at": "ANY",
+        "user_id": "0000000000C33CRTH0X5AC3R6P"
+      },
+      {
+        "balance": 0,
+        "currency_id": "01J9R7YPV1FH1V0PPKVSB5C9TQ",
+        "deleted_at": null,
+        "id": "ANY",
+        "name": "Account2",
+        "password_hash": "ANY",
+        "updated_at": "ANY",
+        "user_id": "0000000000C33CRTH0X5AC3R6P"
+      }
+    ],
+    "users": [
+      {
+        "deleted_at": null,
+        "email": "sata@example.com",
+        "id": "ANY",
+        "name": "sato taro"
+      }
+    ]
+  },
+  "request": {
+    "url": "/api/v1/me/accounts",
+    "method": "POST",
+    "header": {
+      "Authorization": ["Bearer ACCESS_TOKEN"],
+      "Content-Type": [
+        "application/json"
+      ]
+    },
+    "body": {
+      "name": "AccountName123456789",
+      "password": "1234",
+      "currency": "JPY"
+    },
+    "query": "",
+    "cookie": []
+  },
+  "response": {
+    "statusCode": 409,
+    "body": {
+      "detail": "account limit reached, maximum 3 accounts",
+      "instance": "/api/v1/me/accounts",
+      "status": 409,
+      "title": "Conflict",
+      "type": "https://example.com/probs/conflict"
+    }
+  }
+}

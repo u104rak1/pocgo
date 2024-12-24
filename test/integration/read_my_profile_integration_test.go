@@ -5,14 +5,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 	"github.com/uptrace/bun"
 )
 
 func TestReadMyProfileHandler(t *testing.T) {
 	var (
-		userID         = ulid.GenerateStaticULID("user")
+		userID         = idVO.NewUserIDForTest("user")
 		maxLenUserName = "Sato Taro"
 		email          = "sato@example.com"
 	)
@@ -23,10 +23,10 @@ func TestReadMyProfileHandler(t *testing.T) {
 		wantCode int
 	}{
 		{
-			caseName: "Happy path (200): Successful profile retrieval",
+			caseName: "Happy path (200): ユーザー情報取得に成功する",
 			prepare: func(t *testing.T, db *bun.DB) {
 				user := &model.User{
-					ID:    userID,
+					ID:    userID.String(),
 					Name:  maxLenUserName,
 					Email: email,
 				}
@@ -35,7 +35,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 			wantCode: http.StatusOK,
 		},
 		{
-			caseName: "Sad path (404): User not found",
+			caseName: "Sad path (404): ユーザーが見つからない為、失敗する",
 			prepare: func(t *testing.T, db *bun.DB) {
 				InsertTestData(t, db)
 			},
@@ -53,7 +53,7 @@ func TestReadMyProfileHandler(t *testing.T) {
 			beforeDBData := GetDBData(t, db, usedTables)
 
 			req, rec := NewJSONRequest(t, http.MethodGet, "/api/v1/me", nil)
-			SetAccessToken(t, userID, req)
+			SetAccessToken(t, userID.String(), req)
 			e.ServeHTTP(rec, req)
 			assert.Equal(t, tt.wantCode, rec.Code)
 

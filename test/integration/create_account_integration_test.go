@@ -7,13 +7,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	accountDomain "github.com/u104rak1/pocgo/internal/domain/account"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/domain/value_object/money"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/seed"
 	"github.com/u104rak1/pocgo/internal/presentation/me/accounts"
 	passwordUtil "github.com/u104rak1/pocgo/pkg/password"
 	"github.com/u104rak1/pocgo/pkg/timer"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 	"github.com/uptrace/bun"
 )
 
@@ -22,7 +22,7 @@ func TestCreateAccount(t *testing.T) {
 		name      = "AccountName123456789"
 		password  = "1234"
 		currency  = money.JPY
-		userID    = ulid.GenerateStaticULID("user")
+		userID    = idVO.NewUserIDForTest("user")
 		userName  = "sato taro"
 		userEmail = "sata@example.com"
 	)
@@ -34,7 +34,7 @@ func TestCreateAccount(t *testing.T) {
 		wantCode    int
 	}{
 		{
-			caseName: "Happy path (201): Create account successfully",
+			caseName: "Happy path (201): 口座作成に成功する",
 			requestBody: accounts.CreateAccountRequestBody{
 				Name:     name,
 				Password: password,
@@ -42,7 +42,7 @@ func TestCreateAccount(t *testing.T) {
 			},
 			prepare: func(t *testing.T, db *bun.DB) {
 				user := &model.User{
-					ID:    userID,
+					ID:    userID.String(),
 					Name:  userName,
 					Email: userEmail,
 				}
@@ -51,7 +51,7 @@ func TestCreateAccount(t *testing.T) {
 			wantCode: http.StatusCreated,
 		},
 		{
-			caseName: "Sad path (404): User not found",
+			caseName: "Sad path (404): ユーザーが見つからない為、失敗する",
 			requestBody: accounts.CreateAccountRequestBody{
 				Name:     name,
 				Password: password,
@@ -63,7 +63,7 @@ func TestCreateAccount(t *testing.T) {
 			wantCode: http.StatusNotFound,
 		},
 		{
-			caseName: "Sad path (409): Account limit has already been reached",
+			caseName: "Sad path (409): 口座の上限に達している為、失敗する",
 			requestBody: accounts.CreateAccountRequestBody{
 				Name:     name,
 				Password: password,
@@ -71,7 +71,7 @@ func TestCreateAccount(t *testing.T) {
 			},
 			prepare: func(t *testing.T, db *bun.DB) {
 				user := &model.User{
-					ID:    userID,
+					ID:    userID.String(),
 					Name:  userName,
 					Email: userEmail,
 				}
@@ -80,8 +80,8 @@ func TestCreateAccount(t *testing.T) {
 					passwordHash, err := passwordUtil.Encode("1234")
 					assert.NoError(t, err)
 					accounts = append(accounts, &model.Account{
-						ID:           ulid.GenerateStaticULID(fmt.Sprintf("account%d", i)),
-						UserID:       userID,
+						ID:           idVO.NewAccountIDForTest(fmt.Sprintf("account%d", i)).String(),
+						UserID:       userID.String(),
 						Name:         fmt.Sprintf("Account%d", i),
 						PasswordHash: passwordHash,
 						Balance:      0,
@@ -105,7 +105,7 @@ func TestCreateAccount(t *testing.T) {
 			beforeDBData := GetDBData(t, db, usedTables)
 
 			req, rec := NewJSONRequest(t, http.MethodPost, "/api/v1/me/accounts", tt.requestBody)
-			SetAccessToken(t, userID, req)
+			SetAccessToken(t, userID.String(), req)
 			e.ServeHTTP(rec, req)
 			assert.Equal(t, tt.wantCode, rec.Code)
 

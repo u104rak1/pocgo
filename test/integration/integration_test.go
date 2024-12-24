@@ -18,8 +18,7 @@ import (
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/u104rak1/pocgo/internal/config"
-	authDomain "github.com/u104rak1/pocgo/internal/domain/authentication"
-	"github.com/u104rak1/pocgo/internal/domain/mock"
+	"github.com/u104rak1/pocgo/internal/infrastructure/jwt"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/seed"
 	"github.com/u104rak1/pocgo/internal/server"
@@ -48,6 +47,11 @@ type TestResult struct {
 	Response HTTPResponse           `json:"response"`
 }
 
+// テスト実行前の準備を行います。実行する内容は次の通りです。
+// データベースとの接続を開始します。
+// データベースのテーブルを全て削除して綺麗な状態にします。
+// サーバーを起動します。
+// テスト結果を出力するためのgoldieを初期化します。
 func BeforeAll(t *testing.T) (*echo.Echo, *goldie.Goldie, *bun.DB) {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Dir(b)
@@ -67,10 +71,13 @@ func BeforeAll(t *testing.T) (*echo.Echo, *goldie.Goldie, *bun.DB) {
 	return e, gol, db
 }
 
+// データベースとの接続を閉じます。deferで呼び出してください。
 func AfterAll(t *testing.T, db *bun.DB) {
 	config.CloseDB(db)
 }
 
+// データベースをクリアします
+// データベースのテーブルを全て削除します
 func ClearDB(t *testing.T, db *bun.DB) {
 	for i := len(model.Models) - 1; i >= 0; i-- {
 		model := model.Models[i]
@@ -87,9 +94,9 @@ func ClearDB(t *testing.T, db *bun.DB) {
 	}
 }
 
-// Insert test data into the database.
-// Master data is inserted by default.
-// Please specify a structure or a slice of a structure for the argument models.
+// データベースにテストデータを挿入します
+// マスターデータはデフォルトで挿入されます
+// 引数 models には、構造体または構造体のスライスを指定してください
 func InsertTestData(t *testing.T, db *bun.DB, models ...interface{}) {
 	seed.InsertMasterData(db)
 	for _, model := range models {
@@ -111,6 +118,8 @@ func InsertTestData(t *testing.T, db *bun.DB, models ...interface{}) {
 	}
 }
 
+// データベースからテーブルデータを取得します
+// テーブルデータは、usedTablesで指定したテーブルのみ取得します
 func GetDBData(t *testing.T, db *bun.DB, usedTables []string) map[string]interface{} {
 	data := make(map[string]interface{})
 
@@ -122,7 +131,7 @@ func GetDBData(t *testing.T, db *bun.DB, usedTables []string) map[string]interfa
 			t.Fatalf("failed to retrieve data from table %s: %v", table, err)
 		}
 
-		// Convert []uint8 to string for id fields
+		// []uint8 を ID フィールドの文字列に変換します
 		idPattern := regexp.MustCompile(`(^id$|.*_id$)`)
 		for _, record := range records {
 			for field, value := range record {
@@ -140,22 +149,19 @@ func GetDBData(t *testing.T, db *bun.DB, usedTables []string) map[string]interfa
 	return data
 }
 
+// 指定したユーザーIDに対応するアクセストークンをリクエストヘッダーにセットします
 func SetAccessToken(t *testing.T, userID string, req *http.Request) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockAuthRepo := mock.NewMockIAuthenticationRepository(ctrl)
-	mockUserRepo := mock.NewMockIUserRepository(ctrl)
-	service := authDomain.NewService(mockAuthRepo, mockUserRepo)
-
-	ctx := context.Background()
 	env := config.NewEnv()
 	jwtSecretKey := []byte(env.JWT_SECRET_KEY)
-	token, err := service.GenerateAccessToken(ctx, userID, jwtSecretKey)
+	token, err := jwt.NewService(jwtSecretKey).GenerateAccessToken(userID)
 	assert.NoError(t, err)
 	req.Header.Set("Authorization", "Bearer "+token)
 }
 
+// 指定したHTTPメソッド、URL、リクエストボディを使用して Content-Type: application/json のHTTPリクエストを作成します
 func NewJSONRequest(t *testing.T, method, url string, requestBody interface{}) (*http.Request, *httptest.ResponseRecorder) {
 	body, err := json.Marshal(requestBody)
 	if err != nil {
@@ -169,6 +175,8 @@ func NewJSONRequest(t *testing.T, method, url string, requestBody interface{}) (
 	return req, rec
 }
 
+// テスト結果をJSON形式で出力します
+// テスト結果には、データベースの前後のデータ、リクエスト、レスポンスが含まれます
 func GenerateResultJSON(
 	t *testing.T,
 	beforeDBData,
@@ -206,6 +214,8 @@ func GenerateResultJSON(
 	return resultJSON
 }
 
+// テスト結果の動的な値を置換します
+// テスト結果の動的な値として、ID、Bearerトークン、ユーザー名、メールアドレス、パスワードがあります
 func ReplaceDynamicValue(jsonData []byte, replaceKeys []string) []byte {
 	for _, key := range replaceKeys {
 		camelCasePattern := regexp.MustCompile(`"` + key + `":\s*".*?"`)

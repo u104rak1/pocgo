@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	idVO "github.com/u104rak1/pocgo/internal/domain/value_object/id"
 	"github.com/u104rak1/pocgo/internal/infrastructure/postgres/model"
 	"github.com/u104rak1/pocgo/internal/presentation/signup"
-	"github.com/u104rak1/pocgo/pkg/ulid"
 	"github.com/uptrace/bun"
 )
 
@@ -25,7 +25,7 @@ func TestSignup(t *testing.T) {
 		wantCode    int
 	}{
 		{
-			caseName: "Happy path (201): Signup successfully",
+			caseName: "Happy path (201): ユーザー登録に成功する",
 			requestBody: signup.SignupRequest{
 				Name:     maxLenUserName,
 				Email:    userEmail,
@@ -37,7 +37,7 @@ func TestSignup(t *testing.T) {
 			wantCode: http.StatusCreated,
 		},
 		{
-			caseName: "Sad path (409): email is already used",
+			caseName: "Sad path (409): 指定したメールアドレスが既に使用されている為、失敗する",
 			requestBody: signup.SignupRequest{
 				Name:     maxLenUserName,
 				Email:    "conflict@example.com",
@@ -45,7 +45,7 @@ func TestSignup(t *testing.T) {
 			},
 			prepare: func(t *testing.T, db *bun.DB) {
 				existingUser := &model.User{
-					ID:    ulid.GenerateStaticULID("user"),
+					ID:    idVO.NewUserIDForTest("user").String(),
 					Name:  "Existing User",
 					Email: "conflict@example.com",
 				}
@@ -53,7 +53,7 @@ func TestSignup(t *testing.T) {
 			},
 			wantCode: http.StatusConflict,
 		},
-		// Exclude duplicate error of authentication because they occur infrequently and are difficult to reproduce.
+		// 重複した認証エラーは発生頻度が低く、再現が難しいため、除外します。
 	}
 
 	for _, tt := range tests {
