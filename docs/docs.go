@@ -170,8 +170,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "取引種別（DEPOSIT, WITHDRAW, TRANSFER カンマ区切りで複数指定可）",
-                        "name": "operationTypes",
+                        "description": "取引種別（DEPOSIT, WITHDRAWAL, TRANSFER カンマ区切りで複数指定可 未指定の場合は全ての取引種別を取得）",
+                        "name": "operation_types",
                         "in": "query"
                     },
                     {

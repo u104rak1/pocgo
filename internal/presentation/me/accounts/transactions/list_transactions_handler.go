@@ -30,7 +30,7 @@ type ListTransactionsParams struct {
 type ListTransactionsQuery struct {
 	From           *string `query:"from" example:"20240101"`
 	To             *string `query:"to" example:"20241231"`
-	OperationTypes *string `query:"operation_types" example:"DEPOSIT,WITHDRAW,TRANSFER"`
+	OperationTypes *string `query:"operation_types" example:"DEPOSIT,WITHDRAWAL,TRANSFER"`
 	Sort           *string `query:"sort" example:"DESC"`
 	Limit          *int    `query:"limit" example:"10"`
 	Page           *int    `query:"page" example:"1"`
@@ -81,7 +81,7 @@ type ListTransactionsTransaction struct {
 // @Param account_id path string true "操作する口座ID"
 // @Param from query string false "取引日の開始日（YYYYMMDD）"
 // @Param to query string false "取引日の終了日（YYYYMMDD）"
-// @Param operationTypes query string false "取引種別（DEPOSIT, WITHDRAW, TRANSFER カンマ区切りで複数指定可）"
+// @Param operation_types query string false "取引種別（DEPOSIT, WITHDRAWAL, TRANSFER カンマ区切りで複数指定可 未指定の場合は全ての取引種別を取得）"
 // @Param sort query string false "ソート順（ASC, DESC）"
 // @Param limit query int false "ページサイズ（1~100）"
 // @Param page query int false "ページ番号（1~）"
@@ -94,6 +94,7 @@ type ListTransactionsTransaction struct {
 // @Router /api/v1/me/accounts/{account_id}/transactions [get]
 func (h *ListTransactionsHandler) Run(ctx echo.Context) error {
 	req := new(ListTransactionsRequest)
+	// req.AccountID = ctx.Param("account_id")
 	if err := ctx.Bind(req); err != nil {
 		return response.BadRequest(ctx, response.ErrInvalidJSON)
 	}

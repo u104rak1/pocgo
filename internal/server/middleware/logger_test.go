@@ -17,52 +17,52 @@ import (
 
 func TestSetLoggerMiddleware(t *testing.T) {
 	tests := []struct {
-		name           string
-		path           string
-		handler        func(ctx echo.Context) error
-		expectedStatus int
-		expectedLevel  string
-		expectedMsg    string
+		name       string
+		path       string
+		handler    func(ctx echo.Context) error
+		wantStatus int
+		wantLevel  string
+		wantMsg    string
 	}{
 		{
-			name: "Output INFO level log when normal case.",
+			name: "Positive: 正常なリクエストの場合、INFOレベルのログが出力される",
 			path: "/200",
 			handler: func(ctx echo.Context) error {
 				return ctx.JSON(http.StatusOK, map[string]string{"message": "Success"})
 			},
-			expectedStatus: http.StatusOK,
-			expectedLevel:  "INFO",
-			expectedMsg:    "request received",
+			wantStatus: http.StatusOK,
+			wantLevel:  "INFO",
+			wantMsg:    "request received",
 		},
 		{
-			name: "Output WARN level log when a validation error occurs.",
+			name: "Positive: バリデーションエラーの場合、WARNレベルのログが出力される",
 			path: "/400",
 			handler: func(ctx echo.Context) error {
 				return response.BadRequest(ctx, assert.AnError)
 			},
-			expectedStatus: http.StatusBadRequest,
-			expectedLevel:  "WARN",
-			expectedMsg:    assert.AnError.Error(),
+			wantStatus: http.StatusBadRequest,
+			wantLevel:  "WARN",
+			wantMsg:    assert.AnError.Error(),
 		},
 		{
-			name: "Output WARN level log when an client error occurs.",
+			name: "Positive: クライアントエラーの場合、WARNレベルのログが出力される",
 			path: "/400",
 			handler: func(ctx echo.Context) error {
 				return response.BadRequest(ctx, assert.AnError)
 			},
-			expectedStatus: http.StatusBadRequest,
-			expectedLevel:  "WARN",
-			expectedMsg:    assert.AnError.Error(),
+			wantStatus: http.StatusBadRequest,
+			wantLevel:  "WARN",
+			wantMsg:    assert.AnError.Error(),
 		},
 		{
-			name: "Output ERROR level log when a server error occurs.",
+			name: "Positive: サーバーエラーの場合、ERRORレベルのログが出力される",
 			path: "/500",
 			handler: func(ctx echo.Context) error {
 				return response.InternalServerError(ctx, assert.AnError)
 			},
-			expectedStatus: http.StatusInternalServerError,
-			expectedLevel:  "ERROR",
-			expectedMsg:    assert.AnError.Error(),
+			wantStatus: http.StatusInternalServerError,
+			wantLevel:  "ERROR",
+			wantMsg:    assert.AnError.Error(),
 		},
 	}
 
@@ -79,17 +79,17 @@ func TestSetLoggerMiddleware(t *testing.T) {
 			rec := httptest.NewRecorder()
 			e.ServeHTTP(rec, req)
 
-			assert.Equal(t, tt.expectedStatus, rec.Code)
+			assert.Equal(t, tt.wantStatus, rec.Code)
 
 			var logEntry map[string]interface{}
 			err := json.NewDecoder(strings.NewReader(buf.String())).Decode(&logEntry)
 			assert.NoError(t, err)
 
-			assert.Equal(t, tt.expectedLevel, logEntry["level"])
-			assert.Equal(t, tt.expectedMsg, logEntry["msg"])
+			assert.Equal(t, tt.wantLevel, logEntry["level"])
+			assert.Equal(t, tt.wantMsg, logEntry["msg"])
 			assert.Equal(t, "GET", logEntry["method"])
 			assert.Equal(t, tt.path, logEntry["uri"])
-			assert.Equal(t, tt.expectedStatus, int(logEntry["status"].(float64)))
+			assert.Equal(t, tt.wantStatus, int(logEntry["status"].(float64)))
 			assert.Contains(t, logEntry, "user_agent")
 			assert.Contains(t, logEntry, "client_ip")
 			assert.Contains(t, logEntry, "request_id")
