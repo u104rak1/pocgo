@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample server. \u003cbr /\u003ePlease enter your token in the format: \"Bearer \u003ctoken\u003e\" in the Authorization header.",
-        "title": "pocgo API",
+        "description": "pocgoはGo * Clean Architectureで実装した簡易的な銀行操作を模したAPI Serverです。\u003cbr /\u003e詳細は\u003ca href=\"https://github.com/u104rak1/pocgo\"\u003eリポジトリ\u003c/a\u003eをご覧ください。\u003cbr /\u003e*アクセストークンは`Bearer \u003ctoken\u003e`形式で入力してください。",
+        "title": "pocgo",
         "contact": {},
         "version": "1.0"
     },

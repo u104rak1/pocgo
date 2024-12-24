@@ -5,9 +5,9 @@ import (
 	"github.com/u104rak1/pocgo/internal/server"
 )
 
-// @title pocgo API
+// @title pocgo
 // @version 1.0
-// @description This is a sample server. <br />Please enter your token in the format: "Bearer <token>" in the Authorization header.
+// @description pocgoはGo * Clean Architectureで実装した簡易的な銀行操作を模したAPI Serverです。<br />詳細は<a href="https://github.com/u104rak1/pocgo">リポジトリ</a>をご覧ください。<br />*アクセストークンは`Bearer <token>`形式で入力してください。
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
