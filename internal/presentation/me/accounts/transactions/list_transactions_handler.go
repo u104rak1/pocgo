@@ -44,6 +44,7 @@ type ListTransactionsRequest struct {
 type ListTransactionsResponse struct {
 	// 取引件数
 	Total int `json:"total" example:"1"`
+
 	// 取引一覧
 	Transactions []ListTransactionsTransaction `json:"transactions"`
 }
@@ -51,16 +52,22 @@ type ListTransactionsResponse struct {
 type ListTransactionsTransaction struct {
 	// 取引ID
 	ID string `json:"id" example:"01J9R8AJ1Q2YDH1X9836GS9E89"`
+
 	// 口座ID
 	AccountID string `json:"accountId" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
+
 	// 受取口座ID
 	ReceiverAccountID *string `json:"receiverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
+
 	// 取引種別
 	OperationType string `json:"operationType" example:"DEPOSIT"`
+
 	// 取引金額
 	Amount float64 `json:"amount" example:"1000"`
+
 	// 通貨
 	Currency string `json:"currency" example:"JPY"`
+
 	// 取引日時
 	TransactionAt string `json:"transactionAt" example:"2024-03-20T15:00:00Z"`
 }

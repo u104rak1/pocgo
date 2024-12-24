@@ -163,50 +163,54 @@ definitions:
   transactions.ExecuteTransactionRequestBody:
     properties:
       amount:
-        description: The transaction amount.
+        description: 取引金額
         example: 1000
         type: number
       currency:
-        description: The currency of the transaction. Supported values are JPY and
-          USD.
+        description: 通貨 （JPY, USD)
         example: JPY
         type: string
       operationType:
-        description: Specifies the type of transaction. Valid values are DEPOSIT,
-          WITHDRAWAL, or TRANSFER.
+        description: 取引種別 （DEPOSIT, WITHDRAWAL, TRANSFER)
         example: DEPOSIT
         type: string
       password:
-        description: The account password.
+        description: 口座パスワード
         example: "1234"
         type: string
       receiverAccountId:
-        description: Required for TRANSFER operations. Represents the recipient account
-          ID.
+        description: 受取口座ID (TRANSFERの場合必須)
         example: 01J9R8AJ1Q2YDH1X9836GS9D87
         type: string
     type: object
   transactions.ExecuteTransactionResponse:
     properties:
       accountId:
+        description: 口座ID
         example: 01J9R7YPV1FH1V0PPKVSB5C8FW
         type: string
       amount:
+        description: 取引金額
         example: 1000
         type: number
       currency:
+        description: 通貨
         example: JPY
         type: string
       id:
+        description: 取引ID
         example: 01J9R8AJ1Q2YDH1X9836GS9E89
         type: string
       operationType:
+        description: 取引種別
         example: DEPOSIT
         type: string
       receiverAccountId:
+        description: 受取口座ID
         example: 01J9R8AJ1Q2YDH1X9836GS9D87
         type: string
       transactionAt:
+        description: 取引日時
         example: "2024-03-20T15:00:00Z"
         type: string
     type: object
@@ -403,10 +407,9 @@ paths:
     post:
       consumes:
       - application/json
-      description: This endpoint executes a transaction (deposit, withdraw, or transfer)
-        for the specified account.
+      description: 指定された口座に対して取引を実行します。
       parameters:
-      - description: Account ID to be operated.
+      - description: 操作する口座ID
         in: path
         name: account_id
         required: true
@@ -446,7 +449,7 @@ paths:
             $ref: '#/definitions/response.ProblemDetail'
       security:
       - BearerAuth: []
-      summary: Execute Transaction
+      summary: 取引実行
       tags:
       - Transaction API
   /api/v1/signin:

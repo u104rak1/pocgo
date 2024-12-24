@@ -238,7 +238,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "This endpoint executes a transaction (deposit, withdraw, or transfer) for the specified account.",
+                "description": "指定された口座に対して取引を実行します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -248,11 +248,11 @@ const docTemplate = `{
                 "tags": [
                     "Transaction API"
                 ],
-                "summary": "Execute Transaction",
+                "summary": "取引実行",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID to be operated.",
+                        "description": "操作する口座ID",
                         "name": "account_id",
                         "in": "path",
                         "required": true
@@ -639,27 +639,27 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "description": "The transaction amount.",
+                    "description": "取引金額",
                     "type": "number",
                     "example": 1000
                 },
                 "currency": {
-                    "description": "The currency of the transaction. Supported values are JPY and USD.",
+                    "description": "通貨 （JPY, USD)",
                     "type": "string",
                     "example": "JPY"
                 },
                 "operationType": {
-                    "description": "Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAWAL, or TRANSFER.",
+                    "description": "取引種別 （DEPOSIT, WITHDRAWAL, TRANSFER)",
                     "type": "string",
                     "example": "DEPOSIT"
                 },
                 "password": {
-                    "description": "The account password.",
+                    "description": "口座パスワード",
                     "type": "string",
                     "example": "1234"
                 },
                 "receiverAccountId": {
-                    "description": "Required for TRANSFER operations. Represents the recipient account ID.",
+                    "description": "受取口座ID (TRANSFERの場合必須)",
                     "type": "string",
                     "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
                 }
@@ -669,30 +669,37 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accountId": {
+                    "description": "口座ID",
                     "type": "string",
                     "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
                 },
                 "amount": {
+                    "description": "取引金額",
                     "type": "number",
                     "example": 1000
                 },
                 "currency": {
+                    "description": "通貨",
                     "type": "string",
                     "example": "JPY"
                 },
                 "id": {
+                    "description": "取引ID",
                     "type": "string",
                     "example": "01J9R8AJ1Q2YDH1X9836GS9E89"
                 },
                 "operationType": {
+                    "description": "取引種別",
                     "type": "string",
                     "example": "DEPOSIT"
                 },
                 "receiverAccountId": {
+                    "description": "受取口座ID",
                     "type": "string",
                     "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
                 },
                 "transactionAt": {
+                    "description": "取引日時",
                     "type": "string",
                     "example": "2024-03-20T15:00:00Z"
                 }

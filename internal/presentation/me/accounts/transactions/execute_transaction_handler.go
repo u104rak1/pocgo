@@ -28,19 +28,19 @@ type ExecuteTransactionParams struct {
 }
 
 type ExecuteTransactionRequestBody struct {
-	// The account password.
+	// 口座パスワード
 	Password string `json:"password" example:"1234"`
 
-	// Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAWAL, or TRANSFER.
+	// 取引種別 （DEPOSIT, WITHDRAWAL, TRANSFER)
 	OperationType string `json:"operationType" example:"DEPOSIT"`
 
-	// The transaction amount.
+	// 取引金額
 	Amount float64 `json:"amount" example:"1000"`
 
-	// The currency of the transaction. Supported values are JPY and USD.
+	// 通貨 （JPY, USD)
 	Currency string `json:"currency" example:"JPY"`
 
-	// Required for TRANSFER operations. Represents the recipient account ID.
+	// 受取口座ID (TRANSFERの場合必須)
 	ReceiverAccountID *string `json:"receiverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
 }
 
@@ -50,22 +50,35 @@ type ExecuteTransactionRequest struct {
 }
 
 type ExecuteTransactionResponse struct {
-	ID                string  `json:"id" example:"01J9R8AJ1Q2YDH1X9836GS9E89"`
-	AccountID         string  `json:"accountId" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
+	// 取引ID
+	ID string `json:"id" example:"01J9R8AJ1Q2YDH1X9836GS9E89"`
+
+	// 口座ID
+	AccountID string `json:"accountId" example:"01J9R7YPV1FH1V0PPKVSB5C8FW"`
+
+	// 受取口座ID
 	ReceiverAccountID *string `json:"receiverAccountId" example:"01J9R8AJ1Q2YDH1X9836GS9D87"`
-	OperationType     string  `json:"operationType" example:"DEPOSIT"`
-	Amount            float64 `json:"amount" example:"1000"`
-	Currency          string  `json:"currency" example:"JPY"`
-	TransactionAt     string  `json:"transactionAt" example:"2024-03-20T15:00:00Z"`
+
+	// 取引種別
+	OperationType string `json:"operationType" example:"DEPOSIT"`
+
+	// 取引金額
+	Amount float64 `json:"amount" example:"1000"`
+
+	// 通貨
+	Currency string `json:"currency" example:"JPY"`
+
+	// 取引日時
+	TransactionAt string `json:"transactionAt" example:"2024-03-20T15:00:00Z"`
 }
 
-// @Summary Execute Transaction
-// @Description This endpoint executes a transaction (deposit, withdraw, or transfer) for the specified account.
+// @Summary 取引実行
+// @Description 指定された口座に対して取引を実行します。
 // @Tags Transaction API
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param account_id path string true "Account ID to be operated."
+// @Param account_id path string true "操作する口座ID"
 // @Param request body ExecuteTransactionRequestBody true "Request Body"
 // @Success 200 {object} ExecuteTransactionResponse
 // @Failure 400 {object} response.ValidationProblemDetail "Validation Failed or Bad Request"
