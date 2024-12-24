@@ -12,6 +12,7 @@ import (
 var (
 	ErrUnexpectedSigningMethod = errors.New("unexpected signing method")
 	ErrInvalidAccessToken      = errors.New("invalid access token")
+	ErrUserIDMissing           = errors.New("user id missing")
 )
 
 type jwtService struct {

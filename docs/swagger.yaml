@@ -2,50 +2,53 @@ definitions:
   accounts.CreateAccountRequestBody:
     properties:
       currency:
-        description: The currency for the account. Supported values are JPY or USD.
+        description: 通貨（JPY または USD）
         example: JPY
         type: string
       name:
-        description: The name of the account. Must be 3-20 characters long.
+        description: 3 ～ 20 文字のアカウント名
         example: For work
         type: string
       password:
-        description: A 4-digit password for securing the account.
+        description: 4 桁のパスワード
         example: "1234"
         type: string
     type: object
   accounts.CreateAccountResponse:
     properties:
       balance:
-        description: The current balance of the account.
+        description: 口座残高
         example: 0
         type: number
       currency:
-        description: The currency for the account.
+        description: 通貨
         example: JPY
         type: string
       id:
-        description: The ID of the account.
+        description: 口座ID
         example: 01J9R7YPV1FH1V0PPKVSB5C7LE
         type: string
       name:
-        description: The name of the account.
+        description: 口座名
         example: For work
         type: string
       updatedAt:
-        description: The date and time the account was last updated.
+        description: 口座の更新日時
         example: "2021-08-01T00:00:00Z"
         type: string
     type: object
   me.ReadMyProfileResponse:
     properties:
       email:
+        description: ユーザーのメールアドレス
         example: sato@example.com
         type: string
       id:
+        description: ユーザーのID
         example: 01J9R7YPV1FH1V0PPKVSB5C8FW
         type: string
       name:
+        description: ユーザーの名前
         example: Sato Taro
         type: string
     type: object
@@ -101,54 +104,59 @@ definitions:
   signin.SigninRequest:
     properties:
       email:
-        description: The email address of the user, used for login.
+        description: ログイン用メールアドレス
         example: sato@example.com
         type: string
       password:
-        description: The password associated with the email address, required for
-          login. Must be 8-20 characters long.
+        description: ログイン用パスワード
         example: password
         type: string
     type: object
   signin.SigninResponse:
     properties:
       accessToken:
+        description: アクセストークン
         example: eyJhb...
         type: string
     type: object
   signup.SignupRequest:
     properties:
       email:
-        description: The email address of the user, used for login.
+        description: ログイン用メールアドレス
         example: sato@example.com
         type: string
       name:
-        description: The name of the user. Must be 3-20 characters long.
+        description: 3 ～ 20 文字のユーザー名
         example: Sato Taro
         type: string
       password:
-        description: The password associated with the email address, required for
-          login. Must be 8-20 characters long.
+        description: 8 ～ 20 文字のログイン用パスワード
         example: password
         type: string
     type: object
   signup.SignupResponse:
     properties:
       accessToken:
+        description: アクセストークン
         example: eyJhb...
         type: string
       user:
-        $ref: '#/definitions/signup.SignupResponseBodyUser'
+        allOf:
+        - $ref: '#/definitions/signup.SignupResponseBodyUser'
+        description: ユーザー
     type: object
   signup.SignupResponseBodyUser:
     properties:
       email:
+        description: ユーザーのメールアドレス
         example: sato@example.com
         type: string
       id:
+        description: ユーザーID
         example: 01J9R7YPV1FH1V0PPKVSB5C8FW
         type: string
       name:
+        description: ユーザー名
         example: Sato Taro
         type: string
     type: object
@@ -165,7 +173,7 @@ definitions:
         type: string
       operationType:
         description: Specifies the type of transaction. Valid values are DEPOSIT,
-          WITHDRAW, or TRANSFER.
+          WITHDRAWAL, or TRANSFER.
         example: DEPOSIT
         type: string
       password:
@@ -205,9 +213,11 @@ definitions:
   transactions.ListTransactionsResponse:
     properties:
       total:
+        description: 取引件数
         example: 1
         type: integer
       transactions:
+        description: 取引一覧
         items:
           $ref: '#/definitions/transactions.ListTransactionsTransaction'
         type: array
@@ -215,31 +225,38 @@ definitions:
   transactions.ListTransactionsTransaction:
     properties:
       accountId:
+        description: 口座ID
         example: 01J9R7YPV1FH1V0PPKVSB5C8FW
         type: string
       amount:
+        description: 取引金額
         example: 1000
         type: number
       currency:
+        description: 通貨
         example: JPY
         type: string
       id:
+        description: 取引ID
         example: 01J9R8AJ1Q2YDH1X9836GS9E89
         type: string
       operationType:
+        description: 取引種別
         example: DEPOSIT
         type: string
       receiverAccountId:
+        description: 受取口座ID
         example: 01J9R8AJ1Q2YDH1X9836GS9D87
         type: string
       transactionAt:
+        description: 取引日時
         example: "2024-03-20T15:00:00Z"
         type: string
     type: object
 info:
   contact: {}
-  description: 'This is a sample server. Please enter your token in the format: "Bearer
-    <token>" in the Authorization header.'
+  description: 'This is a sample server. <br />Please enter your token in the format:
+    "Bearer <token>" in the Authorization header.'
   title: pocgo API
   version: "1.0"
 paths:
@@ -247,7 +264,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: This endpoint returns the profile of the authenticated user.
+      description: 認証済みのユーザーのプロフィールを返します。
       produces:
       - application/json
       responses:
@@ -269,14 +286,14 @@ paths:
             $ref: '#/definitions/response.ProblemDetail'
       security:
       - BearerAuth: []
-      summary: Read My Profile
+      summary: プロフィールの取得
       tags:
       - User API
   /api/v1/me/accounts:
     post:
       consumes:
       - application/json
-      description: This endpoint creates a new account.
+      description: 新しい口座を作成します。
       parameters:
       - description: Request Body
         in: body
@@ -294,7 +311,7 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ProblemDetail'
+            $ref: '#/definitions/response.ValidationProblemDetail'
         "401":
           description: Unauthorized
           schema:
@@ -313,46 +330,41 @@ paths:
             $ref: '#/definitions/response.ProblemDetail'
       security:
       - BearerAuth: []
-      summary: Create Account
+      summary: 口座の作成
       tags:
       - Account API
   /api/v1/me/accounts/{account_id}/transactions:
     get:
       consumes:
       - application/json
-      description: This endpoint retrieves the transaction history of the specified
-        account.
+      description: 指定された口座の取引履歴を取得します。
       parameters:
-      - description: Account ID to be operated.
+      - description: 操作する口座ID
         in: path
         name: account_id
         required: true
         type: string
-      - description: 'The start date for filtering transactions (format: YYYYMMDD).'
+      - description: 取引日の開始日（YYYYMMDD）
         in: query
         name: from
         type: string
-      - description: 'The end date for filtering transactions (format: YYYYMMDD).'
+      - description: 取引日の終了日（YYYYMMDD）
         in: query
         name: to
         type: string
-      - description: Comma-separated transaction types to filter by. Valid values
-          are DEPOSIT, WITHDRAW, and TRANSFER. If not specified, all transaction types
-          are included.
+      - description: 取引種別（DEPOSIT, WITHDRAW, TRANSFER カンマ区切りで複数指定可）
         in: query
         name: operationTypes
         type: string
-      - description: The sorting order of transactions based on transactionAt. Valid
-          values are ASC or DESC. Defaults to DESC.
+      - description: ソート順（ASC, DESC）
         in: query
         name: sort
         type: string
-      - description: The maximum number of transaction histories per page. Can be
-          specified between 1 and 100.
+      - description: ページサイズ（1~100）
         in: query
         name: limit
         type: integer
-      - description: The page number for paginated results.
+      - description: ページ番号（1~）
         in: query
         name: page
         type: integer
@@ -366,7 +378,7 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ProblemDetail'
+            $ref: '#/definitions/response.ValidationProblemDetail'
         "401":
           description: Unauthorized
           schema:
@@ -385,7 +397,7 @@ paths:
             $ref: '#/definitions/response.ProblemDetail'
       security:
       - BearerAuth: []
-      summary: List Transactions
+      summary: 取引一覧取得
       tags:
       - Transaction API
     post:
@@ -415,7 +427,7 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ProblemDetail'
+            $ref: '#/definitions/response.ValidationProblemDetail'
         "401":
           description: Unauthorized
           schema:
@@ -441,8 +453,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: This endpoint authenticates the user using their email and password,
-        and issues an access token.
+      description: ユーザーのメールアドレスとパスワードを使用してユーザーを認証し、アクセストークンを発行します。
       parameters:
       - description: Request Body
         in: body
@@ -460,7 +471,7 @@ paths:
         "400":
           description: Validation Failed or Bad Request
           schema:
-            $ref: '#/definitions/response.ProblemDetail'
+            $ref: '#/definitions/response.ValidationProblemDetail'
         "401":
           description: Unauthorized
           schema:
@@ -469,14 +480,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.ProblemDetail'
-      summary: Signin
+      summary: サインイン
       tags:
       - Authentication API
   /api/v1/signup:
     post:
       consumes:
       - application/json
-      description: This endpoint creates a new user and issues an access token.
+      description: 新しいユーザーを作成し、アクセストークンを発行します。
       parameters:
       - description: Request Body
         in: body
@@ -503,7 +514,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.ProblemDetail'
-      summary: Signup
+      summary: サインアップ
       tags:
       - Authentication API
 securityDefinitions:

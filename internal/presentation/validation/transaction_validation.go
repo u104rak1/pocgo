@@ -16,20 +16,22 @@ func ValidTransactionOperationType(operationType string) error {
 
 // 取引操作タイプのカンマ区切り文字列を検証します。
 func ValidTransactionOperationTypes(operationTypes string) error {
+	if operationTypes == "" {
+		return errors.New("operation types cannot be blank")
+	}
+
 	types := strings.Split(operationTypes, ",")
-	var errors []string
+	var errorMsgs []string
 
 	for _, t := range types {
 		t = strings.TrimSpace(t)
 		if err := ValidTransactionOperationType(t); err != nil {
-			errors = append(errors, err.Error())
+			errorMsgs = append(errorMsgs, err.Error())
 		}
 	}
 
-	if len(errors) > 0 {
-		return v.Errors{
-			"operation_types": v.NewError("validation", strings.Join(errors, "; ")),
-		}
+	if len(errorMsgs) > 0 {
+		return errors.New("contains an invalid operation type")
 	}
 
 	return nil

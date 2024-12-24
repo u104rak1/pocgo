@@ -85,12 +85,12 @@ func TestValidTransactionOperationTypes(t *testing.T) {
 		{
 			caseName: "Negative: 無効な操作タイプを含む",
 			input:    transaction.Deposit + ",invalid-type",
-			errMsg:   "operation_types: validation: must be a valid value",
+			errMsg:   "contains an invalid operation type",
 		},
 		{
 			caseName: "Negative: 空文字列",
 			input:    "",
-			errMsg:   "operation_types: cannot be blank.",
+			errMsg:   "operation types cannot be blank",
 		},
 	}
 

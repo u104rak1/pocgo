@@ -22,7 +22,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "This endpoint returns the profile of the authenticated user.",
+                "description": "認証済みのユーザーのプロフィールを返します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -32,7 +32,7 @@ const docTemplate = `{
                 "tags": [
                     "User API"
                 ],
-                "summary": "Read My Profile",
+                "summary": "プロフィールの取得",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -68,7 +68,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "This endpoint creates a new account.",
+                "description": "新しい口座を作成します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -78,7 +78,7 @@ const docTemplate = `{
                 "tags": [
                     "Account API"
                 ],
-                "summary": "Create Account",
+                "summary": "口座の作成",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -100,7 +100,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation Failed or Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.ProblemDetail"
+                            "$ref": "#/definitions/response.ValidationProblemDetail"
                         }
                     },
                     "401": {
@@ -137,7 +137,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "This endpoint retrieves the transaction history of the specified account.",
+                "description": "指定された口座の取引履歴を取得します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -147,48 +147,48 @@ const docTemplate = `{
                 "tags": [
                     "Transaction API"
                 ],
-                "summary": "List Transactions",
+                "summary": "取引一覧取得",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Account ID to be operated.",
+                        "description": "操作する口座ID",
                         "name": "account_id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "The start date for filtering transactions (format: YYYYMMDD).",
+                        "description": "取引日の開始日（YYYYMMDD）",
                         "name": "from",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "The end date for filtering transactions (format: YYYYMMDD).",
+                        "description": "取引日の終了日（YYYYMMDD）",
                         "name": "to",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Comma-separated transaction types to filter by. Valid values are DEPOSIT, WITHDRAW, and TRANSFER. If not specified, all transaction types are included.",
+                        "description": "取引種別（DEPOSIT, WITHDRAW, TRANSFER カンマ区切りで複数指定可）",
                         "name": "operationTypes",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "The sorting order of transactions based on transactionAt. Valid values are ASC or DESC. Defaults to DESC.",
+                        "description": "ソート順（ASC, DESC）",
                         "name": "sort",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "The maximum number of transaction histories per page. Can be specified between 1 and 100.",
+                        "description": "ページサイズ（1~100）",
                         "name": "limit",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "The page number for paginated results.",
+                        "description": "ページ番号（1~）",
                         "name": "page",
                         "in": "query"
                     }
@@ -203,7 +203,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation Failed or Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.ProblemDetail"
+                            "$ref": "#/definitions/response.ValidationProblemDetail"
                         }
                     },
                     "401": {
@@ -277,7 +277,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation Failed or Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.ProblemDetail"
+                            "$ref": "#/definitions/response.ValidationProblemDetail"
                         }
                     },
                     "401": {
@@ -309,7 +309,7 @@ const docTemplate = `{
         },
         "/api/v1/signin": {
             "post": {
-                "description": "This endpoint authenticates the user using their email and password, and issues an access token.",
+                "description": "ユーザーのメールアドレスとパスワードを使用してユーザーを認証し、アクセストークンを発行します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -319,7 +319,7 @@ const docTemplate = `{
                 "tags": [
                     "Authentication API"
                 ],
-                "summary": "Signin",
+                "summary": "サインイン",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -341,7 +341,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Validation Failed or Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/response.ProblemDetail"
+                            "$ref": "#/definitions/response.ValidationProblemDetail"
                         }
                     },
                     "401": {
@@ -361,7 +361,7 @@ const docTemplate = `{
         },
         "/api/v1/signup": {
             "post": {
-                "description": "This endpoint creates a new user and issues an access token.",
+                "description": "新しいユーザーを作成し、アクセストークンを発行します。",
                 "consumes": [
                     "application/json"
                 ],
@@ -371,7 +371,7 @@ const docTemplate = `{
                 "tags": [
                     "Authentication API"
                 ],
-                "summary": "Signup",
+                "summary": "サインアップ",
                 "parameters": [
                     {
                         "description": "Request Body",
@@ -417,17 +417,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "currency": {
-                    "description": "The currency for the account. Supported values are JPY or USD.",
+                    "description": "通貨（JPY または USD）",
                     "type": "string",
                     "example": "JPY"
                 },
                 "name": {
-                    "description": "The name of the account. Must be 3-20 characters long.",
+                    "description": "3 ～ 20 文字のアカウント名",
                     "type": "string",
                     "example": "For work"
                 },
                 "password": {
-                    "description": "A 4-digit password for securing the account.",
+                    "description": "4 桁のパスワード",
                     "type": "string",
                     "example": "1234"
                 }
@@ -437,27 +437,27 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
-                    "description": "The current balance of the account.",
+                    "description": "口座残高",
                     "type": "number",
                     "example": 0
                 },
                 "currency": {
-                    "description": "The currency for the account.",
+                    "description": "通貨",
                     "type": "string",
                     "example": "JPY"
                 },
                 "id": {
-                    "description": "The ID of the account.",
+                    "description": "口座ID",
                     "type": "string",
                     "example": "01J9R7YPV1FH1V0PPKVSB5C7LE"
                 },
                 "name": {
-                    "description": "The name of the account.",
+                    "description": "口座名",
                     "type": "string",
                     "example": "For work"
                 },
                 "updatedAt": {
-                    "description": "The date and time the account was last updated.",
+                    "description": "口座の更新日時",
                     "type": "string",
                     "example": "2021-08-01T00:00:00Z"
                 }
@@ -467,14 +467,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
+                    "description": "ユーザーのメールアドレス",
                     "type": "string",
                     "example": "sato@example.com"
                 },
                 "id": {
+                    "description": "ユーザーのID",
                     "type": "string",
                     "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
                 },
                 "name": {
+                    "description": "ユーザーの名前",
                     "type": "string",
                     "example": "Sato Taro"
                 }
@@ -553,12 +556,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "description": "The email address of the user, used for login.",
+                    "description": "ログイン用メールアドレス",
                     "type": "string",
                     "example": "sato@example.com"
                 },
                 "password": {
-                    "description": "The password associated with the email address, required for login. Must be 8-20 characters long.",
+                    "description": "ログイン用パスワード",
                     "type": "string",
                     "example": "password"
                 }
@@ -568,6 +571,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accessToken": {
+                    "description": "アクセストークン",
                     "type": "string",
                     "example": "eyJhb..."
                 }
@@ -577,17 +581,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "description": "The email address of the user, used for login.",
+                    "description": "ログイン用メールアドレス",
                     "type": "string",
                     "example": "sato@example.com"
                 },
                 "name": {
-                    "description": "The name of the user. Must be 3-20 characters long.",
+                    "description": "3 ～ 20 文字のユーザー名",
                     "type": "string",
                     "example": "Sato Taro"
                 },
                 "password": {
-                    "description": "The password associated with the email address, required for login. Must be 8-20 characters long.",
+                    "description": "8 ～ 20 文字のログイン用パスワード",
                     "type": "string",
                     "example": "password"
                 }
@@ -597,11 +601,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accessToken": {
+                    "description": "アクセストークン",
                     "type": "string",
                     "example": "eyJhb..."
                 },
                 "user": {
-                    "$ref": "#/definitions/signup.SignupResponseBodyUser"
+                    "description": "ユーザー",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/signup.SignupResponseBodyUser"
+                        }
+                    ]
                 }
             }
         },
@@ -609,14 +619,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
+                    "description": "ユーザーのメールアドレス",
                     "type": "string",
                     "example": "sato@example.com"
                 },
                 "id": {
+                    "description": "ユーザーID",
                     "type": "string",
                     "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
                 },
                 "name": {
+                    "description": "ユーザー名",
                     "type": "string",
                     "example": "Sato Taro"
                 }
@@ -636,7 +649,7 @@ const docTemplate = `{
                     "example": "JPY"
                 },
                 "operationType": {
-                    "description": "Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAW, or TRANSFER.",
+                    "description": "Specifies the type of transaction. Valid values are DEPOSIT, WITHDRAWAL, or TRANSFER.",
                     "type": "string",
                     "example": "DEPOSIT"
                 },
@@ -689,10 +702,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "total": {
+                    "description": "取引件数",
                     "type": "integer",
                     "example": 1
                 },
                 "transactions": {
+                    "description": "取引一覧",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/transactions.ListTransactionsTransaction"
@@ -704,30 +719,37 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accountId": {
+                    "description": "口座ID",
                     "type": "string",
                     "example": "01J9R7YPV1FH1V0PPKVSB5C8FW"
                 },
                 "amount": {
+                    "description": "取引金額",
                     "type": "number",
                     "example": 1000
                 },
                 "currency": {
+                    "description": "通貨",
                     "type": "string",
                     "example": "JPY"
                 },
                 "id": {
+                    "description": "取引ID",
                     "type": "string",
                     "example": "01J9R8AJ1Q2YDH1X9836GS9E89"
                 },
                 "operationType": {
+                    "description": "取引種別",
                     "type": "string",
                     "example": "DEPOSIT"
                 },
                 "receiverAccountId": {
+                    "description": "受取口座ID",
                     "type": "string",
                     "example": "01J9R8AJ1Q2YDH1X9836GS9D87"
                 },
                 "transactionAt": {
+                    "description": "取引日時",
                     "type": "string",
                     "example": "2024-03-20T15:00:00Z"
                 }
@@ -750,7 +772,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "pocgo API",
-	Description:      "This is a sample server. Please enter your token in the format: \"Bearer <token>\" in the Authorization header.",
+	Description:      "This is a sample server. <br />Please enter your token in the format: \"Bearer <token>\" in the Authorization header.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
