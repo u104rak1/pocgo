@@ -3,86 +3,66 @@
 				unit_test unit_coverage integration_test integration_coverage \
 				swagger mockgen help
 
-develop_start: ## Start docker container, migrate, seed
+develop_start: ## Dockerコンテナを起動し、マイグレーションを実行してシードデータを挿入
 	@docker compose -f ./docker/docker-compose.yml up -d
 	sleep 5
 	make migrate_refresh
 	make migrate_up
 	make seed
 
-dependencies_start: ## Start docker container
+dependencies_start: ## Dockerコンテナを起動
 	@docker compose -f ./docker/docker-compose.yml up -d
 
-dependencies_stop: ## Stop docker container
+dependencies_stop: ## Dockerコンテナを停止
 	@docker compose -f ./docker/docker-compose.yml down
 
-migrate_refresh: ## Update schema.sql & generate migration file
+migrate_refresh: ## schema.sqlを更新してマイグレーションファイルを生成
 	@go run ./cmd/postgres/main.go migrate refresh
 
-migrate_up: ## Run migration
+migrate_up: ## マイグレーションを実行
 	@go run ./cmd/postgres/main.go migrate up
 
-migrate_down: ## Revert one migration
+migrate_down: ## 1つのマイグレーションを取り消す
 	@go run ./cmd/postgres/main.go migrate down
 
-migrate_reset: ## Revert all migrations
+migrate_reset: ## すべてのマイグレーションを取り消す
 	@go run ./cmd/postgres/main.go migrate reset
 
-drop_tables: ## Drop all tables
+drop_tables: ## すべてのテーブルを削除
 	@go run ./cmd/postgres/main.go drop tables
 
-seed: ## Insert seed data after dropping all tables and running all migrations
+seed: ## テーブルを削除してからすべてのマイグレーションを実行した後にシードデータを挿入
 	make drop_tables
 	make migrate_up
 	@go run ./cmd/postgres/main.go insert seed
 
-run: ## Run application
+run: ## アプリケーションを実行
 	@go run ./cmd/pocgo/main.go
 
-clean: ## Delete cache
+clean: ## キャッシュを削除
 	@go clean -cache -modcache
 
-unit_test: ## Run unit test (Specify CASE to run only a specific test, e.g. CASE=TestSignup | Use FAILONLY=1 to show only failures)
+unit_test: ## 単体テストを実行
 	@mkdir -p tmp
-	@if [ -z "$(CASE)" ]; then \
-		if [ "$(FAILONLY)" = "1" ]; then \
-			go test -quiet ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out 2>&1 | tee tmp/unit_test.log; \
-		else \
-			go test ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out 2>&1 | tee tmp/unit_test.log; \
-		fi \
-	else \
-		if [ "$(FAILONLY)" = "1" ]; then \
-			go test -quiet ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log; \
-		else \
-			go test ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out -run ^$(CASE)$$ 2>&1 | tee tmp/unit_test.log; \
-		fi \
-	fi
+	@go test -v ./internal/... ./pkg/... -coverprofile=tmp/unit_coverage.out 2>&1 | tee tmp/unit_test.log
 	@go tool cover -html=tmp/unit_coverage.out -o tmp/unit_test.cover.html
 
-integration_test: ## Run integration tests (Specify CASE to run only a specific test, e.g., CASE=TestSignup | Use UPDATE=-update to refresh golden files | Use FAILONLY=1 to show only failures)
+integration_test: ## 統合テストを実行 (特定のテストのみを実行するには CASE を指定します。例: CASE=TestSignup | ゴールデンファイルを更新するには UPDATE=-update を使用します)
 	@mkdir -p tmp
 	@if [ -z "$(CASE)" ]; then \
-		if [ "$(FAILONLY)" = "1" ]; then \
-			go test -quiet ./test/... -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
-		else \
-			go test ./test/... -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
-		fi \
+		go test -v ./test/integration -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
 	else \
-		if [ "$(FAILONLY)" = "1" ]; then \
-			go test -quiet ./test/... -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
-		else \
-			go test ./test/... -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
-		fi \
+		go test -v ./test/integration -coverprofile=tmp/integration_coverage.out -coverpkg=./internal/... -run ^$(CASE)$$ $(UPDATE) 2>&1 | tee tmp/integration_test.log; \
 	fi
 	@go tool cover -html=tmp/integration_coverage.out -o tmp/integration_test.cover.html
 
-integration_coverage: ## Show integration test coverage report in terminal
+integration_coverage: ## ターミナルに統合テストカバレッジレポートを表示
 	@go tool cover -func=tmp/integration_coverage.out
 
-swagger: ## Generate swagger document
+swagger: ## Swaggerドキュメントを生成
 	@swag init -g ./cmd/pocgo/main.go
 
-mockgen: ## Generate mock (e.g. make mockgen path=internal/domain/user/user_repository.go)
+mockgen: ## Mockを生成 (例: make mockgen path=internal/domain/user/user_repository.go)
 	@if echo "$(path)" | grep -q "internal/application"; then \
 		mockgen -source=$(path) \
 								-destination=internal/application/mock/mock_$(notdir $(basename $(path))).go \
@@ -96,6 +76,6 @@ mockgen: ## Generate mock (e.g. make mockgen path=internal/domain/user/user_repo
 		exit 1; \
 	fi
 
-help: ## Show help
+help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
