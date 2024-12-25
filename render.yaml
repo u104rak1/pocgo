@@ -1,0 +1,20 @@
+version: "1"
+
+services:
+  - type: web
+    name: pocgo
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./docker/Dockerfile
+    repo: https://github.com/u104rak1/pocgo
+    plan: free
+    region: singapore
+    branch: main
+    autoDeploy: true
+    envVars:
+      - key: APP_PORT
+        value: 58080
+      - key: USE_INMEMORY
+        value: true
+      - key: JWT_SECRET_KEY
+        value: jwt_secret_key

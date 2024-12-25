@@ -1,7 +1,7 @@
 .PHONY: develop_start dependencies_start dependencies_stop migrate_refresh \
 				migrate_up migrate_down migrate_reset drop_tables seed run clean \
 				unit_test unit_coverage integration_test integration_coverage \
-				swagger mockgen help
+				swagger mockgen build_docker run_docker_local help
 
 develop_start: ## Dockerコンテナを起動し、マイグレーションを実行してシードデータを挿入
 	@docker compose -f ./docker/docker-compose.yml up -d
@@ -78,6 +78,12 @@ mockgen: ## Mockを生成 (例: make mockgen path=internal/domain/user/user_repo
 		echo "Unsupported path: $(path)"; \
 		exit 1; \
 	fi
+
+build_docker: ## Dockerコンテナをビルド
+	@docker build -t pocgo -f ./docker/Dockerfile .
+
+run_docker_local: ## Dockerコンテナを起動し、インメモリモードでアプリケーションを実行
+	@docker run -e USE_INMEMORY=true -p 58080:58080 pocgo
 
 help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
