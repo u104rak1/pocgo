@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/u104rak1/pocgo/internal/config"
 	"github.com/uptrace/bun"
 )
 
@@ -21,11 +22,15 @@ type HealthResponseBody struct {
 }
 
 func (h *HealthHandler) Run(ctx echo.Context) error {
-	if err := h.DB.Ping(); err != nil {
-		return ctx.JSON(http.StatusServiceUnavailable, HealthResponseBody{
-			Status:   "unhealthy",
-			Database: "disconnected",
-		})
+	env := config.NewEnv()
+
+	if !env.USE_INMEMORY {
+		if err := h.DB.Ping(); err != nil {
+			return ctx.JSON(http.StatusServiceUnavailable, HealthResponseBody{
+				Status:   "unhealthy",
+				Database: "disconnected",
+			})
+		}
 	}
 
 	return ctx.JSON(http.StatusOK, HealthResponseBody{

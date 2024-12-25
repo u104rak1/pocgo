@@ -8,13 +8,15 @@ RUN go mod download
 
 COPY . .
 
-RUN GOOS=linux GOARCH=amd64 go build -o main cmd/pocgo/main.go
+RUN GOOS=linux GOARCH=amd64 go build -o pocgo cmd/pocgo/main.go
 
-# Final stage
-FROM alpine:latest
+# Runtime stage
+FROM alpine:latest AS runtime
+
+RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 
-COPY --from=builder /app/main .
+COPY --from=builder /app/pocgo .
 
-CMD ["./main"]
+CMD ["./pocgo"]
