@@ -135,7 +135,9 @@ func updateSchema() {
 	data = append(data, indexesToByte(db, model.AllIdxCreators())...)
 	data = append(data, foreignKeysToSQL()...)
 
-	os.WriteFile(schemaPath, data, 0777)
+	if err := os.WriteFile(schemaPath, data, 0600); err != nil {
+		log.Fatalf("Failed to write schema file: %v", err)
+	}
 	fmt.Println("Successfully updated schema.sql")
 }
 
