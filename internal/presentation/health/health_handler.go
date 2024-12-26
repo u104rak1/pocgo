@@ -34,7 +34,7 @@ func (h *HealthHandler) Run(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, HealthResponseBody{
-		Status:   "healthy",
-		Database: "connected",
+		Status:   "healthy!",
+		Database: "connected!",
 	})
 }

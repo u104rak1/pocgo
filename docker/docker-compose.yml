@@ -1,10 +1,40 @@
 version: '3.8'
 services:
+  pocgo:
+    build:
+      context: .. # ルートディレクトリを指定
+      dockerfile: docker/Dockerfile.local # ルートディレクトリから見たDockerfile.localのパス
+    container_name: pocgo_app
+    image: pocgo_app:latest
+    volumes:
+      - ..:/app # ルートディレクトリをマウント
+    ports:
+      - '8080:8080'
+      - '2345:2345'
+    environment:
+      - APP_PORT=8080
+      - USE_INMEMORY=false
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DBNAME=POCGO_LOCAL_DB
+      - POSTGRES_USER=local_user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_PORT=5432
+      - POSTGRES_SSLMODE=disable
+      - JWT_SECRET_KEY=jwt_secret_key
+    depends_on:
+      - postgres
+    networks:
+      - default
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_PTRACE
+
   postgres:
-    container_name: POCGO_DB
+    container_name: pocgo_postgres
     image: postgres:15-alpine
     ports:
-      - '55432:5432'
+      - '5432:5432'
     environment:
       POSTGRES_USER: local_user
       POSTGRES_PASSWORD: password
@@ -13,3 +43,12 @@ services:
       TZ: 'Asia/Tokyo'
     networks:
       - default
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U local_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  default:
+    driver: bridge

@@ -16,25 +16,25 @@ dependencies_start: ## Dockerコンテナを起動
 dependencies_stop: ## Dockerコンテナを停止
 	@docker compose -f ./docker/docker-compose.yml down
 
-migrate_refresh: ## schema.sqlを更新してマイグレーションファイルを生成
-	@go run ./cmd/postgres/main.go migrate refresh
+migrate_refresh: ## schema.sqlを更新してマイグレーションファイルを生成(ホストマシンから実行すると、コンテナ内で実行される)
+	@docker container exec pocgo_app go run ./cmd/postgres/main.go migrate refresh
 
 migrate_up: ## マイグレーションを実行
-	@go run ./cmd/postgres/main.go migrate up
+	@docker container exec pocgo_app go run ./cmd/postgres/main.go migrate up
 
 migrate_down: ## 1つのマイグレーションを取り消す
-	@go run ./cmd/postgres/main.go migrate down
+	@docker container exec pocgo_app go run ./cmd/postgres/main.go migrate down
 
 migrate_reset: ## すべてのマイグレーションを取り消す
-	@go run ./cmd/postgres/main.go migrate reset
+	@docker container exec pocgo_app go run ./cmd/postgres/main.go migrate reset
 
 drop_tables: ## すべてのテーブルを削除
-	@go run ./cmd/postgres/main.go drop tables
+	@docker container exec pocgo_app go run ./cmd/postgres/main.go drop tables
 
 seed: ## テーブルを削除してからすべてのマイグレーションを実行した後にシードデータを挿入
 	make drop_tables
 	make migrate_up
-	@go run ./cmd/postgres/main.go insert seed
+	@docker container exec pocgo_app go run ./cmd/postgres/main.go insert seed
 
 run: ## PostgreSQLを使用してアプリケーションを実行
 	@go run ./cmd/pocgo/main.go
@@ -83,7 +83,7 @@ build_docker: ## Dockerコンテナをビルド
 	@docker build -t pocgo -f ./docker/Dockerfile .
 
 run_docker_local: ## Dockerコンテナを起動し、インメモリモードでアプリケーションを実行
-	@docker run -e USE_INMEMORY=true -p 58080:58080 pocgo
+	@docker run -e USE_INMEMORY=true -p 8080:8080 pocgo
 
 help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
