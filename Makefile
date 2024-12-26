@@ -3,18 +3,20 @@
 				unit_test unit_coverage integration_test integration_coverage \
 				swagger mockgen build_docker run_docker_local help
 
-develop_start: ## Dockerコンテナを起動し、マイグレーションを実行してシードデータを挿入
-	@docker compose -f ./docker/docker-compose.yml up -d
-	sleep 5
+develop_start: ## ホットリロードモードでDockerコンテナを起動し、マイグレーションを実行してシードデータを挿入
+	@make dependencies_start
 	make migrate_refresh
 	make migrate_up
 	make seed
 
-dependencies_start: ## Dockerコンテナを起動
-	@docker compose -f ./docker/docker-compose.yml up -d
+dependencies_start: ## ホットリロードに対応したAppとDBのDockerコンテナを起動（デバッグ用のコンテナは起動しない）
+	@docker compose -f ./docker/docker-compose.yml up -d pocgo postgres
 
 dependencies_stop: ## Dockerコンテナを停止
 	@docker compose -f ./docker/docker-compose.yml down
+
+dependencies_start_delve: ## delveでデバッグに対応したAppコンテナを追加で起動(デバッガをアタッチした後、port 8081でアクセスできる)
+	@docker compose -f ./docker/docker-compose.yml up -d delve
 
 migrate_refresh: ## schema.sqlを更新してマイグレーションファイルを生成(ホストマシンから実行すると、コンテナ内で実行される)
 	@docker container exec pocgo_app go run ./cmd/postgres/main.go migrate refresh
