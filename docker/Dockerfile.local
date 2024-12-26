@@ -9,4 +9,6 @@ WORKDIR /app
 
 COPY . .
 
-CMD ["air", "-c", ".air.toml"]
+CMD ["dlv", "debug", "--headless", "--listen=:2345", "--api-version=2", "--accept-multiclient", "--log", "./cmd/pocgo"]
+
+# CMD ["air", "-c", ".air.toml"]
