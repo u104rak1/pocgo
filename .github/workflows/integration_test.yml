@@ -13,6 +13,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up Docker
         uses: docker/setup-buildx-action@v2
+      - name: Install Atlas
+        run: |
+          curl -sSfL https://atlasgo.sh | sh
+          echo 'export PATH=$PATH:$HOME/.atlas/bin' >> $GITHUB_ENV
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
