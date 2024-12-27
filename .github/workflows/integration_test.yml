@@ -28,6 +28,6 @@ jobs:
           docker compose -f ./docker/docker-compose.yml up -d postgres
           sleep 5s
       - name: Run Migrations
-        run: go run ./cmd/postgres/main.go migrate refresh
+        run: go run ./cmd/postgres/main.go migrate up
       - name: Run Integration Tests
         run: go test -v ./test/integration
