@@ -137,7 +137,6 @@ run_prod: ## Dockerコンテナを起動し、インメモリモードでアプ�
 start_dependencies_for_integration_test_in_ci: ## CIでインテグレーションテストを実行する為に必要な依存関係まわりの実行コマンド 
 	@docker compose -f ./docker/docker-compose.yml up -d postgres
 	sleep 5s
-	POSTGRES_HOST=localhost go run ./cmd/postgres/main.go migrate refresh
 
 
 help: ## ヘルプを表示

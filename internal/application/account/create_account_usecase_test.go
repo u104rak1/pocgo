@@ -43,7 +43,9 @@ func TestCreateAccountUsecase(t *testing.T) {
 	}{
 		{
 			caseName: "Positive: 口座作成が成功する",
-			cmd:      happyCmd,
+			cmd: accountUC.CreateAccountCommand{
+				UserID: "invalid",
+			},
 			prepare: func(mocks Mocks) {
 				mocks.userServ.EXPECT().EnsureUserExists(arg, arg).Return(nil)
 				mocks.accountServ.EXPECT().CheckLimit(arg, arg).Return(nil)

@@ -9,6 +9,8 @@ on:
 jobs:
   integration_test:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_HOST: localhost
     steps:
       - uses: actions/checkout@v4
       - name: Set up Docker
@@ -21,7 +23,11 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.1'
-      - name: Start Dependencies
-        run: make start_dependencies_for_integration_test_in_ci
+      - name: Start PostgreSQL Container
+        run: |
+          docker compose -f ./docker/docker-compose.yml up -d postgres
+          sleep 5s
+      - name: Run Migrations
+        run: go run ./cmd/postgres/main.go migrate refresh
       - name: Run Integration Tests
-        run: make integration_test_host
+        run: go test -v ./test/integration
