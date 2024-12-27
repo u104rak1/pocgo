@@ -11,9 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.23.1'
+      - name: Start Dependencies
+        run: make start_dependencies_for_integration_test_in_ci
       - name: Run Integration Tests
-        run: make integration_test 
+        run: make integration_test_host
