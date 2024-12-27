@@ -1,7 +1,7 @@
 package id
 
 import (
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/binary"
 	"errors"
 	"math/rand"
@@ -58,10 +58,17 @@ func IsValid(s string) bool {
 // GenerateStaticULID は引数の文字列に基づいて固定のULIDを生成します
 // 同じ引数からは常に同じULIDが生成されます
 func GenerateStaticULID(seed string) string {
-	hash := md5.Sum([]byte(seed))
+	hash := sha256.Sum256([]byte(seed))
 	seedInt := binary.BigEndian.Uint64(hash[:8])
+
+	// uint64からint64への変換でオーバーフローの可能性を示唆していますが、テストで使用する為だけの関数な為、オーバーフローは考慮しません。
+	// #nosec: G115
 	source := rand.NewSource(int64(seedInt))
+
+	// 　math/randは暗号学的に安全ではない乱数生成器なのでセキュリティが重要な場合は crypto/rand を使用すべきですが、テストで使用する為だけの関数な為、セキュリティは考慮しません。
+	// #nosec: G404
 	entropy := rand.New(source)
+
 	fixedTime := ulid.Timestamp(time.Unix(0, 0))
 	return ulid.MustNew(fixedTime, entropy).String()
 }

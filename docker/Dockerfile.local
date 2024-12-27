@@ -1,0 +1,12 @@
+FROM golang:1.23.1-alpine
+
+RUN apk add --no-cache git curl bash \
+    && curl -sSfL https://atlasgo.sh | sh \
+    && go install github.com/air-verse/air@latest \
+    && go install github.com/go-delve/delve/cmd/dlv@latest \
+    && go install github.com/swaggo/swag/cmd/swag@latest \
+    && go install github.com/golang/mock/mockgen@latest
+
+WORKDIR /app
+
+COPY . .

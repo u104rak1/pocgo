@@ -1,0 +1,43 @@
+name: Static Check
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  static_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.1'
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Run go vet (潜在的なバグを検出)
+        run: go vet ./...
+
+      - name: Run staticcheck (コードの静的解析)
+        run: |
+          go install honnef.co/go/tools/cmd/staticcheck@latest
+          staticcheck ./...
+
+      - name: Run gosec (セキュリティの脆弱性を検出)
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec ./...
+
+      - name: Run ineffassign (不要なコードを検出)
+        run: |
+          go install github.com/gordonklaus/ineffassign@latest
+          ineffassign ./...
+
+      - name: Run errcheck (未チェックのエラーを検出)
+        run: |
+          go install github.com/kisielk/errcheck@latest
+          errcheck ./...

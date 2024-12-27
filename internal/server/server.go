@@ -83,7 +83,7 @@ func SetupEcho(db *bun.DB) *echo.Echo {
 		AllowOrigins:     []string{"*"},
 		AllowCredentials: true,
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
-		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodPut, http.MethodDelete},
+		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPatch, http.MethodPut, http.MethodDelete, http.MethodHead},
 	}))
 	e.Use(echoMiddleware.RequestID())
 	myMiddleware.SetLoggerMiddleware(e)

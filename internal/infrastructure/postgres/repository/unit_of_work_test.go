@@ -14,7 +14,11 @@ import (
 func TestUnitOfWork_RunInTx(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		mock.ExpectClose()
+		err := db.Close()
+		assert.NoError(t, err)
+	}()
 
 	bunDB := bun.NewDB(db, pgdialect.New())
 	uow := repository.NewUnitOfWork(bunDB)
@@ -58,7 +62,11 @@ func TestUnitOfWork_RunInTx(t *testing.T) {
 func TestUnitOfWorkWithResult_RunInTx(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
-	defer db.Close()
+	defer func() {
+		mock.ExpectClose()
+		err := db.Close()
+		assert.NoError(t, err)
+	}()
 
 	bunDB := bun.NewDB(db, pgdialect.New())
 	uow := repository.NewUnitOfWorkWithResult[string](bunDB)

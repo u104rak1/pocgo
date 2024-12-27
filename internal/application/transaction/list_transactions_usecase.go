@@ -85,9 +85,6 @@ func (u *listTransactionsUsecase) Run(ctx context.Context, cmd ListTransactionsC
 
 	transactionDTOs := make([]ListTransactionDTO, len(transactions))
 	for i, t := range transactions {
-		if t == nil {
-			continue
-		}
 		transactionDTOs[i] = ListTransactionDTO{
 			ID:                t.IDString(),
 			AccountID:         t.AccountIDString(),

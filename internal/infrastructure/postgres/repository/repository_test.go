@@ -33,8 +33,11 @@ func TestExecDB(t *testing.T) {
 		tx, err := bunDB.BeginTx(ctx, nil)
 		assert.NoError(t, err)
 
-		mock.ExpectRollback()
-		defer tx.Rollback()
+		defer func() {
+			mock.ExpectRollback()
+			err := tx.Rollback()
+			assert.NoError(t, err)
+		}()
 
 		txCtx := context.WithValue(ctx, config.CtxTransactionKey(), tx)
 		execDB := repo.ExecDB(txCtx)
@@ -55,7 +58,9 @@ func PrepareTestRepository[T any](t *testing.T, newRepo func(db *bun.DB) T) (T, 
 	repo := newRepo(bunDB)
 
 	t.Cleanup(func() {
-		db.Close()
+		mock.ExpectClose()
+		err := db.Close()
+		assert.NoError(t, err)
 	})
 
 	return repo, mock, ctx, bunDB

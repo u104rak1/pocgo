@@ -55,7 +55,11 @@ type TestResult struct {
 func BeforeAll(t *testing.T) (*echo.Echo, *goldie.Goldie, *bun.DB) {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Dir(b)
-	os.Chdir(filepath.Join(basepath, "../.."))
+	err := os.Chdir(filepath.Join(basepath, "../.."))
+	assert.NoError(t, err)
+
+	err = os.Chdir(filepath.Join(basepath, "../.."))
+	assert.NoError(t, err)
 
 	db, err := config.LoadDB()
 	if err != nil {
