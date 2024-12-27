@@ -34,6 +34,7 @@ func TestExecDB(t *testing.T) {
 		assert.NoError(t, err)
 
 		defer func() {
+			mock.ExpectRollback()
 			err := tx.Rollback()
 			assert.NoError(t, err)
 		}()
@@ -57,6 +58,7 @@ func PrepareTestRepository[T any](t *testing.T, newRepo func(db *bun.DB) T) (T, 
 	repo := newRepo(bunDB)
 
 	t.Cleanup(func() {
+		mock.ExpectClose()
 		err := db.Close()
 		assert.NoError(t, err)
 	})

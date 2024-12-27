@@ -15,6 +15,7 @@ func TestUnitOfWork_RunInTx(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer func() {
+		mock.ExpectClose()
 		err := db.Close()
 		assert.NoError(t, err)
 	}()
@@ -62,6 +63,7 @@ func TestUnitOfWorkWithResult_RunInTx(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	assert.NoError(t, err)
 	defer func() {
+		mock.ExpectClose()
 		err := db.Close()
 		assert.NoError(t, err)
 	}()

@@ -9,7 +9,7 @@
         "name": "Account0",
         "password_hash": "ANY",
         "updated_at": "ANY",
-        "user_id": "0000000000C33CRTH0X5AC3R6P"
+        "user_id": "0000000000MJYEEVRF8NTJW6H7"
       },
       {
         "balance": 0,
@@ -19,7 +19,7 @@
         "name": "Account1",
         "password_hash": "ANY",
         "updated_at": "ANY",
-        "user_id": "0000000000C33CRTH0X5AC3R6P"
+        "user_id": "0000000000MJYEEVRF8NTJW6H7"
       },
       {
         "balance": 0,
@@ -29,7 +29,7 @@
         "name": "Account2",
         "password_hash": "ANY",
         "updated_at": "ANY",
-        "user_id": "0000000000C33CRTH0X5AC3R6P"
+        "user_id": "0000000000MJYEEVRF8NTJW6H7"
       }
     ],
     "users": [
@@ -51,7 +51,7 @@
         "name": "Account0",
         "password_hash": "ANY",
         "updated_at": "ANY",
-        "user_id": "0000000000C33CRTH0X5AC3R6P"
+        "user_id": "0000000000MJYEEVRF8NTJW6H7"
       },
       {
         "balance": 0,
@@ -61,7 +61,7 @@
         "name": "Account1",
         "password_hash": "ANY",
         "updated_at": "ANY",
-        "user_id": "0000000000C33CRTH0X5AC3R6P"
+        "user_id": "0000000000MJYEEVRF8NTJW6H7"
       },
       {
         "balance": 0,
@@ -71,7 +71,7 @@
         "name": "Account2",
         "password_hash": "ANY",
         "updated_at": "ANY",
-        "user_id": "0000000000C33CRTH0X5AC3R6P"
+        "user_id": "0000000000MJYEEVRF8NTJW6H7"
       }
     ],
     "users": [
